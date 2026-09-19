@@ -343,9 +343,11 @@
 <header class="topbar">
   <span aria-hidden="true">🪪</span>
   <b>เวชระเบียน · ช่อง 2</b>
+  <span style="opacity:.75;font-size:.85em">โรงพยาบาลวชิระภูเก็ต</span>
   <span style="opacity:.8;font-size:.9em">ปราณี</span>
   <span class="spacer"></span>
   <span class="clock" id="clock">20 ก.ย. 2569 · 09:48</span>
+  <a class="clock no-print" href="login.html" style="color:#fff;text-decoration:none">ออกจากระบบ</a>
 </header>
 
 <div class="wrap">
@@ -628,7 +630,7 @@
     $('out').innerHTML = `
       <div class="ticket" id="ticket">
         <div class="ticket__top">
-          <p class="ticket__hospital">โรงพยาบาลสมมุติ · บัตรคิววันนี้</p>
+          <p class="ticket__hospital">โรงพยาบาลวชิระภูเก็ต · บัตรคิววันนี้</p>
           <p class="ticket__no">${esc(visit.ticketNo)}</p>
           <p class="ticket__name">${esc(state.patient.name)} · ${esc(TEMPLATES[state.template].name)}</p>
           <p class="ticket__hint">${visit.openedAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} · เปิดบัตร ${visit.openedAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</p>

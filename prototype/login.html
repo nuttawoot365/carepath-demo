@@ -1,0 +1,394 @@
+<title>CarePath เข้าสู่ระบบ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 16px 36px rgba(16, 34, 42, .1);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --r-lg: 20px;
+    --tap: 48px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .5);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, input, select { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- โครงหน้า ---------- */
+
+  .page {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 460px;
+  }
+  @media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); } }
+
+  .brand {
+    padding: 48px 44px;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    justify-content: center;
+  }
+  @media (max-width: 900px) { .brand { padding: 28px 22px; gap: 16px; } }
+
+  .brand__mark { display: flex; align-items: center; gap: 12px; font-size: 1.1em; font-weight: 700; }
+  .brand__mark span { font-size: 1.6em; }
+  .brand h1 { font-size: 2.1em; font-weight: 800; line-height: 1.2; text-wrap: balance; max-width: 15ch; }
+  .brand p { max-width: 46ch; opacity: .92; }
+
+  .brand__facts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 6px; }
+  .fact { display: flex; flex-direction: column; line-height: 1.2; }
+  .fact b { font-family: 'IBM Plex Mono', monospace; font-size: 1.7em; font-weight: 700; }
+  .fact span { font-size: .82em; opacity: .85; }
+
+  .panel {
+    padding: 40px 34px;
+    background: var(--surface);
+    border-inline-start: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    justify-content: center;
+  }
+  @media (max-width: 900px) { .panel { padding: 24px 20px; border: none; } }
+
+  /* ---------- ฟอร์ม ---------- */
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .86em; font-weight: 700; }
+
+  .input {
+    width: 100%;
+    min-height: var(--tap);
+    padding: 10px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+  }
+  .input:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap);
+    padding: 11px 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .08s ease;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--lg { min-height: 54px; font-size: 1.05em; }
+  .btn--block { width: 100%; }
+  :root[data-theme="dark"] .btn--primary { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary { color: #08171d; }
+  }
+
+  .error {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 11px 13px;
+    border: 1px solid var(--warn);
+    background: var(--warn-soft);
+    border-radius: var(--r-sm);
+    font-size: .9em;
+  }
+  .error[hidden] { display: none; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--ink-3); font-size: .82em;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--line);
+  }
+
+  /* ---------- บัญชีสาธิต ---------- */
+
+  .accounts { display: flex; flex-direction: column; gap: 7px; }
+
+  .account {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: var(--tap);
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    text-align: start;
+    cursor: pointer;
+  }
+  .account:hover { border-color: var(--primary); }
+  .account__icon { font-size: 1.35em; }
+  .account__name { font-weight: 700; font-size: .94em; }
+  .account__what { display: block; font-size: .78em; color: var(--ink-3); }
+  .account__user {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .8em;
+    color: var(--primary-ink);
+    background: var(--primary-soft);
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .note { font-size: .82em; color: var(--ink-3); line-height: 1.6; }
+  .note code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+  }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 999px;
+    font-size: .74em; font-weight: 700; white-space: nowrap;
+    background: var(--amber-soft); color: var(--amber);
+  }
+
+  :where(button, input, a, [tabindex]):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+
+<div class="page">
+  <section class="brand">
+    <p class="brand__mark"><span aria-hidden="true">🧭</span> CarePath · โรงพยาบาลวชิระภูเก็ต</p>
+    <h1>ระบบนำทางในโรงพยาบาลและติดตามขั้นตอนการรักษา</h1>
+    <p>ผู้ป่วยรู้ตลอดเวลาว่าตอนนี้ต้องไปที่ไหนและไปยังไง เจ้าหน้าที่แต่ละจุดกดปุ่มเดียวแล้วขั้นถัดไปเด้งขึ้นมือถือผู้ป่วยเอง</p>
+    <div class="brand__facts">
+      <span class="fact"><b>48</b><span>จุดในผัง</span></span>
+      <span class="fact"><b>5</b><span>ภาษา</span></span>
+      <span class="fact"><b>4</b><span>บทบาทผู้ใช้</span></span>
+      <span class="fact"><b>13</b><span>ตาราง 3NF</span></span>
+    </div>
+    <p class="note" style="color:#fff;opacity:.85">ระบบสาธิตสำหรับโรงพยาบาลวชิระภูเก็ต · ผังอาคาร ชั้น แผนก และข้อมูลผู้ป่วยในเดโมนี้เป็น
+      <b>ชุดสมมุติ</b> ยังไม่ใช่ผังจริงของโรงพยาบาล เมื่อได้ผังจริงแล้วนำเข้าผ่านไฟล์ CSV ได้ทันทีโดยไม่ต้องแก้โค้ด</p>
+  </section>
+
+  <main class="panel">
+    <div>
+      <h2 style="font-size:1.45em;font-weight:800">เข้าสู่ระบบ</h2>
+      <p class="note">สำหรับเจ้าหน้าที่ · ผู้ป่วยไม่ต้องเข้าสู่ระบบ ใช้ QR หรือรหัสบนบัตรคิว</p>
+    </div>
+
+    <form id="loginForm" autocomplete="off" novalidate style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label for="username">ชื่อผู้ใช้</label>
+        <input class="input" id="username" name="username" autocapitalize="off" spellcheck="false" placeholder="เช่น lab1">
+      </div>
+      <div class="field">
+        <label for="password">รหัสผ่าน</label>
+        <input class="input" id="password" name="password" type="password" placeholder="demo@1234">
+      </div>
+      <p class="error" id="error" hidden><span aria-hidden="true">⚠</span> <span id="errorText"></span></p>
+      <button class="btn btn--primary btn--lg btn--block" type="submit">เข้าสู่ระบบ</button>
+    </form>
+
+    <div class="divider">บัญชีสำหรับสาธิต — กดเพื่อกรอกให้อัตโนมัติ</div>
+    <div class="accounts" id="accounts"></div>
+    <p class="note">รหัสผ่านทุกบัญชีคือ <code>demo@1234</code> · ในระบบจริงเก็บเป็น bcrypt และตรวจที่ API เท่านั้น หน้าเว็บไม่เคยเห็นรหัสผ่านที่ถูกต้อง</p>
+
+    <div class="divider">ผู้ป่วย</div>
+    <form id="codeForm" autocomplete="off" novalidate style="display:flex;flex-direction:column;gap:10px">
+      <div class="field">
+        <label for="code">รหัสบนบัตรคิว 8 ตัว</label>
+        <input class="input mono" id="code" placeholder="A017-3K9" maxlength="9" style="letter-spacing:.14em;text-transform:uppercase">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn--primary" type="submit" style="flex:1">เปิดหน้าติดตามขั้นตอน</button>
+        <button class="btn" type="button" id="scanBtn">📷 สแกน QR</button>
+      </div>
+      <p class="note">ปกติผู้ป่วยสแกน QR บนบัตรคิว ช่องนี้ไว้ให้คนที่กล้องเสียหรือบัตรเปียกพิมพ์รหัสเข้าแทน</p>
+    </form>
+  </main>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const PASSWORD = 'demo@1234';
+
+  /** บัญชีสาธิตชุดเดียวกับ data/users.csv ของโครงการ */
+  const ACCOUNTS = [
+    { username: 'reg1', name: 'ปราณี', role: 'registrar', icon: '🪪',
+      what: 'เวชระเบียน — เปิด visit และพิมพ์บัตรคิว', go: 'registrar.html' },
+    { username: 'lab1', name: 'นิภา', role: 'station', icon: '🩸',
+      what: 'จุดบริการ ห้องเจาะเลือด — คิวของแผนกตัวเอง', go: 'mockups/d2-station.html', still: true },
+    { username: 'scr1', name: 'มานพ', role: 'station', icon: '🩺',
+      what: 'จุดบริการ จุดคัดกรอง — คิวของแผนกตัวเอง', go: 'mockups/d2-station.html', still: true },
+    { username: 'admin', name: 'ผู้ดูแลระบบ', role: 'admin', icon: '🛠',
+      what: 'ผัง เส้นทาง แม่แบบ ผู้ใช้ และ audit', go: 'mockups/d3-admin-map.html', still: true },
+    { username: 'exec1', name: 'ผู้อำนวยการ', role: 'executive', icon: '📊',
+      what: 'ภาพรวมเวลารอและจุดคอขวด', go: 'mockups/d5-dashboard.html', still: true },
+  ];
+
+  const ROLE_LABEL = {
+    registrar: 'เวชระเบียน', station: 'จุดบริการ', admin: 'ผู้ดูแลระบบ', executive: 'ผู้บริหาร',
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /**
+   * หน้านี้ใช้ได้ทั้งตอนเปิดจากโฟลเดอร์ prototype/ ในเครื่อง และตอน publish รวมเป็นชุดเดียว
+   * ต่างกันแค่ว่า mockups/ อยู่ระดับเดียวกันหรืออยู่ถัดขึ้นไปหนึ่งชั้น
+   */
+  const MOCKUP_BASE = location.pathname.includes('/prototype/') ? '../' : '';
+  const resolve = (path) => (path.startsWith('mockups/') ? MOCKUP_BASE + path : path);
+
+  /* ---------- บัญชีสาธิต ---------- */
+
+  $('accounts').innerHTML = ACCOUNTS.map((account) => `
+    <button class="account" type="button" data-user="${account.username}">
+      <span class="account__icon" aria-hidden="true">${account.icon}</span>
+      <span>
+        <span class="account__name">${esc(account.name)} · ${esc(ROLE_LABEL[account.role])}
+          ${account.still ? '<span class="tag">ภาพนิ่ง</span>' : ''}</span>
+        <span class="account__what">${esc(account.what)}</span>
+      </span>
+      <span class="account__user">${esc(account.username)}</span>
+    </button>`).join('');
+
+  $('accounts').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-user]');
+    if (!button) return;
+    $('username').value = button.dataset.user;
+    $('password').value = PASSWORD;
+    hideError();
+    $('loginForm').requestSubmit();
+  });
+
+  /* ---------- เข้าสู่ระบบ ---------- */
+
+  function showError(message) {
+    $('errorText').textContent = message;
+    $('error').hidden = false;
+  }
+  const hideError = () => { $('error').hidden = true; };
+
+  $('loginForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const username = $('username').value.trim().toLowerCase();
+    const password = $('password').value;
+
+    const account = ACCOUNTS.find((item) => item.username === username);
+
+    // ข้อความเดียวกันทั้งกรณีชื่อผิดและรหัสผิด — ไม่บอกใบ้ว่าชื่อผู้ใช้ไหนมีอยู่จริง
+    if (!account || password !== PASSWORD) {
+      return showError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง — บัญชีสาธิตใช้รหัส demo@1234');
+    }
+
+    hideError();
+    try {
+      sessionStorage.setItem('carepath.user', JSON.stringify({
+        username: account.username, name: account.name, role: account.role,
+      }));
+    } catch { /* โหมดส่วนตัวเขียนไม่ได้ ข้ามไป */ }
+
+    location.href = resolve(account.go);
+  });
+
+  /* ---------- ทางเข้าของผู้ป่วย ---------- */
+
+  $('codeForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const code = $('code').value.trim().toUpperCase();
+
+    if (!/^[A-Z0-9]{4}-?[A-Z0-9]{3}$/.test(code)) {
+      return showError('รหัสบนบัตรคิวเป็นตัวอักษรและตัวเลข 8 ตัว เช่น A017-3K9');
+    }
+    hideError();
+    location.href = `patient-mobile.html?code=${encodeURIComponent(code)}`;
+  });
+
+  $('scanBtn').addEventListener('click', () => {
+    location.href = 'patient-mobile.html';
+  });
+
+  $('username').addEventListener('input', hideError);
+  $('password').addEventListener('input', hideError);
+})();
+</script>

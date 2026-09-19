@@ -1,7 +1,7 @@
 username,display_name,role,department,password
-admin,ผู้ดูแลระบบ,admin,,demo1234
-reg1,ปราณี (เวชระเบียน),registrar,A1-OPD,demo1234
-scr1,มานพ (คัดกรอง),station,A2-SCR,demo1234
-lab1,นิภา (ห้องเจาะเลือด),station,B3-LAB,demo1234
-med1,วิรัช (อายุรกรรม),station,C4-MED,demo1234
-exec1,ผู้อำนวยการ,executive,,demo1234
+admin,ผู้ดูแลระบบ,admin,,demo@1234
+reg1,ปราณี (เวชระเบียน),registrar,A1-OPD,demo@1234
+scr1,มานพ (คัดกรอง),station,A2-SCR,demo@1234
+lab1,นิภา (ห้องเจาะเลือด),station,B3-LAB,demo@1234
+med1,วิรัช (อายุรกรรม),station,C4-MED,demo@1234
+exec1,ผู้อำนวยการ,executive,,demo@1234
