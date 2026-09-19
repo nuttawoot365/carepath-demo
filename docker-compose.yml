@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-carepath}
+      POSTGRES_USER: ${POSTGRES_USER:-carepath_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-carepath_dev}
+      TZ: Asia/Bangkok
+    ports: ['${DB_PORT:-5433}:5432']
+    volumes: ['db-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-carepath_app} -d ${POSTGRES_DB:-carepath}']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-demo}
+      PORT: 3000
+      DATABASE_URL: postgres://${POSTGRES_USER:-carepath_app}:${POSTGRES_PASSWORD:-carepath_dev}@db:5432/${POSTGRES_DB:-carepath}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:5173}
+      TZ: Asia/Bangkok
+    ports: ['${API_PORT:-3000}:3000']
+    volumes:
+      - ./backend:/app
+      - ./data:/data:ro
+      - /app/node_modules
+    depends_on:
+      db: {condition: service_healthy}
+
+  web:
+    image: nginx:1.27-alpine
+    ports: ['${WEB_PORT:-5173}:80']
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [api]
+
+volumes:
+  db-data:
