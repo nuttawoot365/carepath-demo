@@ -1640,7 +1640,7 @@
             <span>🛗 ${esc(t('overviewFloors', { n: journeyCounts().floors }))}</span>
             <span>🌉 ${esc(t('overviewCross', { n: journeyCounts().buildings }))}</span>
           </div>
-          <a class="btn" href="map.html">🗺 ${esc(t('mapFull'))}</a>
+          <a class="btn" href="${mapLink(target)}">🗺 ${esc(t('mapFull'))}</a>
         </div>
       </section>
 
@@ -1727,6 +1727,14 @@
     return { floors, buildings };
   }
 
+  /** ลิงก์ไปแผนที่ผู้ป่วย พร้อมบอกว่าอยู่ไหนจะไปไหนและสถานการณ์ตอนนี้เป็นยังไง */
+  const mapLink = (target) => {
+    const params = new URLSearchParams({ from: state.at, to: target.point });
+    if (!state.profile?.wheelchair) params.set('wheelchair', '0');
+    if (state.liftClosed) params.set('lift', 'closed');
+    return `patient-map.html?${params}`;
+  };
+
   const railMark = (step, target) =>
     `<i data-on="${step.status === 'done' ? 'done' : step === target ? 'now' : ''}"></i>`;
 
@@ -1772,6 +1780,7 @@
 
       <div style="display:flex;gap:9px">
         <button class="btn btn--grow" data-act="mode">${state.solo ? '☰ ' + esc(t('listMode')) : '1️⃣ ' + esc(t('soloMode'))}</button>
+        <a class="btn" href="${mapLink(target)}" aria-label="${esc(t('mapFull'))}">🗺</a>
         <button class="btn" data-act="speak" aria-label="${esc(t('readAloud'))}">🔊</button>
       </div>
 

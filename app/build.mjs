@@ -85,5 +85,9 @@ const templates = templateRows.map((row) => ({
 const places = nodes.map(({ code, th, en, b, f, icon }) => ({ code, th, en, b, f, icon }));
 
 await build('pathway', { templates, places });
+
+// ---- แผนที่สำหรับผู้ป่วย: ใช้ข้อมูลผังชุดเดียวกับหน้าผู้ดูแลระบบ ----
+await build('patient-map', { nodes, edges });
 console.log(`สร้าง app/pathway.html แล้ว · ${templates.length} แม่แบบ · `
   + templates.map((t) => `${t.code} ${t.steps.length} ขั้น`).join(' · '));
+console.log('สร้าง app/patient-map.html แล้ว');

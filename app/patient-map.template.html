@@ -1,0 +1,681 @@
+<title>CarePath แผนที่ผู้ป่วย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+
+    --ground: #eef3f4;
+    --surface: #ffffff;
+    --raised: #f8fbfb;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --floor: #e7edef;
+    --floor-edge: #d3dee1;
+    --walk: #ccd7da;
+
+    --shadow-2: 0 2px 8px rgba(16, 34, 42, .08), 0 -6px 26px rgba(16, 34, 42, .1);
+    --r: 16px;
+    --tap: 52px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --amber: #e0a84a; --amber-soft: #382a12; --success: #62bf8d;
+      --ground: #0b1418; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --floor: #18292f; --floor-edge: #27393f; --walk: #2f474f;
+      --shadow-2: 0 2px 8px rgba(0, 0, 0, .4), 0 -6px 26px rgba(0, 0, 0, .5);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --amber: #e0a84a; --amber-soft: #382a12; --success: #62bf8d;
+    --ground: #0b1418; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --floor: #18292f; --floor-edge: #27393f; --walk: #2f474f;
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, .4), 0 -6px 26px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, 'Noto Sans', 'Noto Sans SC', 'Noto Sans Myanmar', -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  h1, h2, h3, p { margin: 0; }
+  button { font: inherit; color: inherit; }
+
+  .screen {
+    position: relative;
+    max-width: 520px;
+    height: 100dvh;
+    margin: 0 auto;
+    background: var(--ground);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- แถบบน ---------- */
+
+  .head {
+    position: relative;
+    z-index: 3;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .head__back {
+    width: 42px; height: 42px; flex: none;
+    display: grid; place-items: center;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface); font-size: 1.1em; cursor: pointer;
+    text-decoration: none; color: inherit;
+  }
+  .head__to { min-width: 0; }
+  .head__label { font-size: .72em; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+  .head__name { font-size: 1.12em; font-weight: 800; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .head__floor {
+    margin-inline-start: auto; flex: none;
+    padding: 6px 13px; border-radius: 999px;
+    background: var(--primary-soft); color: var(--primary-ink);
+    font-family: 'IBM Plex Mono', monospace; font-size: .84em; font-weight: 700;
+  }
+
+  /* ---------- แผนที่ ---------- */
+
+  .map { position: relative; flex: 1; overflow: hidden; background: var(--ground); }
+  .map svg { display: block; width: 100%; height: 100%; }
+
+  .floorplate { fill: var(--floor); stroke: var(--floor-edge); stroke-width: 2; }
+  .walkway { stroke: var(--walk); stroke-width: 13; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .route-shadow { stroke: var(--primary); stroke-width: 17; stroke-linecap: round; stroke-linejoin: round; fill: none; opacity: .17; }
+  .route-line { stroke: var(--primary); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .poi-dot { fill: var(--ink-3); opacity: .35; }
+  .poi-icon { font-size: 15px; opacity: .85; }
+  .poi-name { fill: var(--ink-3); font-size: 11px; }
+
+  .pin-halo { fill: var(--primary); opacity: .2; }
+  .pin-here { fill: var(--surface); stroke: var(--primary); stroke-width: 5; }
+  .pin-dest { fill: var(--primary); }
+  .pin-dest-icon { font-size: 20px; }
+  .pin-label {
+    fill: var(--ink); font-size: 12.5px; font-weight: 700;
+    paint-order: stroke; stroke: var(--ground); stroke-width: 4px; stroke-linejoin: round;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pin-halo { animation: pulse 2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes pulse { 50% { opacity: .07; transform: scale(1.5); } }
+    .route-line { stroke-dasharray: 20 14; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -34; } }
+  }
+
+  /* ---------- ชิปชั้น ---------- */
+
+  .floors {
+    position: absolute; z-index: 2;
+    inset-block-start: 12px; inset-inline-end: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .floors button {
+    min-width: 46px; min-height: 42px;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface);
+    font-family: 'IBM Plex Mono', monospace; font-size: .82em; font-weight: 700;
+    cursor: pointer; box-shadow: 0 1px 3px rgba(16,34,42,.12);
+  }
+  .floors button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  /* ---------- การ์ดคำสั่งด้านล่าง ---------- */
+
+  .card {
+    position: relative; z-index: 3;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-start-start-radius: var(--r);
+    border-start-end-radius: var(--r);
+    box-shadow: var(--shadow-2);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  .progress { display: flex; gap: 5px; }
+  .progress i { height: 4px; flex: 1; border-radius: 3px; background: var(--line); }
+  .progress i[data-on="yes"] { background: var(--primary); }
+
+  .cue { display: flex; align-items: center; gap: 15px; }
+  .cue__arrow {
+    width: 62px; height: 62px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 18px; background: var(--primary-soft);
+    font-size: 2em;
+  }
+  .cue__text { font-size: 1.16em; font-weight: 800; line-height: 1.35; text-wrap: balance; }
+  .cue__sub { font-size: .86em; color: var(--ink-2); margin-top: 2px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 14px; border-radius: 12px;
+    background: var(--amber-soft); color: var(--ink);
+    font-size: .88em; font-weight: 600;
+  }
+
+  .nav { display: flex; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap); padding: 12px 18px;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface); font-weight: 700; cursor: pointer;
+  }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--grow { flex: 1; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; }
+  :root[data-theme="dark"] .btn--primary { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary { color: #08171d; }
+  }
+
+  .langs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .langs button {
+    min-height: 34px; padding: 4px 11px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--raised); color: var(--ink-3);
+    font-size: .76em; font-weight: 700; cursor: pointer;
+  }
+  .langs button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-ink); }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<div class="screen">
+  <header class="head">
+    <a class="head__back" href="patient-mobile.html" aria-label="กลับ">←</a>
+    <span class="head__to">
+      <span class="head__label" id="toLabel"></span>
+      <span class="head__name" id="toName"></span>
+    </span>
+    <span class="head__floor" id="floorBadge"></span>
+  </header>
+
+  <div class="map">
+    <div class="floors" id="floors"></div>
+    <div id="mapbox"></div>
+  </div>
+
+  <section class="card">
+    <div class="progress" id="progress"></div>
+    <div class="cue">
+      <span class="cue__arrow" id="cueArrow" aria-hidden="true"></span>
+      <span>
+        <span class="cue__text" id="cueText"></span>
+        <span class="cue__sub" id="cueSub"></span>
+      </span>
+    </div>
+    <div id="badge"></div>
+    <div class="nav">
+      <button class="btn" id="prevBtn">←</button>
+      <button class="btn btn--primary btn--grow" id="nextBtn"></button>
+    </div>
+    <div class="langs" id="langs"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = /*__DATA__*/;
+
+  /* ==========================================================================
+     แผนที่สำหรับผู้ป่วยโดยเฉพาะ
+     ต่างจากผังของผู้ดูแลระบบตรงที่ตัดข้อมูลทิ้งเป็นหลัก — ทีละชั้น เส้นเดียว
+     ซูมเฉพาะช่วงที่กำลังเดิน ที่เหลือจางหมด เพราะคนกำลังรีบอ่านทั้งโรงพยาบาลไม่ไหว
+     ========================================================================== */
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+
+  const LANGS = [
+    { code: 'th', native: 'ไทย' },
+    { code: 'en', native: 'EN' },
+    { code: 'zh', native: '中文' },
+    { code: 'my', native: 'မြန်မာ' },
+    { code: 'ru', native: 'RU' },
+  ];
+
+  const DICT = {
+    th: {
+      to: 'กำลังไป', floor: 'อ.{b} ชั้น {f}', next: 'ถัดไป', arrived: 'ถึงแล้ว',
+      of: 'ช่วงที่ {a} จาก {b}',
+      walk: 'เดินตามเส้น {m} เมตร', walkTo: 'เดินตามเส้น {m} เมตร ไปที่{to}',
+      arriveAt: '{name}อยู่ตรงนี้', arriveSide: '{name}อยู่{side}มือ',
+      left: 'ซ้าย', right: 'ขวา',
+      turnsNone: 'เส้นทางตรง ไม่ต้องเลี้ยว', turnsSome: 'มีเลี้ยว {n} ครั้ง',
+      lift: 'ขึ้นลิฟต์ไปชั้น {f}', liftDown: 'ลงลิฟต์ไปชั้น {f}',
+      stairs: 'ขึ้นบันไดไปชั้น {f}', stairsDown: 'ลงบันไดไปชั้น {f}',
+      ramp: 'ขึ้นทางลาดไปชั้น {f}', rampDown: 'ลงทางลาดไปชั้น {f}',
+      bridge: 'ข้ามทางเชื่อมไปอาคาร {b}',
+      here: 'คุณอยู่ตรงนี้', dest: 'จุดหมาย',
+      noRoute: 'ตอนนี้ไม่มีเส้นทางที่รถเข็นไปได้ กรุณาแจ้งเจ้าหน้าที่',
+    },
+    en: {
+      to: 'Heading to', floor: 'Bldg {b} · {f}F', next: 'Next', arrived: 'I am here',
+      of: 'Leg {a} of {b}',
+      walk: 'Follow the line for {m} m', walkTo: 'Follow the line {m} m to {to}',
+      arriveAt: '{name} is right here', arriveSide: '{name} is on your {side}',
+      left: 'left', right: 'right',
+      turnsNone: 'Straight the whole way', turnsSome: '{n} turns along the way',
+      lift: 'Take the lift up to floor {f}', liftDown: 'Take the lift down to floor {f}',
+      stairs: 'Take the stairs up to floor {f}', stairsDown: 'Take the stairs down to floor {f}',
+      ramp: 'Take the ramp up to floor {f}', rampDown: 'Take the ramp down to floor {f}',
+      bridge: 'Cross the bridge to Building {b}',
+      here: 'You are here', dest: 'Destination',
+      noRoute: 'No wheelchair route right now. Please ask a staff member.',
+    },
+    zh: {
+      to: '前往', floor: '{b} 座 {f} 层', next: '下一段', arrived: '我到了',
+      of: '第 {a} 段，共 {b} 段',
+      walk: '沿线步行 {m} 米', walkTo: '沿线步行 {m} 米到{to}',
+      arriveAt: '{name}就在这里', arriveSide: '{name}在您{side}手边',
+      left: '左', right: '右',
+      turnsNone: '全程直行', turnsSome: '途中转弯 {n} 次',
+      lift: '乘电梯上到 {f} 层', liftDown: '乘电梯下到 {f} 层',
+      stairs: '走楼梯上到 {f} 层', stairsDown: '走楼梯下到 {f} 层',
+      ramp: '经坡道上到 {f} 层', rampDown: '经坡道下到 {f} 层',
+      bridge: '通过连廊前往 {b} 座',
+      here: '您在这里', dest: '目的地',
+      noRoute: '目前没有轮椅可通行的路线，请告知工作人员。',
+    },
+    my: {
+      to: 'သွားနေသည်', floor: '{b} · {f} လွှာ', next: 'နောက်တစ်ပိုင်း', arrived: 'ရောက်ပါပြီ',
+      of: '{b} ပိုင်းအနက် {a} ပိုင်း',
+      walk: 'မျဉ်းအတိုင်း {m} မီတာ လျှောက်ပါ', walkTo: 'မျဉ်းအတိုင်း {m} မီတာ {to} သို့ လျှောက်ပါ',
+      arriveAt: '{name} သည် ဤနေရာတွင် ရှိသည်', arriveSide: '{name} သည် သင့်{side}ဘက်တွင် ရှိသည်',
+      left: 'ဘယ်', right: 'ညာ',
+      turnsNone: 'တစ်လျှောက်လုံး တည့်တည့်', turnsSome: 'လမ်းတွင် {n} ကြိမ် ကွေ့ရမည်',
+      lift: 'ဓာတ်လှေကားဖြင့် {f} လွှာသို့ တက်ပါ', liftDown: 'ဓာတ်လှေကားဖြင့် {f} လွှာသို့ ဆင်းပါ',
+      stairs: 'လှေကားဖြင့် {f} လွှာသို့ တက်ပါ', stairsDown: 'လှေကားဖြင့် {f} လွှာသို့ ဆင်းပါ',
+      ramp: 'လျှောလမ်းဖြင့် {f} လွှာသို့ တက်ပါ', rampDown: 'လျှောလမ်းဖြင့် {f} လွှာသို့ ဆင်းပါ',
+      bridge: 'ချိတ်ဆက်လမ်းမှ {b} အဆောက်အအုံသို့ ကူးပါ',
+      here: 'သင် ဤနေရာတွင် ရှိသည်', dest: 'ခရီးဆုံး',
+      noRoute: 'ယခု ဘီးတပ်ကုလားထိုင် သွားနိုင်သော လမ်းမရှိပါ။ ဝန်ထမ်းကို အကြောင်းကြားပါ။',
+    },
+    ru: {
+      to: 'Идёте в', floor: 'Корп. {b} · {f} эт.', next: 'Дальше', arrived: 'Я на месте',
+      of: 'Участок {a} из {b}',
+      walk: 'Идите по линии {m} м', walkTo: 'Идите по линии {m} м до {to}',
+      arriveAt: '{name} — прямо здесь', arriveSide: '{name} — {side} от вас',
+      left: 'слева', right: 'справа',
+      turnsNone: 'Всё время прямо', turnsSome: 'Поворотов по пути: {n}',
+      lift: 'Поднимитесь на лифте на {f} этаж', liftDown: 'Спуститесь на лифте на {f} этаж',
+      stairs: 'Поднимитесь по лестнице на {f} этаж', stairsDown: 'Спуститесь по лестнице на {f} этаж',
+      ramp: 'Поднимитесь по пандусу на {f} этаж', rampDown: 'Спуститесь по пандусу на {f} этаж',
+      bridge: 'Перейдите по переходу в корпус {b}',
+      here: 'Вы здесь', dest: 'Пункт назначения',
+      noRoute: 'Сейчас нет маршрута для коляски. Обратитесь к персоналу.',
+    },
+  };
+
+  const state = {
+    lang: 'th',
+    from: 'A2-SCR',
+    to: 'B3-LAB',
+    wheelchair: true,
+    liftBClosed: false,
+    leg: 0,
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const t = (key, params = {}) =>
+    (DICT[state.lang]?.[key] ?? DICT.th[key] ?? key)
+      .replace(/\{(\w+)\}/g, (_, name) => String(params[name] ?? ''));
+
+  /** ชื่อห้องในฐานข้อมูลมีแค่ไทยกับอังกฤษ ภาษาอื่นจึงใช้อังกฤษซึ่งอ่านง่ายกว่าไทย */
+  const nameOf = (code) => {
+    const node = NODES.get(code);
+    if (!node) return code;
+    return state.lang === 'th' ? (node.th || node.en || code) : (node.en || node.th || code);
+  };
+
+  /* ---------- เส้นทาง ---------- */
+
+  const CLOSED = new Set(['B2-LIFT>B3-LIFT', 'B3-LIFT>B2-LIFT', 'B2-LIFT>B1-LIFT', 'B1-LIFT>B2-LIFT']);
+
+  function shortestPath(from, to) {
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) {
+      if (state.liftBClosed && CLOSED.has(`${edge.f}>${edge.t}`)) continue;
+      adj.get(edge.f)?.push(edge);
+    }
+
+    const dist = new Map([[from, 0]]);
+    const prev = new Map();
+    const seen = new Set();
+    const queue = [[0, from]];
+
+    while (queue.length > 0) {
+      queue.sort((a, b) => a[0] - b[0]);
+      const [d, at] = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+      if (at === to) break;
+
+      for (const edge of adj.get(at) ?? []) {
+        if (state.wheelchair && !edge.a) continue;
+        const weight = edge.s * (state.wheelchair ? 1.5 : 1);
+        if (d + weight < (dist.get(edge.t) ?? Infinity)) {
+          dist.set(edge.t, d + weight);
+          prev.set(edge.t, edge);
+          queue.push([d + weight, edge.t]);
+        }
+      }
+    }
+    if (!dist.has(to)) return null;
+
+    const edges = [];
+    for (let at = to; prev.has(at); at = prev.get(at).f) edges.unshift(prev.get(at));
+    return edges;
+  }
+
+  /**
+   * ตัดเส้นทางเป็น "ช่วง" ทีละชั้น — หนึ่งช่วงคือหนึ่งหน้าจอแผนที่
+   * รอยต่อระหว่างช่วงคือลิฟต์ บันได ทางลาด หรือทางเชื่อม ซึ่งกลายเป็นป้ายบอกด้านล่าง
+   */
+  function toLegs(edges) {
+    if (!edges) return [];
+    const legs = [];
+    let current = { nodes: [edges[0].f], edges: [], metres: 0, turns: 0 };
+
+    for (const edge of edges) {
+      const from = NODES.get(edge.f);
+      const to = NODES.get(edge.t);
+      const changesFloor = from.f !== to.f || from.b !== to.b;
+
+      if (changesFloor) {
+        current.exit = edge;
+        legs.push(current);
+        current = { nodes: [edge.t], edges: [], metres: 0, turns: 0 };
+        continue;
+      }
+      current.nodes.push(edge.t);
+      current.edges.push(edge);
+      current.metres += edge.m;
+      if (edge.turn === 'left' || edge.turn === 'right') current.turns += 1;
+    }
+    legs.push(current);
+    return legs.filter((leg) => leg.nodes.length > 1 || leg.exit || legs.length === 1);
+  }
+
+  /* ---------- คำสั่งของแต่ละช่วง ---------- */
+
+  const ARROW = { left: '⬅', right: '➡', straight: '⬆', back: '⬇', up: '▲', down: '▼' };
+
+  function cueOf(leg, isLast) {
+    const metres = Math.round(leg.metres);
+    const endCode = leg.nodes.at(-1);
+    const lastTurn = leg.edges.at(-1)?.turn;
+
+    if (isLast) {
+      const side = lastTurn === 'left' || lastTurn === 'right' ? lastTurn : null;
+      return {
+        arrow: NODES.get(state.to).icon ?? '📍',
+        text: side
+          ? t('arriveSide', { name: nameOf(state.to), side: t(side) })
+          : t('arriveAt', { name: nameOf(state.to) }),
+        sub: metres > 0 ? t('walk', { m: metres }) : '',
+      };
+    }
+
+    const first = leg.edges[0]?.turn ?? 'straight';
+    return {
+      arrow: ARROW[first] ?? ARROW.straight,
+      text: endCode && NODES.get(endCode)?.th
+        ? t('walkTo', { m: metres, to: nameOf(endCode) })
+        : t('walk', { m: metres }),
+      sub: leg.turns === 0 ? t('turnsNone') : t('turnsSome', { n: leg.turns }),
+    };
+  }
+
+  function badgeOf(leg) {
+    if (!leg.exit) return '';
+    const to = NODES.get(leg.exit.t);
+    const from = NODES.get(leg.exit.f);
+    const up = to.f >= from.f;
+
+    if (leg.exit.k === 'bridge') return { icon: '🌉', text: t('bridge', { b: to.b }) };
+    if (leg.exit.k === 'elevator') return { icon: '🛗', text: t(up ? 'lift' : 'liftDown', { f: to.f }) };
+    if (leg.exit.k === 'stairs') return { icon: '🪜', text: t(up ? 'stairs' : 'stairsDown', { f: to.f }) };
+    if (leg.exit.k === 'ramp') return { icon: '♿', text: t(up ? 'ramp' : 'rampDown', { f: to.f }) };
+    return '';
+  }
+
+  /* ---------- วาดแผนที่ของช่วงปัจจุบัน ---------- */
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const make = (name, attrs = {}) => {
+    const node = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    return node;
+  };
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function drawLeg(leg, isLast) {
+    const points = leg.nodes.map((code) => NODES.get(code));
+    const floorKey = `${points[0].b}${points[0].f}`;
+    const onFloor = DATA.nodes.filter((node) => `${node.b}${node.f}` === floorKey);
+
+    // ซูมเฉพาะช่วงที่กำลังเดิน แบบเดียวกับที่แผนที่นำทางทำ
+    const pad = 86;
+    const xs = points.map((p) => p.x);
+    const ys = points.map((p) => p.y);
+    const box = {
+      x: Math.min(...xs) - pad, y: Math.min(...ys) - pad,
+      w: Math.max(...xs) - Math.min(...xs) + pad * 2,
+      h: Math.max(...ys) - Math.min(...ys) + pad * 2,
+    };
+    if (box.w < 320) { box.x -= (320 - box.w) / 2; box.w = 320; }
+    if (box.h < 240) { box.y -= (240 - box.h) / 2; box.h = 240; }
+
+    const svg = make('svg', {
+      viewBox: `${box.x} ${box.y} ${box.w} ${box.h}`,
+      preserveAspectRatio: 'xMidYMid meet',
+      role: 'img',
+      'aria-label': `${t('to')} ${nameOf(state.to)}`,
+    });
+
+    // พื้นชั้น
+    const fx = onFloor.map((n) => n.x);
+    const fy = onFloor.map((n) => n.y);
+    svg.append(make('rect', {
+      class: 'floorplate', rx: 22,
+      x: Math.min(...fx) - 46, y: Math.min(...fy) - 46,
+      width: Math.max(...fx) - Math.min(...fx) + 92,
+      height: Math.max(...fy) - Math.min(...fy) + 92,
+    }));
+
+    // ทางเดินอื่นบนชั้นนี้ วาดจาง ๆ ให้รู้ว่ามีทางอื่นอยู่ แต่ไม่แย่งสายตา
+    for (const edge of DATA.edges) {
+      const a = NODES.get(edge.f);
+      const b = NODES.get(edge.t);
+      if (a.b !== points[0].b || a.f !== points[0].f) continue;
+      if (b.b !== a.b || b.f !== a.f) continue;
+      if (edge.f > edge.t) continue;
+      svg.append(make('line', { class: 'walkway', x1: a.x, y1: a.y, x2: b.x, y2: b.y }));
+    }
+
+    // จุดสังเกตบนชั้นนี้ ช่วยยืนยันว่าเดินถูกทาง
+    for (const node of onFloor) {
+      if (points.includes(node) || !node.icon) continue;
+      svg.append(make('circle', { class: 'poi-dot', cx: node.x, cy: node.y, r: 6 }));
+      const icon = make('text', { class: 'poi-icon', x: node.x, y: node.y + 5, 'text-anchor': 'middle' });
+      icon.textContent = node.icon;
+      svg.append(icon);
+      if (node.th) {
+        const label = make('text', { class: 'poi-name', x: node.x, y: node.y + 24, 'text-anchor': 'middle' });
+        label.textContent = nameOf(node.code);
+        svg.append(label);
+      }
+    }
+
+    // เส้นทางของช่วงนี้
+    const line = points.map((p) => `${p.x},${p.y}`).join(' ');
+    if (points.length > 1) {
+      svg.append(make('polyline', { class: 'route-shadow', points: line }));
+      svg.append(make('polyline', { class: 'route-line', points: line }));
+    }
+
+    // จุดเริ่มของช่วง
+    const start = points[0];
+    svg.append(make('circle', { class: 'pin-halo', cx: start.x, cy: start.y, r: 26 }));
+    svg.append(make('circle', { class: 'pin-here', cx: start.x, cy: start.y, r: 13 }));
+    const hereLabel = make('text', { class: 'pin-label', x: start.x, y: start.y - 30, 'text-anchor': 'middle' });
+    hereLabel.textContent = t('here');
+    svg.append(hereLabel);
+
+    // ปลายของช่วง — จุดหมายจริง หรือทางขึ้นลงชั้น
+    const end = points.at(-1);
+    if (end !== start) {
+      svg.append(make('circle', { class: 'pin-dest', cx: end.x, cy: end.y, r: 21 }));
+      const icon = make('text', { class: 'pin-dest-icon', x: end.x, y: end.y + 7, 'text-anchor': 'middle' });
+      icon.textContent = isLast ? (NODES.get(state.to).icon ?? '📍') : '🛗';
+      svg.append(icon);
+      const label = make('text', { class: 'pin-label', x: end.x, y: end.y + 40, 'text-anchor': 'middle' });
+      label.textContent = isLast ? nameOf(state.to) : nameOf(end.code);
+      svg.append(label);
+    }
+
+    $('mapbox').replaceChildren(svg);
+    return points[0];
+  }
+
+  /* ---------- ประกอบหน้าจอ ---------- */
+
+  function render() {
+    document.documentElement.lang = state.lang;
+    $('toLabel').textContent = t('to');
+    $('toName').textContent = nameOf(state.to);
+    $('nextBtn').textContent = '';
+
+    const legs = toLegs(shortestPath(state.from, state.to));
+
+    if (legs.length === 0) {
+      $('mapbox').textContent = '';
+      $('cueArrow').textContent = '⚠';
+      $('cueText').textContent = t('noRoute');
+      $('cueSub').textContent = '';
+      $('badge').textContent = '';
+      $('progress').innerHTML = '';
+      $('nextBtn').textContent = t('arrived');
+      $('nextBtn').disabled = true;
+      renderLangs();
+      return;
+    }
+
+    state.leg = Math.min(state.leg, legs.length - 1);
+    const leg = legs[state.leg];
+    const isLast = state.leg === legs.length - 1;
+    const start = drawLeg(leg, isLast);
+
+    $('floorBadge').textContent = t('floor', { b: start.b, f: start.f });
+    $('progress').innerHTML = legs
+      .map((_, i) => `<i data-on="${i <= state.leg ? 'yes' : 'no'}"></i>`).join('');
+
+    const cue = cueOf(leg, isLast);
+    $('cueArrow').textContent = cue.arrow;
+    $('cueText').textContent = cue.text;
+    $('cueSub').textContent = cue.sub || t('of', { a: state.leg + 1, b: legs.length });
+
+    const badge = badgeOf(leg);
+    $('badge').innerHTML = badge
+      ? `<span class="badge"><span aria-hidden="true">${badge.icon}</span>${esc(badge.text)}</span>`
+      : '';
+
+    $('prevBtn').disabled = state.leg === 0;
+    $('nextBtn').textContent = isLast ? `✔ ${t('arrived')}` : `${t('next')} →`;
+    $('nextBtn').disabled = false;
+
+    renderFloors(legs);
+    renderLangs();
+  }
+
+  /** ชิปชั้นแสดงเฉพาะชั้นที่เส้นทางนี้ผ่าน ไม่ใช่ทุกชั้นในโรงพยาบาล */
+  function renderFloors(legs) {
+    $('floors').innerHTML = legs.map((leg, i) => {
+      const node = NODES.get(leg.nodes[0]);
+      return `<button type="button" data-leg="${i}" aria-pressed="${i === state.leg}"
+                >${esc(node.b)}${esc(node.f)}</button>`;
+    }).join('');
+  }
+
+  function renderLangs() {
+    $('langs').innerHTML = LANGS.map((lang) =>
+      `<button type="button" data-lang="${lang.code}" aria-pressed="${lang.code === state.lang}"
+        >${esc(lang.native)}</button>`).join('');
+  }
+
+  $('floors').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-leg]');
+    if (!button) return;
+    state.leg = Number(button.dataset.leg);
+    render();
+  });
+
+  $('langs').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-lang]');
+    if (!button) return;
+    state.lang = button.dataset.lang;
+    try { localStorage.setItem('carepath.lang', state.lang); } catch { /* โหมดส่วนตัว */ }
+    render();
+  });
+
+  $('prevBtn').addEventListener('click', () => { state.leg = Math.max(0, state.leg - 1); render(); });
+  $('nextBtn').addEventListener('click', () => {
+    const legs = toLegs(shortestPath(state.from, state.to));
+    if (state.leg < legs.length - 1) { state.leg += 1; render(); return; }
+    location.href = 'patient-mobile.html';
+  });
+
+  /* ---------- รับค่าจากหน้าผู้ป่วย ---------- */
+
+  const params = new URLSearchParams(location.search);
+  if (NODES.has(params.get('from'))) state.from = params.get('from');
+  if (NODES.has(params.get('to'))) state.to = params.get('to');
+  if (params.get('wheelchair') === '0') state.wheelchair = false;
+  if (params.get('lift') === 'closed') state.liftBClosed = true;
+
+  try {
+    const saved = localStorage.getItem('carepath.lang');
+    if (LANGS.some((lang) => lang.code === saved)) state.lang = saved;
+  } catch { /* โหมดส่วนตัว */ }
+
+  render();
+})();
+</script>
