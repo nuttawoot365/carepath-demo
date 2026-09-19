@@ -1,0 +1,664 @@
+<title>CarePath โต๊ะช่วยเหลือ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 50px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, input { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px; background: var(--primary); color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar a {
+    padding: 4px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    font-size: .84em; color: inherit; text-decoration: none;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow-1); overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--raised);
+  }
+  .card__head b { font-size: 1.02em; }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 16px; }
+
+  /* ---------- ค้นหา ---------- */
+
+  .search { display: flex; gap: 10px; flex-wrap: wrap; }
+  .input {
+    flex: 1; min-width: 200px; min-height: var(--tap);
+    padding: 11px 16px;
+    border: 2px solid var(--line-strong); border-radius: 12px;
+    background: var(--raised);
+    font-family: 'IBM Plex Mono', monospace; font-size: 1.25em; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .input:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+
+  .quick { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+  .quick button {
+    min-height: 40px; padding: 6px 14px;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--raised);
+    font-family: 'IBM Plex Mono', monospace; font-size: .86em; font-weight: 700; cursor: pointer;
+  }
+  .quick button:hover { border-color: var(--primary); }
+
+  /* ---------- ผลลัพธ์ ---------- */
+
+  .head-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .big-ticket { font-family: 'IBM Plex Mono', monospace; font-size: 2.4em; font-weight: 800; line-height: 1; }
+  .name { font-weight: 700; font-size: 1.08em; }
+  .meta { display: block; font-size: .82em; color: var(--ink-3); }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 16px; }
+  .fact {
+    padding: 13px 15px; border: 1px solid var(--line); border-radius: var(--r); background: var(--raised);
+  }
+  .fact__label { font-size: .74em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .fact__value { font-weight: 700; margin-top: 3px; line-height: 1.35; }
+  .fact__value small { display: block; font-weight: 400; font-size: .8em; color: var(--ink-3); }
+  .fact--now { border: 2px solid var(--primary); background: var(--primary-soft); }
+  .fact--warn { border: 2px solid var(--amber); background: var(--amber-soft); }
+
+  .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap); padding: 12px 20px;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface); font-weight: 700; cursor: pointer;
+    text-decoration: none; color: inherit;
+  }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--grow { flex: 1; }
+  :root[data-theme="dark"] .btn--primary { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary { color: #08171d; }
+  }
+
+  .steps { display: flex; flex-direction: column; gap: 7px; margin-top: 14px; }
+  .step {
+    display: grid; grid-template-columns: 34px auto minmax(0, 1fr) auto;
+    align-items: center; gap: 11px;
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--raised);
+    font-size: .94em;
+  }
+  .step--done { background: var(--success-soft); border-color: transparent; color: var(--ink-2); }
+  .step--now { border: 2px solid var(--primary); background: var(--surface); }
+  .step__no { font-family: 'IBM Plex Mono', monospace; font-weight: 700; text-align: center; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    font-size: .76em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+  .tag--ok { background: var(--success-soft); color: var(--success); }
+  .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+  .note { font-size: .83em; color: var(--ink-3); line-height: 1.65; }
+
+  .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); }
+  .empty span { font-size: 2.6em; display: block; margin-bottom: 8px; }
+
+  .toast {
+    position: fixed; inset-block-start: 68px; inset-inline: 0; z-index: 40;
+    display: flex; justify-content: center; pointer-events: none;
+  }
+  .toast div {
+    max-width: 92%; padding: 11px 20px; border-radius: 999px;
+    background: var(--ink); color: var(--ground); font-size: .9em; font-weight: 600;
+    box-shadow: var(--shadow-2);
+  }
+
+  dialog {
+    width: min(560px, 94vw); max-height: 86vh; padding: 0; border: none; border-radius: var(--r);
+    background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2);
+  }
+  dialog::backdrop { background: rgba(6, 18, 23, .55); }
+  .sheet { padding: 18px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .pick {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    min-height: var(--tap); padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--raised);
+    text-align: start; font-weight: 600; font-size: .92em; cursor: pointer;
+  }
+  .pick:hover { border-color: var(--primary); }
+  .pick small { display: block; font-weight: 400; font-size: .82em; color: var(--ink-3); }
+
+  /* ---------- ใบเส้นทางสำหรับพิมพ์ ---------- */
+
+  .slip { display: none; }
+
+  @media print {
+    body { background: #fff; }
+    .topbar, .wrap { display: none !important; }
+    .slip { display: block; padding: 0; color: #10222a; }
+    .slip h2 { font-size: 20pt; margin-bottom: 4pt; }
+    .slip .who { font-size: 11pt; color: #4c626c; margin-bottom: 10pt; }
+    .slip ol { margin: 0; padding: 0; list-style: none; }
+    .slip li {
+      display: grid; grid-template-columns: 26pt 1fr;
+      gap: 8pt; padding: 7pt 0; border-bottom: 1px solid #dbe5e9; font-size: 12pt;
+    }
+    .slip .arrow { font-size: 16pt; text-align: center; }
+    .slip .sub { display: block; font-size: 10pt; color: #5c6b73; }
+    .slip .foot { margin-top: 10pt; font-size: 10pt; color: #5c6b73; }
+    @page { size: A5; margin: 12mm; }
+  }
+
+  :where(button, a, input, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🙋</span>
+  <b>โต๊ะช่วยเหลือ</b>
+  <span style="opacity:.85;font-size:.88em">ประชาสัมพันธ์ อาคาร A ชั้น 1</span>
+  <span class="spacer"></span>
+  <a href="admin.html">จัดการระบบ</a>
+  <a href="login.html">ออกจากระบบ</a>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <div class="card__head"><b>ผู้ป่วยเดินมาถาม — ขอเลขคิวบนบัตร</b></div>
+    <div class="card__body">
+      <form class="search" id="form" autocomplete="off">
+        <input class="input mono" id="q" placeholder="A-017" maxlength="9" aria-label="เลขคิวหรือรหัสบนบัตร">
+        <button class="btn btn--primary" type="submit">ค้นหา</button>
+      </form>
+      <div class="quick" id="quick"></div>
+      <p class="note" style="margin-top:10px">พิมพ์เลขคิว (A-017) หรือรหัส 8 ตัวใต้คิวอาร์ (A017-3K9) ก็ได้
+        · ผู้ป่วยที่ไม่มีมือถือมักจำได้แค่เลขคิว</p>
+    </div>
+  </section>
+
+  <div id="result"></div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+<div class="slip" id="slip"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = {"nodes":[{"code":"A1-ENT","b":"A","f":1,"d":null,"kind":"entrance","th":"ทางเข้าหลัก","en":"Main entrance","lm":"ประตูกระจกหน้าอาคาร A","icon":"🚪","x":280,"y":540},{"code":"A1-INFO","b":"A","f":1,"d":null,"kind":"poi","th":"ประชาสัมพันธ์","en":"Information","lm":"ตรงข้ามประตูทางเข้า","icon":"ℹ️","x":280,"y":470},{"code":"A1-REG","b":"A","f":1,"d":"A1-OPD","kind":"counter","th":"เวชระเบียน","en":"Registration","lm":"ตรงข้ามประชาสัมพันธ์","icon":"🪪","x":280,"y":400},{"code":"A1-J1","b":"A","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"ทางแยกหน้าลิฟต์ A","icon":null,"x":370,"y":400},{"code":"A1-PAY","b":"A","f":1,"d":"A1-FIN","kind":"cashier","th":"การเงิน","en":"Cashier","lm":"ช่อง 1-4 ข้างเวชระเบียน","icon":"💳","x":370,"y":330},{"code":"A1-PHA","b":"A","f":1,"d":"A1-PHA","kind":"pharmacy","th":"ห้องยา","en":"Pharmacy","lm":"ข้างประตูทางออก","icon":"💊","x":430,"y":400},{"code":"A1-APT","b":"A","f":1,"d":"A1-OPD","kind":"appointment","th":"จุดนัดหมาย","en":"Appointment desk","lm":"หน้าห้องยา","icon":"📅","x":430,"y":355},{"code":"A1-LIFT","b":"A","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A1-STAIR","b":"A","f":1,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A1-WC","b":"A","f":1,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 1","en":"Toilet 1F","lm":"ข้างบันได A","icon":"🚻","x":325,"y":455},{"code":"A1-CAFE","b":"A","f":1,"d":null,"kind":"poi","th":"ร้านกาแฟ","en":"Café","lm":"โถงทางเข้า","icon":"☕","x":170,"y":470},{"code":"A1-ATM","b":"A","f":1,"d":null,"kind":"poi","th":"ตู้เอทีเอ็ม","en":"ATM","lm":"ข้างร้านกาแฟ โถงทางเข้า","icon":"🏧","x":140,"y":430},{"code":"A2-LIFT","b":"A","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A2-STAIR","b":"A","f":2,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A2-J1","b":"A","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ A ชั้น 2","icon":null,"x":370,"y":400},{"code":"A2-SCR","b":"A","f":2,"d":"A2-SCR","kind":"screening","th":"จุดคัดกรอง","en":"Screening","lm":"ข้างตู้น้ำดื่ม","icon":"🩺","x":280,"y":400},{"code":"A2-GP","b":"A","f":2,"d":"A2-GP","kind":"exam_room","th":"ห้องตรวจทั่วไป","en":"General clinic","lm":"ห้อง 201-204","icon":"👨‍⚕️","x":280,"y":330},{"code":"A2-WC","b":"A","f":2,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 2","en":"Toilet 2F","lm":null,"icon":"🚻","x":248,"y":455},{"code":"A2-BR","b":"A","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม A→B","en":"Bridge A→B","lm":"ปลายทางเดินชั้น 2","icon":"🌉","x":440,"y":400},{"code":"B2-BR","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง A)","en":"Bridge B (A side)","lm":null,"icon":"🌉","x":560,"y":400},{"code":"B2-J1","b":"B","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ B","icon":null,"x":650,"y":400},{"code":"B2-LIFT","b":"B","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B2-STAIR","b":"B","f":2,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B2-FIRE","b":"B","f":2,"d":null,"kind":"stairs","th":"บันไดหนีไฟ B","en":"Fire stairs B","lm":null,"icon":"🪜","x":702,"y":460},{"code":"B2-BRC","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B→C","en":"Bridge B→C","lm":null,"icon":"🌉","x":880,"y":400},{"code":"B1-LIFT","b":"B","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B1-J1","b":"B","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 1","icon":null,"x":650,"y":400},{"code":"B1-XR","b":"B","f":1,"d":"B1-XR","kind":"xray","th":"ห้องเอกซเรย์","en":"X-ray","lm":"สุดทางเดิน","icon":"📷","x":800,"y":400},{"code":"B3-LIFT","b":"B","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B3-STAIR","b":"B","f":3,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B3-J1","b":"B","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 3","icon":null,"x":650,"y":400},{"code":"B3-LAB","b":"B","f":3,"d":"B3-LAB","kind":"lab","th":"ห้องเจาะเลือด","en":"Blood test","lm":"ขวามือ ข้างตู้น้ำดื่ม","icon":"🩸","x":780,"y":400},{"code":"B3-WAIT","b":"B","f":3,"d":"B3-LAB","kind":"waiting_area","th":"จุดพักคอยรอผล","en":"Lab waiting area","lm":"หน้าห้องเจาะเลือด","icon":"🪑","x":780,"y":462},{"code":"B3-WC","b":"B","f":3,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 3","en":"Toilet 3F","lm":null,"icon":"🚻","x":832,"y":455},{"code":"C2-BR","b":"C","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม C (ฝั่ง B)","en":"Bridge C (B side)","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"C2-J1","b":"C","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ C","icon":null,"x":1080,"y":400},{"code":"C2-LIFT","b":"C","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C2-RAMP","b":"C","f":2,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-LIFT","b":"C","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C3-RAMP","b":"C","f":3,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-J1","b":"C","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 3","icon":null,"x":1080,"y":400},{"code":"C3-BRB","b":"C","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม C→B ชั้น 3","en":"Bridge C→B 3F","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"B3-BRC","b":"B","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง C) ชั้น 3","en":"Bridge B (C side) 3F","lm":null,"icon":"🌉","x":880,"y":400},{"code":"C4-LIFT","b":"C","f":4,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C4-J1","b":"C","f":4,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 4","icon":null,"x":1080,"y":400},{"code":"C4-MED-CTR","b":"C","f":4,"d":"C4-MED","kind":"counter","th":"ยื่นบัตรอายุรกรรม","en":"Med. clinic counter","lm":"ประตูทางเข้าคลินิก ป้ายสีเขียว","icon":"🪪","x":1180,"y":400},{"code":"C4-MED-WAIT","b":"C","f":4,"d":"C4-MED","kind":"waiting_area","th":"ที่นั่งรออายุรกรรม","en":"Waiting area","lm":null,"icon":"🪑","x":1242,"y":400},{"code":"C4-MED-401","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 401","en":"Room 401","lm":"ห้องแรกซ้ายมือ","icon":"👨‍⚕️","x":1242,"y":338},{"code":"C4-MED-403","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 403","en":"Room 403","lm":"ห้องที่ 3 ซ้ายมือ","icon":"👨‍⚕️","x":1302,"y":338},{"code":"C4-WC","b":"C","f":4,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 4","en":"Toilet 4F","lm":null,"icon":"🚻","x":1180,"y":460}],"edges":[{"f":"A1-ENT","t":"A1-INFO","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-ENT","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-REG","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-REG","t":"A1-INFO","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-REG","t":"A1-J1","k":"corridor","m":25,"s":25,"turn":"right","a":true},{"f":"A1-J1","t":"A1-REG","k":"corridor","m":25,"s":25,"turn":"left","a":true},{"f":"A1-J1","t":"A1-PAY","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-PAY","t":"A1-J1","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-J1","t":"A1-PHA","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-J1","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-APT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-APT","t":"A1-PHA","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-J1","t":"A1-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"A1-LIFT","t":"A1-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"A1-J1","t":"A1-STAIR","k":"door","m":6,"s":6,"turn":"right","a":false},{"f":"A1-STAIR","t":"A1-J1","k":"door","m":6,"s":6,"turn":"left","a":false},{"f":"A1-J1","t":"A1-WC","k":"corridor","m":9,"s":9,"turn":"left","a":true},{"f":"A1-WC","t":"A1-J1","k":"corridor","m":9,"s":9,"turn":"right","a":true},{"f":"A1-INFO","t":"A1-CAFE","k":"corridor","m":12,"s":12,"turn":"right","a":true},{"f":"A1-CAFE","t":"A1-INFO","k":"corridor","m":12,"s":12,"turn":"left","a":true},{"f":"A1-CAFE","t":"A1-ATM","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"A1-ATM","t":"A1-CAFE","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"A1-LIFT","t":"A2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A2-LIFT","t":"A1-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A1-STAIR","t":"A2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-STAIR","t":"A1-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-LIFT","t":"A2-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-STAIR","t":"A2-J1","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"A2-J1","t":"A2-STAIR","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"A2-J1","t":"A2-SCR","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"A2-J1","t":"A2-GP","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"A2-GP","t":"A2-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-WC","t":"A2-SCR","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-BR","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"A2-J1","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"B2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"A2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"B2-J1","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-BR","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"B2-LIFT","t":"B2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"B2-J1","t":"B2-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B2-STAIR","t":"B2-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B2-J1","t":"B2-FIRE","k":"door","m":5,"s":5,"turn":"left","a":false},{"f":"B2-J1","t":"B2-BRC","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-BRC","t":"B2-J1","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-LIFT","t":"B3-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B3-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B2-LIFT","t":"B1-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B1-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B2-STAIR","t":"B3-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B3-STAIR","t":"B2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B1-LIFT","t":"B1-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-XR","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B1-XR","t":"B1-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-LIFT","t":"B3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-STAIR","t":"B3-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B3-J1","t":"B3-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B3-J1","t":"B3-LAB","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"B3-LAB","t":"B3-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"B3-LAB","t":"B3-WAIT","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-WAIT","t":"B3-LAB","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-LAB","t":"B3-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-WC","t":"B3-LAB","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-BRC","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B3-BRC","t":"B3-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-BRC","t":"C3-BRB","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"B3-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"C3-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-BRB","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"B2-BRC","t":"C2-BR","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"B2-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"C2-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-BR","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"C2-LIFT","t":"C2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"C2-J1","t":"C2-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C2-RAMP","t":"C2-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C2-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C3-LIFT","t":"C2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C2-RAMP","t":"C3-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-RAMP","t":"C2-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-LIFT","t":"C3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-RAMP","t":"C3-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C3-J1","t":"C3-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C3-LIFT","t":"C4-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C4-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-MED-CTR","k":"corridor","m":15,"s":15,"turn":"left","a":true},{"f":"C4-MED-CTR","t":"C4-J1","k":"corridor","m":15,"s":15,"turn":"right","a":true},{"f":"C4-MED-CTR","t":"C4-MED-WAIT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-CTR","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-401","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"C4-MED-401","t":"C4-MED-WAIT","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-403","k":"corridor","m":14,"s":14,"turn":"left","a":true},{"f":"C4-MED-403","t":"C4-MED-WAIT","k":"corridor","m":14,"s":14,"turn":"right","a":true},{"f":"C4-J1","t":"C4-WC","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"C4-WC","t":"C4-J1","k":"corridor","m":10,"s":10,"turn":"left","a":true}],"visits":[{"ticket":"A-017","at":"A2-SCR","to":"B3-LAB","wheelchair":true},{"ticket":"A-014","at":"A1-REG","to":"A2-SCR","wheelchair":false},{"ticket":"A-021","at":"B3-WAIT","to":"C4-MED-CTR","wheelchair":false},{"ticket":"A-009","at":"B3-LAB","to":"B3-WAIT","wheelchair":true},{"ticket":"A-025","at":"A1-ENT","to":"A1-REG","wheelchair":false},{"ticket":"A-030","at":"C4-MED-CTR","to":"A1-PAY","wheelchair":true},{"ticket":"A-032","at":"B1-XR","to":"A1-PAY","wheelchair":false}]};
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+  const STORE_KEY = 'carepath.visit';
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const nameOf = (code) => NODES.get(code)?.th ?? code;
+  const whereOf = (code) => {
+    const node = NODES.get(code);
+    return node ? `อาคาร ${node.b} ชั้น ${node.f}` : '';
+  };
+  const nowTime = () => new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+  /* ==========================================================================
+     ค้นหาผู้ป่วยจากเลขคิว
+     คิวที่กำลังสาธิตอ่านสถานะสดจากที่เก็บร่วมกับจอจุดบริการและหน้าผู้ป่วย
+     คิวอื่นเป็นข้อมูลผู้ป่วยที่กำลังเดินอยู่ในโรงพยาบาลตอนนี้
+     ========================================================================== */
+
+  const readShared = () => {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null'); }
+    catch { return null; }
+  };
+
+  function writeShared(visit) {
+    visit.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(visit)); }
+    catch { /* โหมดส่วนตัวเขียนไม่ได้ */ }
+  }
+
+  const PREREQ = { 1: [], 2: [1], 3: [1], 4: [3], 5: [3, 4], 6: [5], 7: [6], 8: [5] };
+
+  function findVisit(query) {
+    const cleaned = query.trim().toUpperCase().replace(/\s/g, '');
+    const shared = readShared();
+
+    if (shared && (cleaned === shared.ticket || cleaned === 'A0173K9' || cleaned === 'A017-3K9')) {
+      return { kind: 'full', visit: shared };
+    }
+    const simple = DATA.visits.find((item) => item.ticket.toUpperCase() === cleaned);
+    return simple ? { kind: 'simple', visit: simple } : null;
+  }
+
+  /* ---------- เส้นทางและคำสั่ง ---------- */
+
+  function routeEdges(from, to, wheelchair) {
+    if (from === to) return [];
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) adj.get(edge.f)?.push(edge);
+
+    const dist = new Map([[from, 0]]);
+    const prev = new Map();
+    const seen = new Set();
+    const queue = [[0, from]];
+
+    while (queue.length > 0) {
+      queue.sort((a, b) => a[0] - b[0]);
+      const [d, at] = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+      if (at === to) break;
+
+      for (const edge of adj.get(at) ?? []) {
+        if (wheelchair && !edge.a) continue;
+        const weight = edge.s * (wheelchair ? 1.5 : 1);
+        if (d + weight < (dist.get(edge.t) ?? Infinity)) {
+          dist.set(edge.t, d + weight);
+          prev.set(edge.t, edge);
+          queue.push([d + weight, edge.t]);
+        }
+      }
+    }
+    if (!dist.has(to)) return null;
+
+    const edges = [];
+    for (let at = to; prev.has(at); at = prev.get(at).f) edges.unshift(prev.get(at));
+    return { edges, seconds: dist.get(to), metres: edges.reduce((sum, edge) => sum + edge.m, 0) };
+  }
+
+  const TURN = { left: 'เลี้ยวซ้าย', right: 'เลี้ยวขวา', straight: 'เดินตรงไป', back: 'กลับหลังหัน' };
+  const ARROW = { left: '⬅', right: '➡', straight: '⬆', back: '⬇' };
+
+  /** ยุบทางเดินตรงต่อเนื่องเป็นข้อเดียว แล้วเขียนเป็นคำสั่งที่พิมพ์ลงกระดาษได้ */
+  function instructions(edges) {
+    const out = [];
+    for (const edge of edges) {
+      const from = NODES.get(edge.f);
+      const to = NODES.get(edge.t);
+      const last = out.at(-1);
+
+      if (edge.k === 'elevator' || edge.k === 'stairs' || edge.k === 'ramp') {
+        const word = edge.k === 'elevator' ? 'ลิฟต์' : edge.k === 'stairs' ? 'บันได' : 'ทางลาด';
+        out.push({
+          arrow: to.f >= from.f ? '▲' : '▼',
+          text: `${to.f >= from.f ? 'ขึ้น' : 'ลง'}${word} ${nameOf(edge.f).replace(/^(ลิฟต์|บันได|ทางลาด)\s*/, '')} ไปชั้น ${to.f}`,
+          sub: '',
+        });
+        continue;
+      }
+      if (edge.k === 'bridge') {
+        out.push({ arrow: '🌉', text: `ข้ามทางเชื่อมไปอาคาร ${to.b} ชั้น ${to.f}`, sub: '' });
+        continue;
+      }
+
+      const straight = !edge.turn || edge.turn === 'straight';
+      if (straight && last && last.walk) {
+        last.metres += edge.m;
+        last.text = `เดินตรงไป ${Math.round(last.metres)} เมตร`;
+        last.sub = to.th ? `ถึง${nameOf(edge.t)}` : last.sub;
+        continue;
+      }
+      out.push({
+        walk: true,
+        metres: edge.m,
+        arrow: ARROW[edge.turn ?? 'straight'],
+        text: `${TURN[edge.turn ?? 'straight']} ${Math.round(edge.m)} เมตร`,
+        sub: to.th ? `ถึง${nameOf(edge.t)}` : '',
+      });
+    }
+    if (out.length > 0) out.at(-1).last = true;
+    return out;
+  }
+
+  /* ==========================================================================
+     แสดงผล
+     ========================================================================== */
+
+  let current = null;
+
+  function render(query) {
+    const found = findVisit(query);
+    current = found;
+
+    if (!found) {
+      $('result').innerHTML = `
+        <section class="card"><div class="card__body empty">
+          <span aria-hidden="true">🔍</span>
+          <b>ไม่พบคิวนี้</b>
+          <p class="note" style="margin-top:6px">ลองถามผู้ป่วยอีกครั้ง หรือดูเลขคิวบนบัตรกระดาษ
+            ถ้าบัตรหาย ให้ส่งไปที่เวชระเบียนเพื่อออกบัตรใหม่</p>
+        </div></section>`;
+      return;
+    }
+
+    if (found.kind === 'simple') return renderSimple(found.visit);
+    renderFull(found.visit);
+  }
+
+  function renderSimple(visit) {
+    const route = routeEdges(visit.at, visit.to, visit.wheelchair);
+
+    $('result').innerHTML = `
+      <section class="card">
+        <div class="card__head"><b>คิว ${esc(visit.ticket)}</b>
+          <span class="spacer"></span><span class="tag tag--muted">กำลังเดินอยู่</span></div>
+        <div class="card__body">
+          <div class="head-row">
+            <span class="big-ticket">${esc(visit.ticket)}</span>
+            <span><span class="name">${visit.wheelchair ? '<span class="tag">♿ ใช้รถเข็น</span>' : 'เดินเองได้'}</span>
+              <span class="meta">คิวนี้ยังไม่ได้เปิดรายละเอียดในเครื่องสาธิต — แสดงตำแหน่งและปลายทางได้</span></span>
+          </div>
+          ${factsHtml(visit.at, visit.to, route, null)}
+          ${actionsHtml(false)}
+        </div>
+      </section>`;
+  }
+
+  function renderFull(visit) {
+    const steps = visit.steps;
+    const next = steps.find((step) => !['done', 'skipped'].includes(step.status)
+      && (PREREQ[step.id] ?? []).every((id) => ['done', 'skipped']
+        .includes(steps.find((item) => item.id === id)?.status)));
+    const left = steps.filter((step) => !['done', 'skipped'].includes(step.status)).length;
+    const route = next ? routeEdges(visit.at, next.point, visit.wheelchair) : null;
+
+    $('result').innerHTML = `
+      <section class="card">
+        <div class="card__head">
+          <b>คิว ${esc(visit.ticket)}</b>
+          <span class="spacer"></span>
+          <span class="tag ${left === 0 ? 'tag--ok' : ''}">${left === 0 ? 'เดินครบแล้ว' : `เหลืออีก ${left} ขั้น`}</span>
+        </div>
+        <div class="card__body">
+          <div class="head-row">
+            <span class="big-ticket">${esc(visit.ticket)}</span>
+            <span>
+              <span class="name">${esc(visit.name)}
+                ${visit.wheelchair ? '<span class="tag">♿</span>' : ''}
+                ${visit.elderly ? '<span class="tag">🧓</span>' : ''}
+                ${visit.hasPhone === false ? '<span class="tag tag--amber">📵 ไม่มีมือถือ</span>' : ''}</span>
+              <span class="meta">อัปเดตล่าสุด ${visit.updatedAt
+                ? new Date(visit.updatedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                : '—'}</span>
+            </span>
+          </div>
+
+          ${factsHtml(visit.at, next?.point ?? null, route, next)}
+          ${actionsHtml(true)}
+
+          <div class="steps">
+            ${steps.map((step, index) => `
+              <div class="step ${step.status === 'done' ? 'step--done' : step === next ? 'step--now' : ''}">
+                <span class="step__no">${step.status === 'done' ? '✓' : index + 1}</span>
+                <span aria-hidden="true">${NODES.get(step.point)?.icon ?? ''}</span>
+                <span>${esc(step.name)}
+                  <span class="meta">${esc(nameOf(step.point))} · ${esc(whereOf(step.point))}</span></span>
+                <span>${step.status === 'done' ? `<span class="tag tag--ok">${esc(step.at ?? 'เสร็จ')}</span>`
+                  : step.deadline ? `<span class="tag tag--amber">⏰ ก่อน ${esc(step.deadline)}</span>` : ''}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </section>`;
+  }
+
+  function factsHtml(at, to, route, next) {
+    const minutes = route?.seconds ? Math.max(1, Math.round(route.seconds / 60)) : null;
+
+    return `
+      <div class="facts">
+        <div class="fact">
+          <p class="fact__label">ตอนนี้อยู่ที่</p>
+          <p class="fact__value">📍 ${esc(nameOf(at))}<small>${esc(whereOf(at))}</small></p>
+        </div>
+        ${to ? `
+          <div class="fact fact--now">
+            <p class="fact__label">ต้องไปที่</p>
+            <p class="fact__value">${NODES.get(to)?.icon ?? ''} ${esc(nameOf(to))}<small>${esc(whereOf(to))}</small></p>
+          </div>
+          <div class="fact">
+            <p class="fact__label">ระยะทาง</p>
+            <p class="fact__value">${route ? `${Math.round(route.metres)} เมตร` : 'ไปไม่ถึง'}
+              <small>${route ? `เดินราว ${minutes} นาที · ${instructions(route.edges).length} คำสั่ง` : 'ต้องพาไปเอง'}</small></p>
+          </div>` : `
+          <div class="fact">
+            <p class="fact__label">สถานะ</p>
+            <p class="fact__value">เดินครบทุกขั้นแล้ว<small>กลับบ้านได้</small></p>
+          </div>`}
+        ${next?.deadline ? `
+          <div class="fact fact--warn">
+            <p class="fact__label">มีกำหนดเวลา</p>
+            <p class="fact__value">⏰ ก่อน ${esc(next.deadline)}<small>ตอนนี้ ${nowTime()}</small></p>
+          </div>` : ''}
+      </div>`;
+  }
+
+  const actionsHtml = (full) => `
+    <div class="acts">
+      <button class="btn btn--primary btn--grow" data-act="locate">📍 ยืนยันตำแหน่งให้</button>
+      <button class="btn btn--grow" data-act="print">🖨 พิมพ์เส้นทางให้</button>
+      ${full ? '<a class="btn" href="patient-mobile.html" target="_blank" rel="noopener">📱 เปิดหน้าผู้ป่วย</a>' : ''}
+      <button class="btn" data-act="escort">🤝 ขอคนพาไป</button>
+    </div>`;
+
+  /* ---------- การกระทำของเจ้าหน้าที่ ---------- */
+
+  /** จุดที่เจ้าหน้าที่โต๊ะช่วยเหลือชี้ได้ — ทุกจุดที่มีชื่อในผัง */
+  const NAMED = DATA.nodes.filter((node) => node.th).sort((a, b) =>
+    `${a.b}${a.f}`.localeCompare(`${b.b}${b.f}`) || a.th.localeCompare(b.th));
+
+  function locateSheet() {
+    $('sheetBody').innerHTML = `
+      <h2 style="font-size:1.1em">ผู้ป่วยยืนอยู่ตรงไหนตอนนี้</h2>
+      <p class="note">ถามผู้ป่วยว่าเห็นอะไรอยู่รอบตัว แล้วเลือกจุดนั้น
+        ระบบจะคิดเส้นทางใหม่จากจุดนี้และส่งขึ้นหน้าจอของผู้ป่วยทันที</p>
+      <div class="grid">
+        ${NAMED.map((node) => `
+          <button class="pick" data-code="${node.code}">
+            <span aria-hidden="true">${node.icon ?? '📍'}</span>
+            <span>${esc(node.th)}<small>${esc(whereOf(node.code))}</small></span>
+          </button>`).join('')}
+      </div>
+      <button class="btn" data-close="1">ปิด</button>`;
+    $('sheet').showModal();
+
+    $('sheetBody').onclick = (event) => {
+      if (event.target.closest('[data-close]')) return $('sheet').close();
+      const pick = event.target.closest('[data-code]');
+      if (!pick) return;
+
+      const code = pick.dataset.code;
+      if (current.kind === 'full') {
+        current.visit.at = code;
+        current.visit.atSource = 'manual';
+        writeShared(current.visit);
+      } else {
+        current.visit.at = code;
+      }
+      $('sheet').close();
+      render($('q').value);
+      toast(`ตั้งตำแหน่งเป็น ${nameOf(code)} แล้ว — หน้าจอผู้ป่วยคิดเส้นทางใหม่ให้เรียบร้อย`);
+    };
+  }
+
+  /** ใบเส้นทางสำหรับผู้ป่วยที่ไม่มีมือถือ — พิมพ์แล้วถือเดินได้เลย */
+  function printSlip() {
+    const visit = current.visit;
+    const to = current.kind === 'full'
+      ? visit.steps.find((step) => !['done', 'skipped'].includes(step.status))?.point
+      : visit.to;
+
+    if (!to) return toast('ผู้ป่วยรายนี้เดินครบทุกขั้นแล้ว ไม่มีเส้นทางให้พิมพ์');
+    const route = routeEdges(visit.at, to, visit.wheelchair);
+    if (!route) return toast('ไม่มีเส้นทางที่เหมาะกับผู้ป่วยรายนี้ กรุณาหาคนพาไป');
+
+    const list = instructions(route.edges);
+    $('slip').innerHTML = `
+      <h2>เส้นทางไป${esc(nameOf(to))}</h2>
+      <p class="who">คิว ${esc(visit.ticket)}${visit.wheelchair ? ' · ♿ เส้นทางสำหรับรถเข็น' : ''}
+        · จาก${esc(nameOf(visit.at))} · ${Math.round(route.metres)} เมตร
+        · พิมพ์เมื่อ ${nowTime()}</p>
+      <ol>
+        ${list.map((item, index) => `
+          <li>
+            <span class="arrow">${item.arrow}</span>
+            <span>${index + 1}. ${esc(item.text)}
+              ${item.sub ? `<span class="sub">${esc(item.sub)}</span>` : ''}</span>
+          </li>`).join('')}
+      </ol>
+      <p class="foot">ถ้าหลงอีก ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว ${esc(visit.ticket)}
+        · โรงพยาบาลวชิระภูเก็ต (ผังสาธิต)</p>`;
+    window.print();
+  }
+
+  function escortSheet() {
+    $('sheetBody').innerHTML = `
+      <h2 style="font-size:1.1em">ขอคนพาไป</h2>
+      <p class="note">ใช้เมื่อผู้ป่วยเดินเองไม่ไหว หรือเส้นทางถูกปิดจนไม่มีทางที่รถเข็นไปได้</p>
+      <button class="pick" data-escort="volunteer"><span>🙋</span>
+        <span>ขออาสาสมัครมาพาไป<small>แจ้งจุดที่ผู้ป่วยยืนอยู่และปลายทาง</small></span></button>
+      <button class="pick" data-escort="wheelchair"><span>♿</span>
+        <span>ขอรถเข็นมารับ<small>แจ้งเวรเปลที่ใกล้ที่สุด</small></span></button>
+      <button class="btn" data-close="1">ปิด</button>`;
+    $('sheet').showModal();
+
+    $('sheetBody').onclick = (event) => {
+      if (event.target.closest('[data-close]')) return $('sheet').close();
+      const pick = event.target.closest('[data-escort]');
+      if (!pick) return;
+      $('sheet').close();
+      toast(pick.dataset.escort === 'volunteer'
+        ? `แจ้งอาสาสมัครไปรับที่${nameOf(current.visit.at)} แล้ว`
+        : `แจ้งเวรเปลนำรถเข็นไปที่${nameOf(current.visit.at)} แล้ว`);
+    };
+  }
+
+  function toast(message) {
+    $('toast').innerHTML = `<div>${esc(message)}</div>`;
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => { $('toast').innerHTML = ''; }, 3600);
+  }
+
+  /* ---------- เหตุการณ์ ---------- */
+
+  $('form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    render($('q').value);
+  });
+
+  $('quick').innerHTML = [readShared()?.ticket ?? 'A-017', ...DATA.visits.map((visit) => visit.ticket)]
+    .filter((ticket, index, all) => all.indexOf(ticket) === index)
+    .map((ticket) => `<button type="button" data-ticket="${esc(ticket)}">${esc(ticket)}</button>`).join('');
+
+  $('quick').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-ticket]');
+    if (!button) return;
+    $('q').value = button.dataset.ticket;
+    render(button.dataset.ticket);
+  });
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-act]');
+    if (!button || !current) return;
+    if (button.dataset.act === 'locate') return locateSheet();
+    if (button.dataset.act === 'print') return printSlip();
+    if (button.dataset.act === 'escort') return escortSheet();
+  });
+
+  $('sheet').addEventListener('click', (event) => {
+    if (event.target === $('sheet')) $('sheet').close();
+  });
+
+  // จอจุดบริการหรือหน้าผู้ป่วยเปลี่ยนสถานะระหว่างที่เปิดหน้านี้ค้างไว้
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORE_KEY && current) render($('q').value);
+  });
+
+  $('result').innerHTML = `
+    <section class="card"><div class="card__body empty">
+      <span aria-hidden="true">🙋</span>
+      <b>พร้อมช่วยผู้ป่วยที่เดินมาถาม</b>
+      <p class="note" style="margin-top:6px">พิมพ์เลขคิวด้านบน หรือกดเลขคิวที่ใช้บ่อย</p>
+    </div></section>`;
+})();
+</script>

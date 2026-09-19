@@ -105,6 +105,10 @@ console.log(`สร้าง app/impact.html แล้ว · ผู้ป่ว�
 await build('station', { nodes, edges });
 console.log('สร้าง app/station.html แล้ว');
 
+// ---- โต๊ะช่วยเหลือ: ค้นด้วยเลขคิวเมื่อผู้ป่วยเดินมาถาม ----
+await build('helpdesk', { nodes, edges, visits });
+console.log('สร้าง app/helpdesk.html แล้ว');
+
 // ---- หน้าจัดการระบบ: ตรวจผังเองทุกครั้งที่เปิด จึงต้องมีผังเต็ม ----
 await build('admin', {
   nodes,

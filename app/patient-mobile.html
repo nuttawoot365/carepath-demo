@@ -664,6 +664,7 @@
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
       galleryHint: 'ทุกจุดในผังมีรูปของตัวเอง กดเพื่อดูภาพใหญ่ หรือถ่ายรูปจริงทับ',
+      photoStock: 'ภาพประกอบ ไม่ใช่ภาพถ่ายของโรงพยาบาลจริง',
       photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
       photoNone: 'ยังไม่มีรูปของจุดนี้', photoAdd: 'ถ่ายรูปจุดนี้', photoRetake: 'ถ่ายใหม่',
       photoRemove: 'ลบรูป', photoSaved: 'บันทึกรูปของ {p} แล้ว', photoRemoved: 'ลบรูปของ {p} แล้ว',
@@ -729,6 +730,7 @@
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
       galleryHint: 'Every place on the map has its own picture. Tap one to see it large or replace it with a real photo.',
+      photoStock: 'Illustration, not a photo of the real hospital',
       photoView: 'See a photo', photoTitle: 'Photo of this place',
       photoNone: 'No photo of this place yet', photoAdd: 'Take a photo here', photoRetake: 'Retake',
       photoRemove: 'Remove photo', photoSaved: 'Photo of {p} saved', photoRemoved: 'Photo of {p} removed',
@@ -793,6 +795,7 @@
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
       galleryHint: '地图上每个地点都有对应图片。点击可查看大图，或用实景照片替换。',
+      photoStock: '示意图，非实际医院照片',
       photoView: '查看实景照片', photoTitle: '该地点的实景照片',
       photoNone: '该地点暂无照片', photoAdd: '在此拍照', photoRetake: '重新拍摄',
       photoRemove: '删除照片', photoSaved: '已保存{p}的照片', photoRemoved: '已删除{p}的照片',
@@ -857,6 +860,7 @@
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
       galleryHint: 'မြေပုံပေါ်ရှိ နေရာတိုင်းတွင် ကိုယ်ပိုင်ပုံ ရှိသည်။ ပုံကြီးကြည့်ရန် သို့မဟုတ် တကယ့်ဓာတ်ပုံဖြင့် အစားထိုးရန် နှိပ်ပါ။',
+      photoStock: 'သရုပ်ဖော်ပုံ ဖြစ်ပြီး အမှန်တကယ် ဆေးရုံ၏ ဓာတ်ပုံ မဟုတ်ပါ',
       photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
       photoNone: 'ဤနေရာအတွက် ဓာတ်ပုံ မရှိသေးပါ', photoAdd: 'ဤနေရာကို ဓာတ်ပုံရိုက်ရန်', photoRetake: 'ပြန်ရိုက်ရန်',
       photoRemove: 'ဓာတ်ပုံ ဖျက်ရန်', photoSaved: '{p} ၏ ဓာတ်ပုံကို သိမ်းပြီးပါပြီ', photoRemoved: '{p} ၏ ဓာတ်ပုံကို ဖျက်ပြီးပါပြီ',
@@ -921,6 +925,7 @@
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
       galleryHint: 'У каждого места на карте есть своё изображение. Нажмите, чтобы открыть крупно или заменить реальным фото.',
+      photoStock: 'Иллюстрация, не фото реальной больницы',
       photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
       photoNone: 'Фото этого места пока нет', photoAdd: 'Сфотографировать это место', photoRetake: 'Переснять',
       photoRemove: 'Удалить фото', photoSaved: 'Фото «{p}» сохранено', photoRemoved: 'Фото «{p}» удалено',
@@ -1448,14 +1453,32 @@
     ctx.fillText(text, W - width - 3, H - 25);
   }
 
+  /**
+   * ภาพประกอบที่เตรียมไว้ล่วงหน้าสำหรับบางจุด
+   * ยังไม่ใช่ภาพถ่ายของโรงพยาบาลจริง จึงติดป้ายว่าภาพประกอบเหมือนภาพที่ระบบวาดเอง
+   * เมื่อถ่ายรูปสถานที่จริงมาทับ จะขึ้นป้ายเขียวว่าเป็นรูปถ่ายจริงแทน
+   */
+  const STOCK_PHOTOS = {
+    'A1-REG': 'photos/registration.jpg',
+    'A1-PAY': 'photos/cashier.jpg',
+    'B1-XR': 'photos/xray.jpg',
+    'LIFT-A': 'photos/lift.jpg',
+    'LIFT-B': 'photos/lift.jpg',
+    'LIFT-C': 'photos/lift.jpg',
+    'LOBBY-A2': 'photos/lift.jpg',
+    'LOBBY-B3': 'photos/lift.jpg',
+    'LOBBY-C4': 'photos/lift.jpg',
+  };
+
   /* ---------- รูปถ่ายจริงที่ผู้ใช้ถ่ายเอง ---------- */
 
   let userPhotos = {};
 
-  const photoOf = (code) =>
-    userPhotos[code]
-      ? { src: userPhotos[code], real: true }
-      : { src: sampleScene(code), real: false };
+  const photoOf = (code) => {
+    if (userPhotos[code]) return { src: userPhotos[code], real: true };
+    if (STOCK_PHOTOS[code]) return { src: STOCK_PHOTOS[code], real: false };
+    return { src: sampleScene(code), real: false };
+  };
 
   /** ย่อภาพก่อนเก็บ เพราะพื้นที่ในเครื่องมีจำกัด */
   function shrink(file, maxSide = 1000) {
@@ -1935,7 +1958,7 @@
         <img src="${photo.src}" alt="">
         <span style="flex:1">
           <b>📷 ${esc(t('photoView'))}</b>
-          <small>${esc(photo.real ? t('photoTitle') : 'ภาพจำลอง · illustration')}</small>
+          <small>${esc(photo.real ? t('photoTitle') : t('photoStock'))}</small>
         </span>
         <span aria-hidden="true">›</span>
       </button>`;
@@ -1970,7 +1993,7 @@
               <b>${PLACES[code].icon} ${esc(placeName(code))}</b>
               <small>${userPhotos[code]
                 ? `<span class="dot">●</span> ${esc(t('photoTitle'))}`
-                : 'ภาพจำลอง · illustration'}</small>
+                : esc(t('photoStock'))}</small>
             </button>`).join('')}
         </div>`).join('')}
       <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
@@ -1983,7 +2006,7 @@
       <p class="demo-note">${esc(placeAt(code))}</p>
       <img class="photo" src="${photo.src}" alt="${esc(t('photoTitle'))} — ${esc(placeName(code))}">
       <p><span class="badge ${photo.real ? 'badge--real' : 'badge--sample'}">
-        ${photo.real ? '📷 ' + esc(t('photoTitle')) : '✏️ ภาพจำลอง · illustration'}
+        ${photo.real ? '📷 ' + esc(t('photoTitle')) : '✏️ ' + esc(t('photoStock'))}
       </span></p>
       <p class="demo-note">${esc(t('photoHint'))}<br>${esc(t('photoStored'))}</p>
       <button class="pick" data-act="shoot" data-code="${code}">

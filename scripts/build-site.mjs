@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
-const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html', 'admin.html', 'station.html'];
+const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html', 'admin.html', 'station.html', 'helpdesk.html'];
 
 /**
  * ไฟล์ใน app/ เขียนไว้สำหรับเผยแพร่เป็น artifact ซึ่งใส่หัวเอกสารให้เอง
@@ -42,6 +42,12 @@ for (const page of APP_PAGES) {
 // หน้าแรกของเว็บ และสำเนาใน app/ เพื่อให้ลิงก์ ../app/login.html ในหน้า mockup ใช้ได้
 await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'index.html'));
 await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'app', 'login.html'));
+
+// ภาพประกอบของจุดบริการ อยู่ข้าง ๆ หน้าเว็บเพื่อให้อ้างด้วยเส้นทางสัมพัทธ์ได้
+await fs.mkdir(path.join(dist, 'photos'), { recursive: true });
+for (const file of await fs.readdir(path.join(root, 'app', 'photos'))) {
+  await fs.copyFile(path.join(root, 'app', 'photos', file), path.join(dist, 'photos', file));
+}
 
 for (const file of await fs.readdir(path.join(root, 'mockups'))) {
   if (file.endsWith('.html') || file.endsWith('.css')) {
