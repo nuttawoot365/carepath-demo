@@ -1,0 +1,796 @@
+<title>CarePath เวชระเบียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 44px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, input, select { font: inherit; color: inherit; }
+
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- โครงหน้า ---------- */
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px;
+    background: var(--primary);
+    color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar .clock {
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 3px 12px;
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 999px;
+    font-size: .85em;
+  }
+
+  .wrap {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 960px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+  .flow { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- ขั้นตอนของเจ้าหน้าที่ ---------- */
+
+  .stage {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  .stage__head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--raised);
+  }
+  .stage__no {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--primary); color: #fff;
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: .9em;
+  }
+  .stage--done .stage__no { background: var(--success); }
+  .stage__title { font-weight: 700; }
+  .stage__why { font-size: .82em; color: var(--ink-3); }
+  .stage__body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .seconds {
+    margin-inline-start: auto; flex: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78em; color: var(--ink-3);
+  }
+
+  /* ---------- ฟอร์ม ---------- */
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 620px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .input, .select {
+    width: 100%;
+    min-height: var(--tap);
+    padding: 9px 13px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+  }
+  .input:focus-visible, .select:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap);
+    padding: 10px 17px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .08s ease;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--grow { flex: 1; }
+  .btn--lg { min-height: 54px; font-size: 1.05em; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+  :root[data-theme="dark"] .btn--primary { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary { color: #08171d; }
+  }
+
+  .toggle {
+    display: flex; align-items: center; gap: 9px;
+    min-height: var(--tap);
+    padding: 9px 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    cursor: pointer;
+    text-align: start;
+    width: 100%;
+  }
+  .toggle--on { border-color: var(--primary); background: var(--primary-soft); font-weight: 700; }
+  .toggle span.sub { display: block; font-size: .78em; font-weight: 400; color: var(--ink-3); }
+
+  /* ---------- ตารางผู้ป่วย ---------- */
+
+  .table { width: 100%; border-collapse: collapse; }
+  .table th, .table td { padding: 9px 11px; text-align: start; border-bottom: 1px solid var(--line); }
+  .table th { font-size: .76em; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+  .table tbody tr { cursor: pointer; }
+  .table tbody tr[aria-selected="true"] { background: var(--primary-soft); }
+  .table tbody tr:hover { background: var(--raised); }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 999px;
+    font-size: .76em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--success { background: var(--success-soft); color: var(--success); }
+  .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+  .note { font-size: .84em; color: var(--ink-3); line-height: 1.6; }
+
+  .warnbox {
+    display: flex; gap: 11px; align-items: flex-start;
+    padding: 12px 14px;
+    border: 1px solid var(--amber);
+    background: var(--amber-soft);
+    border-radius: var(--r-sm);
+  }
+  .warnbox b { display: block; }
+  .warnbox p { font-size: .88em; color: var(--ink-2); }
+
+  /* ---------- แผงผลลัพธ์ ---------- */
+
+  .out { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 16px; }
+  @media (max-width: 960px) { .out { position: static; } }
+
+  .empty {
+    padding: 40px 20px;
+    text-align: center;
+    border: 2px dashed var(--line-strong);
+    border-radius: var(--r);
+    color: var(--ink-3);
+  }
+  .empty .big { font-size: 2.4em; display: block; margin-bottom: 8px; }
+
+  /* ---------- บัตรคิว ---------- */
+
+  .ticket {
+    background: #fff;
+    color: #10222a;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+  .ticket__top {
+    padding: 16px 18px 12px;
+    text-align: center;
+    border-bottom: 2px dashed #c3d2d8;
+  }
+  .ticket__hospital { font-size: .78em; letter-spacing: .1em; text-transform: uppercase; color: #5c6b73; }
+  .ticket__no {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 3.6em; font-weight: 700; line-height: 1.05;
+    letter-spacing: .02em;
+  }
+  .ticket__name { font-weight: 600; }
+  .ticket__qr { display: flex; gap: 14px; align-items: center; padding: 14px 18px; }
+  .ticket__qr img, .ticket__qr canvas { width: 108px; height: 108px; flex: none; image-rendering: pixelated; }
+  .ticket__code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.35em; font-weight: 700; letter-spacing: .12em;
+  }
+  .ticket__hint { font-size: .78em; color: #5c6b73; line-height: 1.5; }
+  .ticket__steps { padding: 0 18px 16px; }
+  .ticket__steps table { width: 100%; border-collapse: collapse; font-size: .84em; }
+  .ticket__steps td { padding: 5px 4px; border-bottom: 1px solid #e6ecee; vertical-align: top; }
+  .ticket__steps td:first-child { width: 22px; color: #7c9099; font-family: 'IBM Plex Mono', monospace; }
+  .ticket__steps td:last-child { text-align: end; white-space: nowrap; color: #5c6b73; }
+  .ticket__foot {
+    padding: 10px 18px 14px;
+    border-top: 2px dashed #c3d2d8;
+    font-size: .8em;
+    color: #5c6b73;
+  }
+
+  /* ---------- สิ่งที่ระบบสร้าง ---------- */
+
+  .made { display: flex; flex-direction: column; gap: 8px; }
+  .made__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+  }
+  .made__row code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .82em;
+    color: var(--primary-ink);
+  }
+  .made__row small { display: block; font-size: .78em; color: var(--ink-3); }
+  .made__count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+
+  .linkbox {
+    display: flex; gap: 8px; align-items: center;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .76em;
+    overflow-wrap: anywhere;
+  }
+
+  :where(button, input, select, [tabindex]):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+  /* ---------- พิมพ์: เหลือเฉพาะบัตรคิว ---------- */
+
+  @media print {
+    body { background: #fff; }
+    .topbar, .flow, .no-print { display: none !important; }
+    .wrap { display: block; padding: 0; max-width: none; }
+    .out { position: static; gap: 0; }
+    .ticket { border: none; box-shadow: none; width: 148mm; }
+    @page { size: A5; margin: 10mm; }
+  }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🪪</span>
+  <b>เวชระเบียน · ช่อง 2</b>
+  <span style="opacity:.8;font-size:.9em">ปราณี</span>
+  <span class="spacer"></span>
+  <span class="clock" id="clock">20 ก.ย. 2569 · 09:48</span>
+</header>
+
+<div class="wrap">
+  <main class="flow">
+    <section class="stage" id="stage1">
+      <div class="stage__head">
+        <span class="stage__no">1</span>
+        <span>
+          <span class="stage__title">ผู้ป่วยยื่นบัตรประชาชนหรือบัตรโรงพยาบาล</span>
+          <span class="stage__why">ค้นด้วย HN หรือชื่อ · ถ้าไม่เคยมา กดเปิดประวัติใหม่</span>
+        </span>
+        <span class="seconds">~15 วิ</span>
+      </div>
+      <div class="stage__body">
+        <div class="row">
+          <input class="input" id="search" style="flex:1;min-width:200px" placeholder="พิมพ์ HN หรือชื่อ เช่น 0012345 หรือ สม" value="สม" autocomplete="off">
+          <button class="btn" id="newPatient">+ ผู้ป่วยใหม่</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>HN</th><th>ชื่อ</th><th>ภาษา</th><th>มาล่าสุด</th></tr></thead>
+          <tbody id="patients"></tbody>
+        </table>
+        <p class="note">ระบบไม่เก็บเลขบัตรประชาชน · หน้าจอผู้ป่วยแสดงแค่ชื่อเรียกกับเลขคิว ไม่มี HN เต็ม</p>
+      </div>
+    </section>
+
+    <section class="stage" id="stage2">
+      <div class="stage__head">
+        <span class="stage__no">2</span>
+        <span>
+          <span class="stage__title">เลือกว่าวันนี้มาทำอะไร</span>
+          <span class="stage__why">แม่แบบขั้นตอนกำหนดว่าต้องผ่านจุดไหนบ้าง และขั้นไหนมีกำหนดเวลา</span>
+        </span>
+        <span class="seconds">~5 วิ</span>
+      </div>
+      <div class="stage__body">
+        <div class="grid-2" id="templates"></div>
+        <div class="warnbox" id="deadlineWarn" hidden>
+          <span aria-hidden="true">⏰</span>
+          <span>
+            <b>แม่แบบนี้มีขั้นที่มีกำหนดเวลา</b>
+            <p id="deadlineText"></p>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="stage" id="stage3">
+      <div class="stage__head">
+        <span class="stage__no">3</span>
+        <span>
+          <span class="stage__title">ถามความต้องการพิเศษ แล้วติ๊กให้ครบ</span>
+          <span class="stage__why">ติ๊กครั้งเดียวตรงนี้ มีผลกับการคิดเส้นทางและหน้าจอของผู้ป่วยทั้งวัน</span>
+        </span>
+        <span class="seconds">~20 วิ</span>
+      </div>
+      <div class="stage__body">
+        <div class="grid-3" id="profile"></div>
+        <div class="grid-2">
+          <label class="toggle" style="cursor:default">
+            🌐
+            <span style="flex:1">ภาษาที่ผู้ป่วยอ่านได้
+              <select class="select" id="lang" style="margin-top:5px">
+                <option value="th">ไทย</option>
+                <option value="en">English — อังกฤษ</option>
+                <option value="zh">中文 — จีน</option>
+                <option value="my">မြန်မာ — เมียนมา</option>
+                <option value="ru">Русский — รัสเซีย</option>
+              </select>
+            </span>
+          </label>
+          <button class="toggle" id="phoneToggle" aria-pressed="true">
+            <span aria-hidden="true">📱</span>
+            <span style="flex:1"><span id="phoneLabel">มีมือถือ ใช้ QR ได้</span>
+              <span class="sub" id="phoneSub">กดเพื่อสลับเป็น "ไม่มีมือถือ"</span></span>
+          </button>
+        </div>
+        <p class="note">ถ้าผู้ป่วยไม่มีมือถือ ระบบจะพิมพ์คำสั่งเดินทางลงบัตรกระดาษให้ละเอียดขึ้น และตั้งค่าให้เจ้าหน้าที่แต่ละจุดเป็นคนยืนยันตำแหน่งแทน</p>
+      </div>
+    </section>
+
+    <button class="btn btn--primary btn--lg" id="openVisit">เปิด visit และพิมพ์บัตรคิว</button>
+    <p class="note" id="summary"></p>
+  </main>
+
+  <aside class="out" id="out"></aside>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- ข้อมูลจำลอง (ตรงกับ data/*.csv ของโครงการ) ---------- */
+
+  const PATIENTS = [
+    { hn: '0012345', name: 'สมชาย', lang: 'th', last: '20 มิ.ย. 2569' },
+    { hn: '0012346', name: 'สมหญิง', lang: 'th', last: '14 ส.ค. 2569' },
+    { hn: '0012350', name: 'อนันต์', lang: 'th', last: '2 ก.ย. 2569' },
+    { hn: '0012353', name: 'John', lang: 'en', last: 'ผู้ป่วยใหม่' },
+    { hn: '0012354', name: 'Mei', lang: 'zh', last: '11 ก.ค. 2569' },
+  ];
+
+  const PLACES = {
+    'A1-REG': { icon: '🪪', name: 'เวชระเบียน', at: 'A ชั้น 1' },
+    'A2-SCR': { icon: '🩺', name: 'จุดคัดกรอง', at: 'A ชั้น 2' },
+    'A2-GP': { icon: '👨‍⚕️', name: 'ห้องตรวจทั่วไป', at: 'A ชั้น 2' },
+    'B3-LAB': { icon: '🩸', name: 'ห้องเจาะเลือด', at: 'B ชั้น 3' },
+    'B3-WAIT': { icon: '🪑', name: 'จุดพักคอยรอผล', at: 'B ชั้น 3' },
+    'C4-MED': { icon: '👨‍⚕️', name: 'คลินิกอายุรกรรม', at: 'C ชั้น 4' },
+    'A1-PAY': { icon: '💳', name: 'การเงิน', at: 'A ชั้น 1' },
+    'A1-PHA': { icon: '💊', name: 'ห้องยา', at: 'A ชั้น 1' },
+  };
+
+  const TEMPLATES = {
+    'DM-FU': {
+      name: 'เบาหวานรายเก่า — ตามนัด',
+      note: 'ผู้ป่วยนัดติดตามอาการ มีเจาะเลือดและรอผล',
+      steps: [
+        { n: 1, name: 'ยื่นบัตรและยืนยันการนัด', point: 'A1-REG', min: 5, prereq: '' },
+        { n: 2, name: 'ชั่งน้ำหนัก วัดความดัน', point: 'A2-SCR', min: 10, prereq: '1' },
+        { n: 3, name: 'เจาะเลือด', point: 'B3-LAB', min: 10, prereq: '1', deadline: '11:00',
+          reason: 'ผู้ป่วยงดอาหารมา ต้องเจาะก่อน 11:00' },
+        { n: 4, name: 'รอผลตรวจ', point: 'B3-WAIT', min: 75, prereq: '3' },
+        { n: 5, name: 'พบแพทย์', point: 'C4-MED', min: 15, prereq: '3, 4' },
+        { n: 6, name: 'ชำระเงิน', point: 'A1-PAY', min: 5, prereq: '5' },
+        { n: 7, name: 'รับยา', point: 'A1-PHA', min: 15, prereq: '6' },
+      ],
+    },
+    WALKIN: {
+      name: 'ผู้ป่วยนอกทั่วไป — เดินเข้า',
+      note: 'ไม่ได้นัดมาก่อน ตรวจที่คลินิกทั่วไป',
+      steps: [
+        { n: 1, name: 'ยื่นบัตร', point: 'A1-REG', min: 5, prereq: '' },
+        { n: 2, name: 'คัดกรอง', point: 'A2-SCR', min: 10, prereq: '1' },
+        { n: 3, name: 'พบแพทย์', point: 'A2-GP', min: 15, prereq: '2' },
+        { n: 4, name: 'ชำระเงิน', point: 'A1-PAY', min: 5, prereq: '3' },
+        { n: 5, name: 'รับยา', point: 'A1-PHA', min: 15, prereq: '4' },
+      ],
+    },
+  };
+
+  const PROFILE_FLAGS = [
+    { key: 'wheelchair', icon: '♿', label: 'ใช้รถเข็น', effect: 'ตัดบันไดออกจากทุกเส้นทาง' },
+    { key: 'elderly', icon: '🧓', label: 'ผู้สูงอายุ', effect: 'คิดเวลาเดินช้าลง เปิดโหมดตัวใหญ่' },
+    { key: 'low_vision', icon: '👓', label: 'สายตาเลือนราง', effect: 'ตัวใหญ่ + ปุ่มอ่านออกเสียง' },
+    { key: 'needs_companion', icon: '👥', label: 'มีญาติมาด้วย', effect: 'แจ้งจุดบริการให้เผื่อที่นั่ง' },
+  ];
+
+  const LANG_LABEL = { th: 'ไทย', en: 'English', zh: '中文', my: 'မြန်မာ', ru: 'Русский' };
+
+  /* ---------- สถานะของหน้าจอ ---------- */
+
+  const state = {
+    patient: PATIENTS[0],
+    template: 'DM-FU',
+    profile: { wheelchair: true, elderly: true },
+    lang: 'th',
+    hasPhone: true,
+    visit: null,
+    patientUrl: 'https://claude.ai/code/artifact/d8fd0557-d4e7-4dc4-be5b-312abfe7e8bf',
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- วาดฟอร์ม ---------- */
+
+  function renderPatients() {
+    const query = $('search').value.trim().toLowerCase();
+    const matches = PATIENTS.filter(
+      (p) => !query || p.hn.includes(query) || p.name.toLowerCase().includes(query),
+    );
+
+    $('patients').innerHTML = matches.length === 0
+      ? `<tr><td colspan="4" class="note" style="padding:14px 11px">ไม่พบผู้ป่วยที่ตรงกับคำค้น — กด "ผู้ป่วยใหม่" เพื่อเปิดประวัติ</td></tr>`
+      : matches.map((p) => `
+          <tr data-hn="${p.hn}" aria-selected="${p.hn === state.patient.hn}">
+            <td class="mono">${esc(p.hn)}</td>
+            <td><b>${esc(p.name)}</b></td>
+            <td>${esc(LANG_LABEL[p.lang])}</td>
+            <td class="note">${esc(p.last)}</td>
+          </tr>`).join('');
+
+    $('stage1').classList.toggle('stage--done', Boolean(state.patient));
+  }
+
+  function renderTemplates() {
+    $('templates').innerHTML = Object.entries(TEMPLATES).map(([code, tpl]) => `
+      <button class="toggle${code === state.template ? ' toggle--on' : ''}" data-template="${code}"
+              aria-pressed="${code === state.template}">
+        <span aria-hidden="true">${code === state.template ? '✅' : '⬜'}</span>
+        <span style="flex:1">${esc(tpl.name)}
+          <span class="sub">${tpl.steps.length} ขั้น · ${esc(tpl.note)}</span></span>
+      </button>`).join('');
+
+    const timed = TEMPLATES[state.template].steps.find((s) => s.deadline);
+    $('deadlineWarn').hidden = !timed;
+    if (timed) {
+      $('deadlineText').textContent =
+        `ขั้น "${timed.name}" ต้องเสร็จก่อน ${timed.deadline} — ${timed.reason} ถ้าเปิด visit สายกว่านี้ ระบบจะจัดให้ผู้ป่วยไปขั้นนี้ก่อนขั้นอื่นเอง`;
+    }
+    $('stage2').classList.add('stage--done');
+  }
+
+  function renderProfile() {
+    $('profile').innerHTML = PROFILE_FLAGS.map((flag) => `
+      <button class="toggle${state.profile[flag.key] ? ' toggle--on' : ''}" data-flag="${flag.key}"
+              aria-pressed="${Boolean(state.profile[flag.key])}">
+        <span aria-hidden="true">${flag.icon}</span>
+        <span style="flex:1">${esc(flag.label)}<span class="sub">${esc(flag.effect)}</span></span>
+      </button>`).join('');
+
+    $('phoneToggle').setAttribute('aria-pressed', String(state.hasPhone));
+    $('phoneToggle').classList.toggle('toggle--on', state.hasPhone);
+    $('phoneLabel').textContent = state.hasPhone ? 'มีมือถือ ใช้ QR ได้' : 'ไม่มีมือถือ ใช้บัตรกระดาษ';
+    $('phoneSub').textContent = state.hasPhone
+      ? 'กดเพื่อสลับเป็น "ไม่มีมือถือ"'
+      : 'บัตรจะพิมพ์คำสั่งเดินทางละเอียดขึ้น';
+    $('stage3').classList.add('stage--done');
+  }
+
+  function renderSummary() {
+    const flags = PROFILE_FLAGS.filter((f) => state.profile[f.key]).map((f) => f.icon + ' ' + f.label);
+    $('summary').textContent =
+      `กำลังจะเปิด: ${state.patient.name} · ${TEMPLATES[state.template].name} · `
+      + `${flags.length ? flags.join(' · ') : 'ไม่มีความต้องการพิเศษ'} · ภาษา ${LANG_LABEL[state.lang]}`
+      + ` · ${state.hasPhone ? 'มีมือถือ' : 'ไม่มีมือถือ'}`;
+  }
+
+  /* ---------- เปิด visit: สิ่งที่ระบบสร้างขึ้นจริง ---------- */
+
+  const READABLE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const pick = (n) => Array.from({ length: n }, () => READABLE[Math.floor(Math.random() * READABLE.length)]).join('');
+  const hex = (n) => Array.from({ length: n }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+
+  let ticketSeq = 17;
+
+  function openVisit() {
+    const template = TEMPLATES[state.template];
+    const ticketNo = `A-${String(ticketSeq++).padStart(3, '0')}`;
+    const steps = template.steps.map((step) => ({ ...step }));
+
+    // ขั้นที่มีกำหนดเวลาและเวลาเหลือไม่พอ ถูกยกขึ้นมาก่อน — กฎเดียวกับที่ backend ใช้
+    const urgent = steps.find((step) => step.deadline);
+    const reordered = urgent && isLate()
+      ? [steps[0], urgent, ...steps.filter((s) => s !== steps[0] && s !== urgent)]
+      : steps;
+
+    state.visit = {
+      id: 40 + ticketSeq,
+      ticketNo,
+      token: hex(32),
+      shortCode: `${ticketNo.replace('-', '')}-${pick(3)}`,
+      steps: reordered,
+      reordered: reordered !== steps,
+      openedAt: new Date(),
+    };
+    renderOutput();
+    $('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // เดโม: ถือว่าหลัง 10:20 คือ "สาย" สำหรับกำหนด 11:00
+  const isLate = () => true;
+
+  function renderOutput() {
+    const visit = state.visit;
+    if (!visit) {
+      $('out').innerHTML = `
+        <div class="empty">
+          <span class="big" aria-hidden="true">🎫</span>
+          <b>ยังไม่ได้เปิด visit</b>
+          <p class="note" style="margin-top:6px">กรอกสามขั้นทางซ้ายแล้วกดปุ่มเปิด visit<br>บัตรคิวและสิ่งที่ระบบสร้างจะขึ้นตรงนี้</p>
+        </div>`;
+      return;
+    }
+
+    const flags = PROFILE_FLAGS.filter((f) => state.profile[f.key]);
+    const totalMin = visit.steps.reduce((sum, s) => sum + s.min, 0);
+
+    $('out').innerHTML = `
+      <div class="ticket" id="ticket">
+        <div class="ticket__top">
+          <p class="ticket__hospital">โรงพยาบาลสมมุติ · บัตรคิววันนี้</p>
+          <p class="ticket__no">${esc(visit.ticketNo)}</p>
+          <p class="ticket__name">${esc(state.patient.name)} · ${esc(TEMPLATES[state.template].name)}</p>
+          <p class="ticket__hint">${visit.openedAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} · เปิดบัตร ${visit.openedAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+
+        <div class="ticket__qr">
+          <div id="qr" role="img" aria-label="คิวอาร์โค้ดสำหรับเปิดหน้าติดตามขั้นตอน"></div>
+          <div>
+            <p class="ticket__hint">สแกนเพื่อดูขั้นตอนและเส้นทาง<br>หรือพิมพ์รหัสนี้ที่หน้าเว็บโรงพยาบาล</p>
+            <p class="ticket__code">${esc(visit.shortCode)}</p>
+            <p class="ticket__hint">${flags.map((f) => f.icon).join(' ')} ${esc(LANG_LABEL[state.lang])}</p>
+          </div>
+        </div>
+
+        <div class="ticket__steps">
+          <table>
+            <tbody>
+              ${visit.steps.map((step, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td>${PLACES[step.point].icon} ${esc(step.name)}<br>
+                      <span style="font-size:.86em;color:#7c9099">${esc(PLACES[step.point].name)} · อาคาร ${esc(PLACES[step.point].at)}</span></td>
+                  <td>${step.deadline ? 'ก่อน ' + esc(step.deadline) : esc(step.min) + ' น.'}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ticket__foot">
+          ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว <b>${esc(visit.ticketNo)}</b><br>
+          บัตรนี้ใช้ได้ถึงสิ้นวัน · ไม่มีเลขประจำตัวผู้ป่วยบนบัตร
+        </div>
+      </div>
+
+      <div class="no-print" style="display:flex;gap:10px">
+        <button class="btn btn--primary btn--grow" id="printBtn">🖨 พิมพ์บัตร A5</button>
+        <button class="btn" id="againBtn">เปิดรายถัดไป</button>
+      </div>
+
+      <section class="no-print" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow-1)">
+        <p style="font-weight:700;margin-bottom:4px">ระบบสร้างอะไรให้บ้าง</p>
+        <p class="note" style="margin-bottom:11px">ทั้งหมดนี้เกิดในทรานแซกชันเดียว — ถ้าขั้นใดล้มเหลว จะไม่มีอะไรถูกบันทึกเลย</p>
+        <div class="made">
+          ${madeRow('visits', '1 แถว', `token ${visit.token.slice(0, 12)}… · หมดอายุสิ้นวัน`)}
+          ${madeRow('visit_steps', `${visit.steps.length} แถว`, 'คัดลอกจากแม่แบบ แก้แม่แบบทีหลังไม่กระทบผู้ป่วยรายนี้')}
+          ${madeRow('visit_step_prereqs', `${visit.steps.filter((s) => s.prereq).length} แถว`, 'เงื่อนไขว่าขั้นไหนต้องทำหลังขั้นไหน')}
+          ${madeRow('audit_logs', '1 แถว', 'ใครเปิด visit เมื่อไหร่ · เวลาเซิร์ฟเวอร์ แก้ไม่ได้')}
+          ${madeRow('notifications', '0 แถว', 'จะเริ่มมีเมื่อเส้นทางเปลี่ยนหรือมีขั้นแทรก')}
+        </div>
+        <p class="note" style="margin-top:11px">รวมเวลาที่คาดว่าจะใช้ทั้งวัน ~${totalMin} นาที · ผู้ป่วยเห็นขั้นถัดไปทันทีที่สแกน</p>
+        ${visit.reordered ? `
+          <div class="warnbox" style="margin-top:11px">
+            <span aria-hidden="true">⏰</span>
+            <span><b>ระบบสลับลำดับให้แล้ว</b>
+              <p>ขั้นที่มีกำหนดเวลาถูกยกขึ้นมาก่อน เพราะเวลาที่เหลือไม่พอถ้าเดินตามลำดับปกติ — เหตุผลนี้แสดงบนหน้าจอผู้ป่วยด้วย</p></span>
+          </div>` : ''}
+      </section>
+
+      <section class="no-print" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow-1)">
+        <p style="font-weight:700;margin-bottom:8px">ลิงก์ที่อยู่ใน QR</p>
+        <div class="linkbox"><span id="linkText">${esc(state.patientUrl)}</span></div>
+        <p class="note" style="margin-top:8px">เปลี่ยนเป็นที่อยู่ของเครื่องที่ใช้สาธิตได้ แล้ว QR จะเปลี่ยนตาม</p>
+        <input class="input" id="urlInput" style="margin-top:8px" value="${esc(state.patientUrl)}">
+      </section>
+    `;
+
+    drawQr();
+    $('printBtn').addEventListener('click', () => window.print());
+    $('againBtn').addEventListener('click', () => {
+      state.visit = null;
+      renderOutput();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    $('urlInput').addEventListener('input', (event) => {
+      state.patientUrl = event.target.value;
+      $('linkText').textContent = state.patientUrl;
+      drawQr();
+    });
+  }
+
+  const madeRow = (table, count, detail) => `
+    <div class="made__row">
+      <code>${esc(table)}</code>
+      <small>${esc(detail)}</small>
+      <span class="made__count">${esc(count)}</span>
+    </div>`;
+
+  /** QR จริงที่สแกนได้ · ถ้าโหลดไลบรารีไม่ได้ ยังมีรหัส 8 ตัวใต้ QR ให้พิมพ์แทน */
+  function drawQr() {
+    const box = $('qr');
+    if (!box) return;
+    const url = `${state.patientUrl}${state.patientUrl.includes('?') ? '&' : '?'}t=${state.visit.token}`;
+
+    if (typeof qrcode !== 'function') {
+      box.innerHTML = '<p class="ticket__hint" style="width:108px">สแกนไม่ได้ตอนนี้<br>ใช้รหัสด้านขวาแทน</p>';
+      return;
+    }
+    const qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    box.innerHTML = qr.createImgTag(4, 0);
+    box.firstElementChild.alt = 'คิวอาร์โค้ดสำหรับเปิดหน้าติดตามขั้นตอน';
+  }
+
+  /* ---------- การกระทำ ---------- */
+
+  $('search').addEventListener('input', renderPatients);
+
+  $('patients').addEventListener('click', (event) => {
+    const row = event.target.closest('tr[data-hn]');
+    if (!row) return;
+    state.patient = PATIENTS.find((p) => p.hn === row.dataset.hn);
+    state.lang = state.patient.lang;
+    $('lang').value = state.lang;
+    renderPatients();
+    renderSummary();
+  });
+
+  $('newPatient').addEventListener('click', () => {
+    const hn = String(12355 + PATIENTS.length).padStart(7, '0');
+    const patient = { hn, name: 'ผู้ป่วยใหม่', lang: 'th', last: 'เปิดประวัติวันนี้' };
+    PATIENTS.unshift(patient);
+    state.patient = patient;
+    $('search').value = '';
+    renderPatients();
+    renderSummary();
+  });
+
+  $('templates').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-template]');
+    if (!button) return;
+    state.template = button.dataset.template;
+    renderTemplates();
+    renderSummary();
+  });
+
+  $('profile').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-flag]');
+    if (!button) return;
+    const key = button.dataset.flag;
+    state.profile[key] = !state.profile[key];
+    renderProfile();
+    renderSummary();
+  });
+
+  $('phoneToggle').addEventListener('click', () => {
+    state.hasPhone = !state.hasPhone;
+    renderProfile();
+    renderSummary();
+  });
+
+  $('lang').addEventListener('change', (event) => {
+    state.lang = event.target.value;
+    renderSummary();
+  });
+
+  $('openVisit').addEventListener('click', openVisit);
+
+  renderPatients();
+  renderTemplates();
+  renderProfile();
+  renderSummary();
+  renderOutput();
+})();
+</script>
