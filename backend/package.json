@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "reset": "node scripts/reset.js",
-    "test": "node --test test/",
+    "test": "node --test",
     "lint:sql": "node scripts/lint-sql.js"
   },
   "dependencies": {

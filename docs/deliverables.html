@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>CarePath — สรุปเอกสารส่งมอบตามโจทย์</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  body { font-family: 'Sarabun', 'Leelawadee UI', sans-serif; font-size: 10.5pt; line-height: 1.65; color: #10222a; }
+  h1 { font-size: 19pt; margin: 0 0 2mm; }
+  h2 { font-size: 13pt; margin: 7mm 0 2mm; border-bottom: 1.5pt solid #1f6f8b; padding-bottom: 1.5mm; color: #14556d; }
+  h3 { font-size: 11pt; margin: 4mm 0 1mm; }
+  .sub { color: #4c626c; margin: 0 0 4mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.5pt; }
+  th { background: #e4f0f4; text-align: left; padding: 2mm; border: 0.5pt solid #c3d2d8; font-size: 9pt; }
+  td { padding: 2mm; border: 0.5pt solid #d7e3e7; vertical-align: top; }
+  td.n { width: 8mm; text-align: center; color: #7c9099; }
+  td.ok { color: #2e8b57; font-weight: bold; width: 18mm; }
+  td.no { color: #c8552f; font-weight: bold; width: 18mm; }
+  .done { color: #2e8b57; font-weight: bold; }
+  .partial { color: #b8791a; font-weight: bold; }
+  .missing { color: #c8552f; font-weight: bold; }
+  .box { border: 1pt solid #b8791a; background: #fbf1df; padding: 3mm 4mm; margin: 3mm 0; }
+  .note { color: #4c626c; font-size: 9.5pt; }
+  code { font-family: 'Courier New', monospace; font-size: 9pt; background: #f4f8f9; padding: 0 1mm; }
+  ul { margin: 1mm 0 2mm; padding-left: 6mm; }
+</style></head><body>
+
+<h1>CarePath — สรุปเอกสารส่งมอบตามโจทย์</h1>
+<p class="sub">Hackathon 977-121 · ระบบนำทางในโรงพยาบาลและติดตามขั้นตอนการรักษา<br>
+ระบบสาธิตสำหรับโรงพยาบาลวชิระภูเก็ต · จัดทำ 19/09/2569</p>
+
+<h2>ภาพรวมการส่งมอบทั้ง 5 ข้อ</h2>
+<table>
+<tr><th style="width:12mm">ข้อ</th><th>โจทย์ขออะไร</th><th>ส่งมอบอะไร</th><th style="width:22mm">สถานะ</th></tr>
+<tr><td>1</td><td>ความต้องการเชิงหน้าที่และไม่ใช่หน้าที่ · User Stories · Use Case Diagram</td>
+    <td><code>docs/01-requirement.md</code> · แผนภาพ Use Case</td><td class="done">ครบ</td></tr>
+<tr><td>2</td><td>ER Diagram · สคริปต์ SQL PostgreSQL 16 · คำอธิบาย Normalization · API Contract</td>
+    <td><code>docs/02-system-design.md</code> · <code>backend/sql/schema.sql</code> 17 ตาราง ที่รันได้จริง · หน้าอธิบายข้อมูล <code>mockups/data-model.html</code></td><td class="done">ครบ</td></tr>
+<tr><td>3</td><td>Wireframe/Mockup อย่างน้อย 5 หน้า + User Flow</td>
+    <td>แบบหน้าจอ 11 หน้า และหน้าจอที่กดใช้งานได้จริงอีก 12 หน้า เผยแพร่ออนไลน์แล้ว</td><td class="done">เกินข้อกำหนด</td></tr>
+<tr><td>4</td><td>ซอฟต์แวร์ + การใช้ Git</td>
+    <td>GitHub 26 commit · เว็บใช้งานจริงบน Cloudflare Worker</td><td class="done">ครบ</td></tr>
+<tr><td>5</td><td>ตารางทดสอบอย่างน้อย 10 กรณี · backup/restore · ระบุส่วนที่ใช้ AI</td>
+    <td>ทดสอบอัตโนมัติ 20 กรณี · backup/restore ออกแบบไว้แต่ยังไม่ได้ทำ · ส่วนที่ใช้ AI อยู่ในเอกสารฉบับนี้</td><td class="partial">ครบบางส่วน</td></tr>
+</table>
+
+<h2>ตารางทดสอบ — 20 กรณี</h2>
+<p class="note">ทดสอบอัตโนมัติด้วย <code>node --test</code> รันซ้ำได้ทุกครั้งด้วยคำสั่ง <code>npm test</code> ในโฟลเดอร์ <code>backend/</code>
+ครอบคลุมสามส่วนที่เป็นหัวใจของระบบ: การคำนวณเส้นทาง การจัดลำดับขั้นตอน และการอ่านไฟล์นำเข้า</p>
+<table>
+<tr><th class="n">#</th><th>กรณีทดสอบ</th><th>ผล</th></tr>
+<tr><td class="n">1</td><td>อ่าน CSV ธรรมดาเป็นอ็อบเจกต์ตามหัวคอลัมน์</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">2</td><td>ค่าที่มีเครื่องหมายคำพูดและจุลภาคข้างในไม่ถูกตัด</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">3</td><td>เครื่องหมายคำพูดซ้อนถูกแปลงกลับถูกต้อง</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">4</td><td>บรรทัดว่างถูกข้าม และไฟล์ว่างคืนอาร์เรย์ว่าง</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">5</td><td>ตัวช่วยแปลงค่าทำงานตามที่ไฟล์นำเข้าต้องการ</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">6</td><td>คนเดินปกติเลือกบันไดเพราะเร็วกว่าลิฟต์</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">7</td><td>รถเข็นเลี่ยงบันไดและไปทางลิฟต์แทน</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">8</td><td>ผู้สูงอายุเดินช้าลง เวลาจึงมากกว่าคนเดินปกติบนเส้นทางเดียวกัน</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">9</td><td>ปิดทางลิฟต์แล้วรถเข็นไปไม่ถึง คืนค่า null ไม่ใช่เส้นทางผิด</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">10</td><td>จุดที่ไม่มีอยู่ในกราฟ คืนค่า null</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">11</td><td>ทางเดียวกลับไม่ได้ เช่นบันไดหนีไฟ</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">12</td><td>shortestTimes คืนเวลาไปทุกจุดในครั้งเดียว</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">13</td><td>ขั้นที่เงื่อนไขยังไม่ครบ ไม่ถือว่าพร้อมทำ</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">14</td><td>ขั้นที่เงื่อนไขครบแล้วถือว่าพร้อม รวมถึงกรณีขั้นก่อนหน้าถูกข้าม</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">15</td><td>ไม่มีกำหนดเวลา ระบบเลือกขั้นที่เดินใกล้ที่สุด</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">16</td><td>ใกล้หมดเวลา ระบบยกขั้นที่มีกำหนดขึ้นก่อนแม้จะเดินไกลกว่า</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">17</td><td>จุดที่ไปไม่ถึงถูกตัดออกและแจ้งเตือน no_route</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">18</td><td>เรียงลำดับตามเงื่อนไข ขั้นที่ต้องทำก่อนมาก่อนเสมอ</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">19</td><td>เงื่อนไขที่วนกลับมาหากันเอง ถูกปฏิเสธด้วย PREREQ_CYCLE</td><td class="ok">ผ่าน</td></tr>
+<tr><td class="n">20</td><td>สถานะเดินหน้าได้ทีละขั้นเท่านั้น</td><td class="ok">ผ่าน</td></tr>
+</table>
+<p class="note">ผลล่าสุด: ผ่าน 20 จาก 20 กรณี ·
+ระหว่างเขียนชุดทดสอบนี้พบข้อผิดพลาดจริงสองจุด คือค่าที่คาดหวังของเวลาเดินคำนวณผิด และตารางในสคีมาหายไปสองตาราง
+(<code>service_hours</code>, <code>node_photos</code>) ซึ่งแก้เรียบร้อยแล้ว</p>
+
+<h2>ส่วนที่ใช้ AI ในการพัฒนา</h2>
+<p class="note">ตามกติกาที่ให้ระบุไว้ในรายงาน</p>
+<table>
+<tr><th style="width:42mm">ส่วนงาน</th><th>ใช้ AI อย่างไร</th></tr>
+<tr><td>โค้ดหน้าจอและสคีมา</td><td>ใช้ผู้ช่วยเขียนโค้ด (Claude Code) ร่างโครงและเขียนโค้ดตามที่ทีมกำหนด ทีมเป็นผู้ตัดสินใจเรื่องสถาปัตยกรรม ขอบเขต และตรวจผลทุกครั้ง</td></tr>
+<tr><td>เอกสารและสไลด์</td><td>ร่างด้วยผู้ช่วย แล้วทีมตรวจแก้เนื้อหาและตัวเลขทุกบรรทัด</td></tr>
+<tr><td>ตัวเลขในรายงาน</td><td><strong>ไม่ได้ให้ AI ประมาณ</strong> ทุกตัวเลขคำนวณจากข้อมูลจริงในระบบด้วยโค้ดที่ตรวจสอบซ้ำได้ เช่น ระยะทางที่เพิ่มขึ้นเมื่อปิดลิฟต์</td></tr>
+<tr><td>ภาพประกอบ 4 รูป</td><td>เป็นภาพที่ AI สร้าง ไม่ใช่ภาพถ่ายของโรงพยาบาลจริง และติดป้ายกำกับไว้ในระบบทุกจุด</td></tr>
+<tr><td>ผังโรงพยาบาล</td><td>เป็นผังสมมุติที่ทีมออกแบบเอง ไม่ใช่ผังจริงของโรงพยาบาลวชิระภูเก็ต และเขียนกำกับไว้ทุกหน้าจอ</td></tr>
+</table>
+
+<h2>สิ่งที่ยังไม่ได้ทำ</h2>
+<div class="box">
+<p style="margin:0 0 2mm"><strong>รายงานตรงตามความจริง เพื่อให้กรรมการเห็นขอบเขตที่แท้จริง</strong></p>
+<ul>
+<li><strong>backup/restore</strong> — ออกแบบวิธีไว้ในเอกสารระบบแล้ว (<code>pg_dump</code> รายวัน + WAL archiving) แต่ยังไม่ได้ติดตั้งและยังไม่ได้ซ้อมกู้คืน</li>
+<li><strong>REST API ที่ต่อฐานข้อมูลจริง</strong> — โค้ดครบแล้วทั้งอัลกอริทึมและสคีมา แต่ยังไม่ได้เชื่อมเข้าด้วยกันและยังไม่ได้ขึ้นใช้งาน</li>
+<li><strong>หน้าผู้ใช้และสิทธิ์ · บันทึกการใช้งาน · นำเข้า CSV ผ่านหน้าเว็บ</strong> — ยังเป็นแบบหน้าจอ ติดป้ายไว้ในเมนูแล้วว่ายังไม่ได้ทำ</li>
+<li><strong>เอกสารตามกฎหมาย PDPA</strong> — ประกาศความเป็นส่วนตัวเขียนเป็นร่างไว้ 5 ภาษา แต่ต้องผ่านเจ้าหน้าที่คุ้มครองข้อมูลของโรงพยาบาลก่อนใช้จริง</li>
+</ul>
+</div>
+
+<h2>ที่อยู่ของงานทั้งหมด</h2>
+<table>
+<tr><th style="width:42mm">รายการ</th><th>ที่อยู่</th></tr>
+<tr><td>เว็บที่ใช้งานได้จริง</td><td>carepath-vachira.nuttawoot-star.workers.dev</td></tr>
+<tr><td>ซอร์สโค้ดและประวัติ Git</td><td>github.com/nuttawoot365/carepath-demo</td></tr>
+<tr><td>เอกสารออกแบบ ข้อ 1–3</td><td><code>carepath-docs/docs/01-requirement.md</code> · <code>02-system-design.md</code> · <code>03-ux-ui.md</code> · <code>04-test-plan.md</code></td></tr>
+<tr><td>เอกสารระบบตามที่สร้างจริง</td><td><code>docs/as-built.md</code></td></tr>
+<tr><td>สไลด์นำเสนอ</td><td><code>pitch/CarePath-pitch.pptx</code> และ <code>pitch/CarePath-pitch.pdf</code></td></tr>
+<tr><td>บัญชีสาธิต</td><td><code>admin</code> · <code>reg1</code> · <code>lab1</code> · <code>exec1</code> รหัสผ่าน <code>demo@1234</code></td></tr>
+</table>
+
+</body></html>

@@ -208,6 +208,30 @@ CREATE TABLE notifications (
 );
 CREATE INDEX idx_notif_unread ON notifications(visit_id) WHERE read_at IS NULL;
 
+-- ========== ส่วนที่ออกแบบไว้แต่ยังไม่ได้ใช้ในหน้าจอ ==========
+
+-- เวลาเปิด-ปิดของแผนกหรือจุดบริการ · ระบุที่จุดจะทับค่าของแผนก
+CREATE TABLE service_hours (
+  id            SERIAL PRIMARY KEY,
+  department_id INT REFERENCES departments(id),
+  node_id       INT REFERENCES nodes(id),
+  weekday       SMALLINT NOT NULL CHECK (weekday BETWEEN 0 AND 6),
+  open_time     TIME NOT NULL,
+  close_time    TIME NOT NULL,
+  break_start   TIME,
+  break_end     TIME,
+  CHECK ((department_id IS NULL) <> (node_id IS NULL))
+);
+
+-- รูปถ่ายจริงของแต่ละจุด ถ่ายจากมุมที่ผู้ป่วยเดินเข้ามา
+CREATE TABLE node_photos (
+  id         SERIAL PRIMARY KEY,
+  node_id    INT NOT NULL REFERENCES nodes(id) ON DELETE CASCADE,
+  url        TEXT NOT NULL,
+  caption_th VARCHAR(120),
+  caption_en VARCHAR(120)
+);
+
 -- append-only: แอปเขียนได้อย่างเดียว แก้/ลบ audit ไม่ได้
 DO $$ BEGIN
   EXECUTE format('REVOKE UPDATE, DELETE ON audit_logs FROM %I', current_user);

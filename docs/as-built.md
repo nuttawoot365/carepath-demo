@@ -48,6 +48,9 @@ backend/ ── Node 24 + Express + PostgreSQL 16   (โค้ดครบ · �
 | `active-visits.csv` | 7 | ใช้ในหน้าผลกระทบและโต๊ะช่วยเหลือ |
 | `node-photos.csv` | 0 | รองรับรูปจริง ยังไม่มีข้อมูล |
 
+ชุดทดสอบอัตโนมัติอยู่ที่ `backend/test/` รวม 20 กรณี ครอบคลุมการคำนวณเส้นทาง การจัดลำดับขั้นตอน
+และการอ่านไฟล์นำเข้า · รันด้วย `npm test` ในโฟลเดอร์ `backend/`
+
 `node app/build.mjs` อ่านไฟล์เหล่านี้แล้วสร้าง `map.html` `patient-map.html` `pathway.html`
 `impact.html` `station.html` `helpdesk.html` `admin.html` ใหม่ทั้งหมด
 **แก้ CSV แล้วรันคำสั่งเดียว ทุกหน้าเปลี่ยนตาม**
