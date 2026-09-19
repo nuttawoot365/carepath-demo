@@ -9,6 +9,7 @@ A1-J1,A1-LIFT,door,4,,right,1,1,open,,
 A1-J1,A1-STAIR,door,6,,right,1,0,open,,
 A1-J1,A1-WC,corridor,9,,left,1,1,open,,
 A1-INFO,A1-CAFE,corridor,12,,right,1,1,open,,
+A1-CAFE,A1-ATM,corridor,6,,right,1,1,open,ตู้เอทีเอ็มอยู่ข้างร้านกาแฟ,The ATM is next to the café
 A1-LIFT,A2-LIFT,elevator,0,50,,1,1,open,ขึ้นลิฟต์ A ไปชั้น 2,Take Lift A to 2F
 A1-STAIR,A2-STAIR,stairs,0,75,,1,0,open,ขึ้นบันได A ไปชั้น 2,Take stairs A to 2F
 A2-LIFT,A2-J1,door,4,,straight,1,1,open,,

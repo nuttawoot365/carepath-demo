@@ -531,6 +531,23 @@
   }
   .photo-leg img { width: 30px; height: 24px; object-fit: cover; border-radius: 5px; }
 
+  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .gallery button {
+    padding: 0; overflow: hidden; cursor: pointer;
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    background: var(--raised); text-align: start;
+  }
+  .gallery img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .gallery b { display: block; padding: 7px 9px 2px; font-size: .84em; line-height: 1.35; }
+  .gallery small { display: block; padding: 0 9px 8px; font-size: .74em; color: var(--ink-3); }
+  .gallery .dot { color: var(--success); }
+
+  .group-label {
+    margin-top: 4px;
+    font-size: .78em; font-weight: 700; letter-spacing: .06em;
+    color: var(--ink-3); text-transform: uppercase;
+  }
+
   .badge {
     display: inline-flex; align-items: center; gap: 5px;
     padding: 3px 10px; border-radius: 999px;
@@ -622,14 +639,16 @@
       allDone: 'เสร็จครบทุกขั้นแล้ว',
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
-      // ---- แม่แบบประโยคนำทาง ----
-photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
+      galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
+      galleryHint: 'ทุกจุดในผังมีรูปของตัวเอง กดเพื่อดูภาพใหญ่ หรือถ่ายรูปจริงทับ',
+      photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
       photoNone: 'ยังไม่มีรูปของจุดนี้', photoAdd: 'ถ่ายรูปจุดนี้', photoRetake: 'ถ่ายใหม่',
       photoRemove: 'ลบรูป', photoSaved: 'บันทึกรูปของ {p} แล้ว', photoRemoved: 'ลบรูปของ {p} แล้ว',
       photoHint: 'รูปถ่ายจากมุมที่ผู้ป่วยเดินมา ช่วยให้จำจุดหมายได้เร็วกว่าคำบรรยาย',
       photoStored: 'เก็บไว้ในเครื่องนี้เท่านั้น · ระบบจริงเก็บที่ตาราง node_photos',
       photoFull: 'พื้นที่เก็บรูปในเครื่องเต็ม ลบรูปเก่าออกก่อน',
-            'turn.left': 'เลี้ยวซ้าย', 'turn.right': 'เลี้ยวขวา',
+      // ---- แม่แบบประโยคนำทาง ----
+      'turn.left': 'เลี้ยวซ้าย', 'turn.right': 'เลี้ยวขวา',
       'turn.straight': 'เดินตรงไป', 'turn.back': 'กลับหลังหัน',
       walk: 'เดิน {m} เมตร', toward: 'ถึง{to}',
       lift_up: 'ขึ้น{name} ไปชั้น {floor}', lift_down: 'ลง{name} ไปชั้น {floor}',
@@ -678,13 +697,15 @@ photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงข�
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
-photoView: 'See a photo', photoTitle: 'Photo of this place',
+      galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
+      galleryHint: 'Every place on the map has its own picture. Tap one to see it large or replace it with a real photo.',
+      photoView: 'See a photo', photoTitle: 'Photo of this place',
       photoNone: 'No photo of this place yet', photoAdd: 'Take a photo here', photoRetake: 'Retake',
       photoRemove: 'Remove photo', photoSaved: 'Photo of {p} saved', photoRemoved: 'Photo of {p} removed',
       photoHint: 'A photo taken from the direction patients walk in is recognised faster than any description.',
       photoStored: 'Stored on this device only. The live system keeps these in the node_photos table.',
       photoFull: 'Device photo storage is full. Remove an older photo first.',
-            'turn.left': 'turn left', 'turn.right': 'turn right',
+      'turn.left': 'turn left', 'turn.right': 'turn right',
       'turn.straight': 'go straight', 'turn.back': 'turn around',
       walk: 'walk {m} m', toward: 'to {to}',
       lift_up: 'take {name} up to floor {floor}', lift_down: 'take {name} down to floor {floor}',
@@ -733,13 +754,15 @@ photoView: 'See a photo', photoTitle: 'Photo of this place',
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
-photoView: '查看实景照片', photoTitle: '该地点的实景照片',
+      galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
+      galleryHint: '地图上每个地点都有对应图片。点击可查看大图，或用实景照片替换。',
+      photoView: '查看实景照片', photoTitle: '该地点的实景照片',
       photoNone: '该地点暂无照片', photoAdd: '在此拍照', photoRetake: '重新拍摄',
       photoRemove: '删除照片', photoSaved: '已保存{p}的照片', photoRemoved: '已删除{p}的照片',
       photoHint: '从患者走来的方向拍摄的照片，比任何文字描述都更容易辨认。',
       photoStored: '仅保存在本机。正式系统保存在 node_photos 表中。',
       photoFull: '本机照片存储空间已满，请先删除旧照片。',
-            'turn.left': '左转', 'turn.right': '右转',
+      'turn.left': '左转', 'turn.right': '右转',
       'turn.straight': '直行', 'turn.back': '转身',
       walk: '步行 {m} 米', toward: '到{to}',
       lift_up: '乘{name}上到 {floor} 层', lift_down: '乘{name}下到 {floor} 层',
@@ -788,13 +811,15 @@ photoView: '查看实景照片', photoTitle: '该地点的实景照片',
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
-photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
+      galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
+      galleryHint: 'မြေပုံပေါ်ရှိ နေရာတိုင်းတွင် ကိုယ်ပိုင်ပုံ ရှိသည်။ ပုံကြီးကြည့်ရန် သို့မဟုတ် တကယ့်ဓာတ်ပုံဖြင့် အစားထိုးရန် နှိပ်ပါ။',
+      photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
       photoNone: 'ဤနေရာအတွက် ဓာတ်ပုံ မရှိသေးပါ', photoAdd: 'ဤနေရာကို ဓာတ်ပုံရိုက်ရန်', photoRetake: 'ပြန်ရိုက်ရန်',
       photoRemove: 'ဓာတ်ပုံ ဖျက်ရန်', photoSaved: '{p} ၏ ဓာတ်ပုံကို သိမ်းပြီးပါပြီ', photoRemoved: '{p} ၏ ဓာတ်ပုံကို ဖျက်ပြီးပါပြီ',
       photoHint: 'လူနာများ လျှောက်လာသည့် ဘက်မှ ရိုက်ထားသော ဓာတ်ပုံသည် စာဖြင့် ဖော်ပြခြင်းထက် ပိုမြန်မြန် မှတ်မိစေသည်။',
       photoStored: 'ဤစက်ထဲတွင်သာ သိမ်းထားသည်။ တကယ့်စနစ်တွင် node_photos ဇယားတွင် သိမ်းသည်။',
       photoFull: 'စက်၏ ဓာတ်ပုံနေရာ ပြည့်နေပါပြီ။ အဟောင်းများကို အရင်ဖျက်ပါ။',
-            'turn.left': 'ဘယ်ဘက် ကွေ့ပါ', 'turn.right': 'ညာဘက် ကွေ့ပါ',
+      'turn.left': 'ဘယ်ဘက် ကွေ့ပါ', 'turn.right': 'ညာဘက် ကွေ့ပါ',
       'turn.straight': 'တည့်တည့် လျှောက်ပါ', 'turn.back': 'နောက်ပြန် လှည့်ပါ',
       walk: '{m} မီတာ လျှောက်ပါ', toward: '{to} သို့',
       lift_up: '{name} ဖြင့် {floor} လွှာသို့ တက်ပါ', lift_down: '{name} ဖြင့် {floor} လွှာသို့ ဆင်းပါ',
@@ -843,13 +868,15 @@ photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', phot
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
-photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
+      galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
+      galleryHint: 'У каждого места на карте есть своё изображение. Нажмите, чтобы открыть крупно или заменить реальным фото.',
+      photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
       photoNone: 'Фото этого места пока нет', photoAdd: 'Сфотографировать это место', photoRetake: 'Переснять',
       photoRemove: 'Удалить фото', photoSaved: 'Фото «{p}» сохранено', photoRemoved: 'Фото «{p}» удалено',
       photoHint: 'Снимок с той стороны, откуда идут пациенты, узнаётся быстрее любого описания.',
       photoStored: 'Хранится только на этом устройстве. В рабочей системе — в таблице node_photos.',
       photoFull: 'Память устройства для фото заполнена. Сначала удалите старое фото.',
-            'turn.left': 'поверните налево', 'turn.right': 'поверните направо',
+      'turn.left': 'поверните налево', 'turn.right': 'поверните направо',
       'turn.straight': 'идите прямо', 'turn.back': 'развернитесь',
       walk: 'пройдите {m} м', toward: 'до {to}',
       lift_up: 'поднимитесь на {name} на {floor} этаж', lift_down: 'спуститесь на {name} на {floor} этаж',
@@ -888,6 +915,19 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
     'LOBBY-A2': { icon: '🛗', building: 'A', floor: 2, th: 'โถงลิฟต์ A ชั้น 2', en: 'the Lift A lobby, 2F', zh: 'A 座 2 层电梯厅', my: 'A ဓာတ်လှေကား ခန်းမ (2 လွှာ)', ru: 'холл лифта A, 2 этаж' },
     'LOBBY-B3': { icon: '🛗', building: 'B', floor: 3, th: 'โถงลิฟต์ B ชั้น 3', en: 'the Lift B lobby, 3F', zh: 'B 座 3 层电梯厅', my: 'B ဓာတ်လှေကား ခန်းမ (3 လွှာ)', ru: 'холл лифта B, 3 этаж' },
     'LOBBY-C4': { icon: '🪧', building: 'C', floor: 4, th: 'หน้าลิฟต์ C ชั้น 4', en: 'the Lift C lobby, 4F', zh: 'C 座 4 层电梯厅', my: 'C ဓာတ်လှေကား ခန်းမ (4 လွှာ)', ru: 'холл лифта C, 4 этаж' },
+    // จุดอื่นในโรงพยาบาล — แผนกและบริการที่ผู้ป่วยอาจต้องไป แม้ไม่ได้อยู่ในเส้นทางของวันนี้
+    'A1-ENT':     { icon: '🚪', building: 'A', floor: 1, th: 'ทางเข้าหลัก', en: 'Main entrance', zh: '正门', my: 'ပင်မဝင်ပေါက်', ru: 'Главный вход' },
+    'A1-APT':     { icon: '📅', building: 'A', floor: 1, th: 'จุดนัดหมาย', en: 'Appointment desk', zh: '预约处', my: 'ချိန်းဆိုမှု ကောင်တာ', ru: 'Запись на приём' },
+    'A1-ATM':     { icon: '🏧', building: 'A', floor: 1, th: 'ตู้เอทีเอ็ม', en: 'ATM', zh: '自动取款机', my: 'ATM စက်', ru: 'Банкомат' },
+    'A2-GP':      { icon: '👨‍⚕️', building: 'A', floor: 2, th: 'ห้องตรวจทั่วไป', en: 'General clinic', zh: '普通门诊', my: 'အထွေထွေ ဆေးခန်း', ru: 'Общая клиника' },
+    'C4-MED-401': { icon: '🚪', building: 'C', floor: 4, th: 'ห้องตรวจ 401', en: 'Room 401', zh: '401 诊室', my: 'ဆေးခန်း 401', ru: 'Кабинет 401' },
+    'C4-MED-403': { icon: '🚪', building: 'C', floor: 4, th: 'ห้องตรวจ 403', en: 'Room 403', zh: '403 诊室', my: 'ဆေးခန်း 403', ru: 'Кабинет 403' },
+    'A1-WC':      { icon: '🚻', building: 'A', floor: 1, th: 'ห้องน้ำชั้น 1', en: 'Toilet, 1F', zh: '1 层洗手间', my: 'အိမ်သာ (1 လွှာ)', ru: 'Туалет, 1 этаж' },
+    'A2-WC':      { icon: '🚻', building: 'A', floor: 2, th: 'ห้องน้ำชั้น 2', en: 'Toilet, 2F', zh: '2 层洗手间', my: 'အိမ်သာ (2 လွှာ)', ru: 'Туалет, 2 этаж' },
+    'B3-WC':      { icon: '🚻', building: 'B', floor: 3, th: 'ห้องน้ำชั้น 3', en: 'Toilet, 3F', zh: '3 层洗手间', my: 'အိမ်သာ (3 လွှာ)', ru: 'Туалет, 3 этаж' },
+    'C4-WC':      { icon: '🚻', building: 'C', floor: 4, th: 'ห้องน้ำชั้น 4', en: 'Toilet, 4F', zh: '4 层洗手间', my: 'အိမ်သာ (4 လွှာ)', ru: 'Туалет, 4 этаж' },
+    'A1-STAIR':   { icon: '🪜', building: 'A', floor: 1, th: 'บันได A', en: 'Stairs A', zh: 'A 座楼梯', my: 'A လှေကား', ru: 'Лестница A' },
+    'B2-STAIR':   { icon: '🪜', building: 'B', floor: 2, th: 'บันได B', en: 'Stairs B', zh: 'B 座楼梯', my: 'B လှေကား', ru: 'Лестница B' },
     'BRIDGE':  { icon: '🌉', building: 'A', floor: 2, th: 'ทางเชื่อม', en: 'the bridge', zh: '连廊', my: 'ချိတ်ဆက်လမ်း', ru: 'переход' },
   };
 
@@ -1017,6 +1057,28 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
     'LOBBY-C4': { kind: 'lift',    color: '#166534', prop: 'plant' },
     'RAMP-C':   { kind: 'ramp',    color: '#166534' },
     'BRIDGE':   { kind: 'bridge',  color: '#0369a1' },
+    'A1-ENT':     { kind: 'entrance', color: '#0f766e', prop: 'plant' },
+    'A1-APT':     { kind: 'desk',     color: '#0f766e' },
+    'A1-ATM':     { kind: 'atm',      color: '#b45309' },
+    'A2-GP':      { kind: 'exam',     color: '#15803d' },
+    'C4-MED-401': { kind: 'exam',     color: '#166534' },
+    'C4-MED-403': { kind: 'exam',     color: '#166534' },
+    'A1-WC':      { kind: 'toilet',   color: '#475569' },
+    'A2-WC':      { kind: 'toilet',   color: '#475569' },
+    'B3-WC':      { kind: 'toilet',   color: '#475569' },
+    'C4-WC':      { kind: 'toilet',   color: '#475569' },
+    'A1-STAIR':   { kind: 'stairs',   color: '#b45309' },
+    'B2-STAIR':   { kind: 'stairs',   color: '#b45309' },
+  };
+
+  /** ตัววาดของแต่ละชนิดจุด — ประกาศทีหลัง จึงห่อไว้ให้เรียกตอนใช้งานจริง */
+  const SCENE_PAINTERS = {
+    counter: (...args) => drawCounter(...args), door: (...args) => drawDoor(...args),
+    seats: (...args) => drawSeats(...args), lift: (...args) => drawLift(...args),
+    ramp: (...args) => drawRamp(...args), bridge: (...args) => drawBridge(...args),
+    exam: (...args) => drawExam(...args), desk: (...args) => drawDesk(...args),
+    toilet: (...args) => drawToilet(...args), entrance: (...args) => drawEntrance(...args),
+    stairs: (...args) => drawStairs(...args), atm: (...args) => drawAtm(...args),
   };
 
   const W = 800;
@@ -1042,8 +1104,7 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
     const ctx = canvas.getContext('2d');
 
     drawRoom(ctx);
-    ({ counter: drawCounter, door: drawDoor, seats: drawSeats, lift: drawLift, ramp: drawRamp, bridge: drawBridge })
-      [scene.kind](ctx, scene);
+    SCENE_PAINTERS[scene.kind](ctx, scene);
     if (scene.prop === 'water') drawWaterDispenser(ctx);
     if (scene.prop === 'plant') drawPlant(ctx);
     drawSign(ctx, scene, code);
@@ -1167,6 +1228,105 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
     }
     ctx.fillStyle = '#eef4f6';                              // ปลายทางเชื่อม
     roundRect(ctx, 330, 168, 140, 162, 5); ctx.fill();
+  }
+
+  function drawExam(ctx, scene) {
+    ctx.fillStyle = '#e3e9eb';
+    ctx.fillRect(140, 96, W - 280, HORIZON - 96);
+    ctx.fillStyle = scene.color;                            // ม่านกั้นเตียง
+    ctx.fillRect(452, 120, 196, 210);
+    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    for (let i = 0; i < 6; i += 1) ctx.fillRect(460 + i * 32, 120, 10, 210);
+    ctx.fillStyle = '#eef2f3';                              // เตียงตรวจ
+    roundRect(ctx, 190, 296, 234, 34, 8); ctx.fill();
+    ctx.fillStyle = '#9fb0b7';
+    ctx.fillRect(206, 330, 12, 62);
+    ctx.fillRect(396, 330, 12, 62);
+    ctx.fillStyle = scene.color;
+    roundRect(ctx, 190, 286, 234, 16, 8); ctx.fill();
+    ctx.fillStyle = '#cfd8dc';                              // โคมไฟตรวจ
+    ctx.beginPath(); ctx.arc(170, 200, 26, 0, 7); ctx.fill();
+    ctx.fillRect(166, 200, 8, 130);
+  }
+
+  function drawDesk(ctx, scene) {
+    ctx.fillStyle = scene.color;
+    roundRect(ctx, 250, 300, 300, 106, 8); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.16)';
+    ctx.fillRect(396, 300, 4, 106);
+    ctx.fillStyle = '#c9d2d6';
+    roundRect(ctx, 240, 286, 320, 18, 6); ctx.fill();
+    ctx.fillStyle = '#eef2f3';                              // ปฏิทินตั้งโต๊ะ
+    roundRect(ctx, 296, 246, 62, 44, 4); ctx.fill();
+    ctx.fillStyle = scene.color;
+    ctx.fillRect(296, 246, 62, 12);
+    ctx.fillStyle = '#b9c4c9';                              // เก้าอี้ผู้ป่วย
+    roundRect(ctx, 588, 316, 74, 18, 6); ctx.fill();
+    roundRect(ctx, 588, 262, 74, 54, 8); ctx.fill();
+  }
+
+  function drawToilet(ctx, scene) {
+    ctx.fillStyle = '#c9d2d6';
+    roundRect(ctx, 300, 144, 200, 186, 5); ctx.fill();
+    ctx.fillStyle = '#f2f6f7';
+    roundRect(ctx, 310, 154, 180, 176, 4); ctx.fill();
+    ctx.fillStyle = scene.color;                            // ป้ายห้องน้ำข้างประตู
+    roundRect(ctx, 522, 164, 66, 86, 6); ctx.fill();
+    ctx.fillStyle = '#9fb0b7';                              // ราวจับสำหรับรถเข็น
+    roundRect(ctx, 250, 260, 14, 70, 7); ctx.fill();
+  }
+
+  function drawEntrance(ctx, scene) {
+    ctx.fillStyle = '#cfe4ea';                              // แสงจากภายนอกผ่านประตูกระจก
+    roundRect(ctx, 250, 120, 300, 210, 5); ctx.fill();
+    ctx.fillStyle = '#b6ccd3';
+    ctx.fillRect(396, 120, 8, 210);
+    ctx.strokeStyle = '#94b0ba';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(250, 120, 300, 210);
+    ctx.fillStyle = scene.color;                            // กันสาดเหนือประตู
+    roundRect(ctx, 226, 96, 348, 22, 6); ctx.fill();
+    ctx.fillStyle = '#d9d3c9';                              // ทางลาดหน้าประตู
+    ctx.beginPath();
+    ctx.moveTo(210, H); ctx.lineTo(300, HORIZON); ctx.lineTo(500, HORIZON); ctx.lineTo(590, H);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function drawStairs(ctx, scene) {
+    for (let i = 0; i < 7; i += 1) {                        // ขั้นบันไดไล่ขึ้นไปหาจุดรวมสายตา
+      const y = H - 40 - i * 34;
+      const inset = i * 26;
+      ctx.fillStyle = i % 2 ? '#d2cbc1' : '#ddd7ce';
+      ctx.fillRect(180 + inset, y, 440 - inset * 2, 34);
+      ctx.fillStyle = scene.color;                          // แถบกันลื่นขอบขั้น
+      ctx.fillRect(180 + inset, y, 440 - inset * 2, 6);
+    }
+    ctx.strokeStyle = '#9fb0b7';                            // ราวบันไดสองข้าง
+    ctx.lineWidth = 8;
+    ctx.beginPath(); ctx.moveTo(170, H - 60); ctx.lineTo(352, 300); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(630, H - 60); ctx.lineTo(448, 300); ctx.stroke();
+  }
+
+  function drawAtm(ctx, scene) {
+    ctx.fillStyle = '#c4ccd0';                              // ตัวตู้
+    roundRect(ctx, 300, 128, 200, 232, 10); ctx.fill();
+    ctx.fillStyle = scene.color;                            // แถบสีธนาคารด้านบน
+    roundRect(ctx, 300, 128, 200, 40, 10); ctx.fill();
+    ctx.fillStyle = '#1d3b46';                              // จอ
+    roundRect(ctx, 326, 182, 148, 92, 6); ctx.fill();
+    ctx.fillStyle = '#6fb3c9';
+    roundRect(ctx, 340, 196, 120, 10, 5); ctx.fill();
+    roundRect(ctx, 340, 216, 84, 10, 5); ctx.fill();
+    ctx.fillStyle = '#e8edef';                              // แป้นกด
+    for (let r = 0; r < 3; r += 1) {
+      for (let c = 0; c < 3; c += 1) {
+        roundRect(ctx, 344 + c * 38, 290 + r * 24, 30, 18, 4); ctx.fill();
+      }
+    }
+    ctx.fillStyle = '#7d8e96';                              // ช่องรับบัตรและช่องเงิน
+    ctx.fillRect(330, 288, 8, 64);
+    ctx.fillStyle = '#5c6b73';
+    roundRect(ctx, 326, 362, 148, 12, 4); ctx.fill();
   }
 
   function drawWaterDispenser(ctx) {
@@ -1562,6 +1722,33 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
       </button>`;
   }
 
+  /** รูปทุกจุดในผัง จัดกลุ่มตามอาคารและชั้น */
+  function gallerySheet() {
+    const groups = new Map();
+    for (const code of Object.keys(SCENES)) {
+      const label = placeAt(code);
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(code);
+    }
+
+    openSheet(`
+      <h2>${esc(t('galleryTitle'))}</h2>
+      <p class="demo-note">${esc(t('galleryHint'))}</p>
+      ${[...groups].sort(([a], [b]) => a.localeCompare(b)).map(([label, codes]) => `
+        <p class="group-label">${esc(label)}</p>
+        <div class="gallery">
+          ${codes.map((code) => `
+            <button data-act="photo" data-code="${code}">
+              <img src="${photoOf(code).src}" alt="">
+              <b>${PLACES[code].icon} ${esc(placeName(code))}</b>
+              <small>${userPhotos[code]
+                ? `<span class="dot">●</span> ${esc(t('photoTitle'))}`
+                : 'ภาพจำลอง · illustration'}</small>
+            </button>`).join('')}
+        </div>`).join('')}
+      <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
+  }
+
   function photoSheet(code) {
     const photo = photoOf(code);
     openSheet(`
@@ -1578,6 +1765,8 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
       </button>
       ${photo.real ? `<button class="pick" data-act="dropphoto" data-code="${code}">
         <span class="pick__icon">🗑</span><span><b>${esc(t('photoRemove'))}</b></span></button>` : ''}
+      <button class="pick" data-act="gallery">
+        <span class="pick__icon">🏥</span><span><b>${esc(t('galleryOpen'))}</b></span></button>
       <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
   }
 
@@ -1616,6 +1805,8 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
       <span><b>${esc(state.liftClosed ? t('demoLiftOpen') : t('demoLift'))}</b><span>${esc(t('demoLiftHint'))}</span></span></button>
     <button class="pick" data-act="xray"><span class="pick__icon">📷</span>
       <span><b>${esc(t('demoXray'))}</b><span>${esc(t('demoXrayHint'))}</span></span></button>
+    <button class="pick" data-act="gallery"><span class="pick__icon">🏥</span>
+      <span><b>${esc(t('galleryOpen'))}</b></span></button>
     <button class="pick" data-act="reset"><span class="pick__icon">↻</span>
       <span><b>${esc(t('demoReset'))}</b></span></button>
     <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
@@ -1653,6 +1844,7 @@ photoView: 'Посмотреть фото', photoTitle: 'Фото этого м�
     closesheet: () => el.sheet.close(),
 
     photo: (button) => photoSheet(button.dataset.code),
+    gallery: gallerySheet,
 
     shoot: (button) => {
       pendingPhotoCode = button.dataset.code;

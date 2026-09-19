@@ -10,6 +10,7 @@ A1-LIFT,A,1,,elevator,ลิฟต์ A,Lift A,,,🛗,0
 A1-STAIR,A,1,,stairs,บันได A,Stairs A,,,🪜,0
 A1-WC,A,1,,toilet,ห้องน้ำชั้น 1,Toilet 1F,ข้างบันได A,Next to stairs A,🚻,0
 A1-CAFE,A,1,,poi,ร้านกาแฟ,Café,โถงทางเข้า,Entrance hall,☕,0
+A1-ATM,A,1,,poi,ตู้เอทีเอ็ม,ATM,ข้างร้านกาแฟ โถงทางเข้า,Next to the café in the entrance hall,🏧,0
 A2-LIFT,A,2,,elevator,ลิฟต์ A,Lift A,,,🛗,0
 A2-STAIR,A,2,,stairs,บันได A,Stairs A,,,🪜,0
 A2-J1,A,2,,junction,,,หน้าลิฟต์ A ชั้น 2,Lift A lobby 2F,,1
