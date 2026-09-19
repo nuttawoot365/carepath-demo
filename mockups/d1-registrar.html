@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>d1 · เวชระเบียน — เปิด visit</title>
+</head>
+<body>
+<p class="caption"><strong>d1 · เวชระเบียน</strong> — เปิด visit และพิมพ์บัตรคิว · profile ตั้งครั้งเดียวที่นี่ แล้วมีผลกับการคำนวณเส้นทางทั้งวัน</p>
+
+<div class="frame frame--desk">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">🪪</span>
+      <span class="bar__title">เวชระเบียน · ปราณี</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">20 ก.ย. 2569 · 09:48</span>
+    </header>
+
+    <div class="split" style="padding:18px;gap:18px">
+      <div style="display:grid;gap:14px">
+        <section class="card">
+          <p class="eyebrow">1 · ผู้ป่วย</p>
+          <div class="btn-row" style="margin:10px 0">
+            <button class="btn btn--primary">ผู้ป่วยเก่า (ค้น HN)</button>
+            <button class="btn">ผู้ป่วยใหม่</button>
+          </div>
+          <div class="field">
+            <label for="q">ค้นด้วย HN หรือชื่อ</label>
+            <input class="input" id="q" value="สม" readonly>
+          </div>
+          <table class="table" style="margin-top:10px">
+            <thead><tr><th>HN</th><th>ชื่อ</th><th>ภาษา</th><th></th></tr></thead>
+            <tbody>
+              <tr aria-selected="true"><td>0012345</td><td>สมชาย</td><td>ไทย</td><td><span class="tag">เลือกแล้ว</span></td></tr>
+              <tr><td>0012346</td><td>สมหญิง</td><td>ไทย</td><td><button class="btn" style="min-height:32px;padding:4px 12px">เลือก</button></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="card">
+          <p class="eyebrow">2 · แม่แบบขั้นตอน</p>
+          <div class="cols-2" style="margin-top:10px">
+            <div class="check check--on">✅ <span>DM-FU · เบาหวานรายเก่า — ตามนัด <br><span class="step__meta">7 ขั้น · เจาะเลือดก่อน 11:00</span></span></div>
+            <div class="check">⬜ <span>WALKIN · ผู้ป่วยนอกทั่วไป <br><span class="step__meta">5 ขั้น</span></span></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <p class="eyebrow">3 · ความต้องการพิเศษ (profile)</p>
+          <div class="cols-3" style="margin-top:10px">
+            <div class="check check--on">♿ ใช้รถเข็น</div>
+            <div class="check check--on">🧓 ผู้สูงอายุ</div>
+            <div class="check">👓 สายตาเลือนราง</div>
+            <div class="check check--on">👥 มีญาติมาด้วย</div>
+            <div class="check">📵 ไม่มีมือถือ</div>
+            <div class="field">
+              <label for="lang">ภาษา</label>
+              <select class="select" id="lang"><option>ไทย</option><option>English</option></select>
+            </div>
+          </div>
+          <p class="step__meta" style="margin-top:8px">♿ ทำให้ระบบตัดบันไดออกจากเส้นทางทั้งหมด · 📵 ทำให้บัตรกระดาษพิมพ์คำสั่งละเอียดขึ้น</p>
+        </section>
+      </div>
+
+      <aside style="display:grid;gap:14px;align-content:start">
+        <section class="card card--hero" style="text-align:center">
+          <p class="eyebrow">ตัวอย่างบัตรคิว (A5)</p>
+          <p style="font-size:52px;font-weight:800;line-height:1.1">A-017</p>
+          <div style="width:132px;height:132px;margin:8px auto;background:
+            repeating-conic-gradient(#17242b 0 25%, #fff 0 50%) 0 0/16px 16px;border:6px solid #fff;outline:1px solid var(--line)"
+            role="img" aria-label="คิวอาร์โค้ดสำหรับเปิดหน้าผู้ป่วย"></div>
+          <p style="font-size:22px;font-weight:700;letter-spacing:.08em">A017-3K9</p>
+          <p class="step__meta">พิมพ์ขั้นตอนทั้งวันไว้หลังบัตร — ผู้ป่วยไม่มีมือถือก็เดินได้ครบ</p>
+        </section>
+
+        <button class="btn btn--primary btn--block btn--lg">เปิด visit และพิมพ์บัตร</button>
+
+        <section class="card">
+          <p class="eyebrow">ระบบเตือนล่วงหน้า</p>
+          <p class="tag tag--deadline" style="margin-top:6px">ก่อน 11:00</p>
+          <p style="margin-top:6px">ขั้น "เจาะเลือด" มีกำหนดเวลา — ถ้าเปิด visit หลัง 10:20 ระบบจะจัดให้ไปเจาะเลือดเป็นขั้นแรก</p>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

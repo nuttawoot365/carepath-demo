@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>d5 · ผู้บริหาร — คอขวด</title>
+</head>
+<body>
+<p class="caption"><strong>d5 · ผู้บริหาร</strong> — เวลารอคำนวณจากเวลาที่ระบบบันทึกเอง (เรียก − มาถึง) ไม่ได้ให้ใครกรอก · ไม่มีชื่อผู้ป่วยบนหน้านี้</p>
+
+<div class="frame frame--desk">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">📊</span>
+      <span class="bar__title">ภาพรวมวันนี้ · 20 ก.ย. 2569</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">ข้อมูลถึง 16:00</span>
+    </header>
+
+    <div style="padding:18px;display:grid;gap:14px">
+      <div class="cols-3">
+        <section class="card"><p class="stat__value">312</p><p class="stat__label">ผู้ป่วยที่เปิด visit</p></section>
+        <section class="card"><p class="stat__value">187</p><p class="stat__label">เดินครบทุกขั้นแล้ว</p></section>
+        <section class="card"><p class="stat__value">96 น.</p><p class="stat__label">เวลาเฉลี่ยตลอดกระบวนการ</p></section>
+      </div>
+
+      <section class="card">
+        <p class="eyebrow">เวลารอเฉลี่ยรายแผนก</p>
+        <table class="table" style="margin-top:8px">
+          <thead><tr><th>แผนก</th><th>เวลารอเฉลี่ย</th><th style="width:50%">สัดส่วน</th><th>จำนวนครั้ง</th></tr></thead>
+          <tbody>
+            <tr aria-selected="true">
+              <td>💊 ห้องยา</td><td><strong>22 นาที</strong></td>
+              <td><span style="display:block;height:12px;width:100%;border-radius:6px;background:var(--warn)"></span></td>
+              <td>187</td>
+            </tr>
+            <tr>
+              <td>🩸 ห้องเจาะเลือด</td><td>14 นาที</td>
+              <td><span style="display:block;height:12px;width:64%;border-radius:6px;background:var(--deadline)"></span></td>
+              <td>121</td>
+            </tr>
+            <tr>
+              <td>👨‍⚕️ อายุรกรรม</td><td>11 นาที</td>
+              <td><span style="display:block;height:12px;width:50%;border-radius:6px;background:var(--primary)"></span></td>
+              <td>96</td>
+            </tr>
+            <tr>
+              <td>🩺 จุดคัดกรอง</td><td>6 นาที</td>
+              <td><span style="display:block;height:12px;width:27%;border-radius:6px;background:var(--success)"></span></td>
+              <td>238</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card card--warn">
+        <p class="eyebrow">จุดคอขวดของวันนี้</p>
+        <p style="margin-top:6px"><strong>ห้องยา</strong> — รอเฉลี่ย 22 นาที สูงกว่าค่าเฉลี่ยรวม 2.4 เท่า กระจุกช่วง 11:00–12:30</p>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>

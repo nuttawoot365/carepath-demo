@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>p1 · ขั้นตอนวันนี้ (ผู้ป่วย)</title>
+</head>
+<body>
+<p class="caption"><strong>p1 · ขั้นตอนวันนี้</strong> — ผู้ป่วย · มือถือ 390 px · สถานการณ์ 2.1 มาสาย 10:40 ระบบยกเจาะเลือดขึ้นก่อนคัดกรอง</p>
+
+<div class="frame frame--phone">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">🏥</span>
+      <span class="bar__title">คิว A-017 · สมชาย</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">ไทย</span>
+    </header>
+
+    <div class="pad">
+      <section class="card card--deadline" role="status">
+        <p class="eyebrow">⚠ ต้องรีบ</p>
+        <p><strong>เจาะเลือดต้องเสร็จก่อน 11:00</strong> — ผู้ป่วยงดอาหารมา ระบบจัดให้ไปเจาะเลือดก่อนคัดกรอง</p>
+        <p class="step__meta">เหลืออีก 20 นาที · ตอนนี้ 10:40</p>
+      </section>
+
+      <section class="card card--hero">
+        <p class="eyebrow">ตอนนี้ไปที่</p>
+        <div class="hero">
+          <span class="hero__icon" aria-hidden="true">🩸</span>
+          <div>
+            <p class="hero__name">ห้องเจาะเลือด</p>
+            <p class="hero__where">อาคาร B ชั้น 3 · เดิน 4 นาที · 142 เมตร</p>
+          </div>
+        </div>
+        <p style="margin-top:12px">
+          <a class="btn btn--primary btn--block btn--lg" href="p2-patient-navigate.html">ดูเส้นทาง ➡</a>
+        </p>
+      </section>
+
+      <section>
+        <p class="eyebrow" style="margin-bottom:8px">ขั้นตอนวันนี้ · เหลืออีก 6 จาก 7</p>
+        <ol class="steps">
+          <li class="step step--done">
+            <span class="step__no">✓</span><span class="step__icon" aria-hidden="true">🪪</span>
+            <span><span class="step__name">ยื่นบัตรและยืนยันการนัด</span><br><span class="step__meta">อาคาร A ชั้น 1</span></span>
+            <span class="step__tag">09:52</span>
+          </li>
+          <li class="step step--now">
+            <span class="step__no">2</span><span class="step__icon" aria-hidden="true">🩸</span>
+            <span><span class="step__name">เจาะเลือด</span><br><span class="step__meta">อาคาร B ชั้น 3 · ห้องเจาะเลือด</span></span>
+            <span class="tag tag--deadline">ก่อน 11:00</span>
+          </li>
+          <li class="step">
+            <span class="step__no">3</span><span class="step__icon" aria-hidden="true">🩺</span>
+            <span><span class="step__name">ชั่งน้ำหนัก วัดความดัน</span><br><span class="step__meta">อาคาร A ชั้น 2 · จุดคัดกรอง</span></span>
+            <span class="step__tag">10 นาที</span>
+          </li>
+          <li class="step">
+            <span class="step__no">4</span><span class="step__icon" aria-hidden="true">🪑</span>
+            <span><span class="step__name">รอผลตรวจ</span><br><span class="step__meta">อาคาร B ชั้น 3 · จุดพักคอย</span></span>
+            <span class="step__tag">ราว 75 นาที</span>
+          </li>
+          <li class="step">
+            <span class="step__no">5</span><span class="step__icon" aria-hidden="true">👨‍⚕️</span>
+            <span><span class="step__name">พบแพทย์</span><br><span class="step__meta">อาคาร C ชั้น 4 · อายุรกรรม</span></span>
+            <span class="step__tag">15 นาที</span>
+          </li>
+          <li class="step">
+            <span class="step__no">6</span><span class="step__icon" aria-hidden="true">💳</span>
+            <span><span class="step__name">ชำระเงิน</span><br><span class="step__meta">อาคาร A ชั้น 1 · การเงิน</span></span>
+            <span class="step__tag">5 นาที</span>
+          </li>
+          <li class="step">
+            <span class="step__no">7</span><span class="step__icon" aria-hidden="true">💊</span>
+            <span><span class="step__name">รับยา</span><br><span class="step__meta">อาคาร A ชั้น 1 · ห้องยา</span></span>
+            <span class="step__tag">15 นาที</span>
+          </li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">ตำแหน่งล่าสุด</p>
+        <p>📍 จุดคัดกรอง อาคาร A ชั้น 2 <span class="tag tag--muted">เจ้าหน้าที่ยืนยัน 10:31</span></p>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn">📷 สแกน QR ที่ผนัง</button>
+          <button class="btn">📍 ฉันอยู่ที่…</button>
+        </div>
+      </section>
+
+      <p class="step__meta">ใช้รถเข็น ♿ — ระบบเลี่ยงบันไดให้อัตโนมัติ · ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว A-017</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

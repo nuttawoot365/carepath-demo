@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>d4 · admin — แม่แบบขั้นตอน</title>
+</head>
+<body>
+<p class="caption"><strong>d4 · admin · แม่แบบ Care Pathway</strong> — แก้แม่แบบมีผลกับ visit ที่เปิดใหม่เท่านั้น แผนของผู้ป่วยที่กำลังเดินอยู่ไม่เปลี่ยน (เก็บเป็น snapshot ตอนเปิด visit)</p>
+
+<div class="frame frame--desk">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">📋</span>
+      <span class="bar__title">แม่แบบ · DM-FU เบาหวานรายเก่า — ตามนัด</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">7 ขั้น</span>
+    </header>
+
+    <div style="padding:18px;display:grid;gap:14px">
+      <table class="table">
+        <thead>
+          <tr><th>ลำดับ</th><th>ชื่อขั้น</th><th>จุดบริการ</th><th>ต้องทำหลังขั้น</th><th>กำหนดเวลา</th><th>เวลาที่ใช้</th><th>รอผล</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>ยื่นบัตรและยืนยันการนัด</td><td>🪪 A1-REG</td><td>—</td><td>—</td><td>5 น.</td><td>—</td></tr>
+          <tr><td>2</td><td>ชั่งน้ำหนัก วัดความดัน</td><td>🩺 A2-SCR</td><td>1</td><td>—</td><td>10 น.</td><td>—</td></tr>
+          <tr aria-selected="true"><td>3</td><td>เจาะเลือด</td><td>🩸 B3-LAB</td><td>1</td><td><span class="tag tag--deadline">ก่อน 11:00</span></td><td>10 น.</td><td>—</td></tr>
+          <tr><td>4</td><td>รอผลตรวจ</td><td>🪑 B3-WAIT</td><td>3</td><td>—</td><td>75 น.</td><td>—</td></tr>
+          <tr><td>5</td><td>พบแพทย์</td><td>👨‍⚕️ C4-MED-CTR</td><td>3, 4</td><td>—</td><td>15 น.</td><td>—</td></tr>
+          <tr><td>6</td><td>ชำระเงิน</td><td>💳 A1-PAY</td><td>5</td><td>—</td><td>5 น.</td><td>—</td></tr>
+          <tr><td>7</td><td>รับยา</td><td>💊 A1-PHA</td><td>6</td><td>—</td><td>15 น.</td><td>—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="cols-2">
+        <section class="card card--deadline">
+          <p class="eyebrow">กำหนดเวลาของขั้นที่ 3</p>
+          <p style="margin-top:6px"><strong>ก่อน 11:00</strong> — เหตุผล: ผู้ป่วยงดอาหารมา ต้องเจาะก่อน 11:00</p>
+          <p class="step__meta" style="margin-top:6px">ระบบจะยกขั้นนี้ขึ้นก่อนขั้นอื่นให้อัตโนมัติเมื่อเวลาที่เหลือไม่พอ และบอกเหตุผลนี้กับผู้ป่วยตรง ๆ</p>
+        </section>
+        <section class="card">
+          <p class="eyebrow">เงื่อนไขลำดับ (prereq)</p>
+          <p style="margin-top:6px">ขั้นที่ 5 ต้องทำหลังขั้น 3 และ 4 — เก็บเป็นแถวในตาราง ไม่ใช่ข้อความ "3;4" จึงตรวจการวนซ้ำได้</p>
+          <p class="step__meta" style="margin-top:6px">ขั้นที่ไม่ผูกเงื่อนไขกันทำสลับก่อนหลังได้ ระบบเลือกอันที่ใกล้ที่สุดให้</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

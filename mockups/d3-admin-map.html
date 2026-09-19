@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>d3 · admin — ผังและเส้นทาง</title>
+</head>
+<body>
+<p class="caption"><strong>d3 · admin · ผังและเส้นทาง</strong> — ปิดลิฟต์ 1 ครั้ง ระบบแจ้งผู้ป่วยที่กระทบทั้งหมดเอง · ตรวจกราฟหาจุดที่เดินไปไม่ถึงก่อนวันใช้งานจริง</p>
+
+<div class="frame frame--desk">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">🛠</span>
+      <span class="bar__title">ผู้ดูแลระบบ</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">48 จุด · 104 เส้นทาง</span>
+    </header>
+
+    <div class="split split--wide">
+      <nav class="side">
+        <a class="side__link side__link--active" href="#">🗺 ผังและเส้นทาง</a>
+        <a class="side__link" href="d4-admin-template.html">📋 แม่แบบขั้นตอน</a>
+        <a class="side__link" href="#">👥 ผู้ใช้และสิทธิ์</a>
+        <a class="side__link" href="#">📜 audit log</a>
+        <a class="side__link" href="#">🎬 ตัวจำลองสถานการณ์</a>
+      </nav>
+
+      <div style="padding:18px;display:grid;gap:14px">
+        <section class="card card--warn">
+          <p class="eyebrow">บันทึกสถานะเส้นทาง</p>
+          <div class="btn-row" style="margin-top:10px;align-items:center">
+            <select class="select"><option>ลิฟต์ B (B2-LIFT ↔ B3-LIFT)</option><option>ทางเชื่อม A→B</option></select>
+            <select class="select"><option>ปิดใช้งาน</option><option>เปิดใช้งาน</option></select>
+            <input class="input" value="ซ่อมบำรุง ถึง 15:00" readonly>
+            <button class="btn btn--warn">บันทึก</button>
+          </div>
+          <p style="margin-top:10px">ผลล่าสุด: ปิดแล้ว 2 ทิศทาง · แจ้งเตือนผู้ป่วย <strong>4 ราย</strong> ที่เส้นทางเดิมผ่านลิฟต์นี้ · คำนวณเส้นทางใหม่ทันที</p>
+        </section>
+
+        <div class="cols-2">
+          <section class="card">
+            <p class="eyebrow">ตรวจกราฟ</p>
+            <ul style="margin:10px 0 0;padding-inline-start:20px">
+              <li>จุดที่เดินไปไม่ถึงเลย: <span class="tag tag--success">ไม่มี</span></li>
+              <li>♿ รถเข็นไปไม่ถึง: <span class="tag tag--warn">1 จุด — บันไดหนีไฟ B</span></li>
+              <li>จุดที่ยังไม่มีเส้นทางเชื่อม: <span class="tag tag--success">ไม่มี</span></li>
+            </ul>
+            <p class="step__meta" style="margin-top:8px">ตรวจซ้ำได้ทุกครั้งหลังนำเข้า CSV</p>
+          </section>
+
+          <section class="card">
+            <p class="eyebrow">ทดลองเดิน</p>
+            <div class="btn-row" style="margin-top:10px">
+              <select class="select" style="flex:1"><option>A2-SCR จุดคัดกรอง</option></select>
+              <select class="select" style="flex:1"><option>B3-LAB ห้องเจาะเลือด</option></select>
+            </div>
+            <div class="btn-row" style="margin-top:8px">
+              <span class="check check--on">♿ รถเข็น</span>
+              <span class="check">🧓 ผู้สูงอายุ</span>
+              <button class="btn btn--primary">คำนวณ</button>
+            </div>
+            <p style="margin-top:10px"><strong>331 วินาที · 217 เมตร</strong> · ผ่านทางเชื่อม C และทางลาด C (เลี่ยงลิฟต์ B ที่ปิด)</p>
+          </section>
+        </div>
+
+        <section class="card">
+          <p class="eyebrow">นำเข้าผังจาก CSV</p>
+          <div class="btn-row" style="margin-top:10px">
+            <span class="check">📄 nodes.csv</span>
+            <span class="check">📄 edges.csv</span>
+            <span class="check">📄 pathways.csv</span>
+            <button class="btn">ดูผลก่อนบันทึก</button>
+            <button class="btn btn--primary">นำเข้า</button>
+          </div>
+          <p class="step__meta" style="margin-top:8px">โหมดดูผลก่อนบันทึกจะบอกว่าเพิ่มกี่แถว แก้กี่แถว และแถวไหนอ้างถึงจุดที่ไม่มีอยู่</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
