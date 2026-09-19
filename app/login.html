@@ -313,10 +313,10 @@
   const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /**
-   * หน้านี้ใช้ได้ทั้งตอนเปิดจากโฟลเดอร์ prototype/ ในเครื่อง และตอน publish รวมเป็นชุดเดียว
+   * หน้านี้ใช้ได้ทั้งตอนเปิดจากโฟลเดอร์ app/ ในเครื่อง และตอน publish รวมเป็นชุดเดียว
    * ต่างกันแค่ว่า mockups/ อยู่ระดับเดียวกันหรืออยู่ถัดขึ้นไปหนึ่งชั้น
    */
-  const MOCKUP_BASE = location.pathname.includes('/prototype/') ? '../' : '';
+  const MOCKUP_BASE = location.pathname.includes('/app/') ? '../' : '';
   const resolve = (path) => (path.startsWith('mockups/') ? MOCKUP_BASE + path : path);
 
   /* ---------- บัญชีสาธิต ---------- */

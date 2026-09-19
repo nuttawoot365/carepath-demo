@@ -347,7 +347,7 @@
   <span style="opacity:.8;font-size:.9em">ปราณี</span>
   <span class="spacer"></span>
   <span class="clock" id="clock">20 ก.ย. 2569 · 09:48</span>
-  <a class="clock no-print" href="login.html" style="color:#fff;text-decoration:none">ออกจากระบบ</a>
+  <button class="clock no-print" id="signout" type="button" style="background:none;color:#fff;cursor:pointer">ออกจากระบบ</button>
 </header>
 
 <div class="wrap">
@@ -788,6 +788,11 @@
   });
 
   $('openVisit').addEventListener('click', openVisit);
+
+  $('signout').addEventListener('click', () => {
+    try { sessionStorage.removeItem('carepath.user'); } catch { /* โหมดส่วนตัว */ }
+    location.href = 'login.html';
+  });
 
   renderPatients();
   renderTemplates();
