@@ -423,6 +423,14 @@
   const MOCKUP_BASE = location.pathname.includes('/app/') ? '../' : '';
   const resolve = (path) => (path.startsWith('mockups/') ? MOCKUP_BASE + path : path);
 
+  // สำเนาหน้านี้ที่อยู่ใน app/ ต้องชี้ขึ้นไปหนึ่งชั้น ไม่งั้นการ์ดด้านล่างจะเปิดไม่ได้
+  if (MOCKUP_BASE === '../') {
+    for (const link of document.querySelectorAll('a[href$=".html"]')) {
+      const href = link.getAttribute('href');
+      if (!href.startsWith('.') && !href.startsWith('mockups/')) link.setAttribute('href', `../${href}`);
+    }
+  }
+
   /* ---------- บัญชีสาธิต ---------- */
 
   $('accounts').innerHTML = ACCOUNTS.map((account) => `

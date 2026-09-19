@@ -41,7 +41,10 @@ for (const page of APP_PAGES) {
 
 // หน้าแรกของเว็บ และสำเนาใน app/ เพื่อให้ลิงก์ ../app/login.html ในหน้า mockup ใช้ได้
 await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'index.html'));
-await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'app', 'login.html'));
+// สำเนาใน app/ ต้องชี้ขึ้นไปหนึ่งชั้น เขียนไว้ในไฟล์เลยจะได้ไม่ต้องพึ่งสคริปต์ตอนโหลด
+const nested = withHead(await fs.readFile(path.join(root, 'app', 'login.html'), 'utf8'))
+  .replace(/href="((?!\.\.\/|mockups\/|https?:)[\w-]+\.html)"/g, 'href="../$1"');
+await fs.writeFile(path.join(dist, 'app', 'login.html'), nested);
 
 // ภาพประกอบของจุดบริการ อยู่ข้าง ๆ หน้าเว็บเพื่อให้อ้างด้วยเส้นทางสัมพัทธ์ได้
 await fs.mkdir(path.join(dist, 'photos'), { recursive: true });

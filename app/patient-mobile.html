@@ -664,6 +664,7 @@
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
       galleryHint: 'ทุกจุดในผังมีรูปของตัวเอง กดเพื่อดูภาพใหญ่ หรือถ่ายรูปจริงทับ',
+      hospital: 'โรงพยาบาลวชิระภูเก็ต · ผังสาธิต ไม่ใช่ผังจริงของโรงพยาบาล',
       photoStock: 'ภาพประกอบ ไม่ใช่ภาพถ่ายของโรงพยาบาลจริง',
       photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
       photoNone: 'ยังไม่มีรูปของจุดนี้', photoAdd: 'ถ่ายรูปจุดนี้', photoRetake: 'ถ่ายใหม่',
@@ -730,6 +731,7 @@
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
       galleryHint: 'Every place on the map has its own picture. Tap one to see it large or replace it with a real photo.',
+      hospital: 'Vachira Phuket Hospital · demo map, not the real hospital layout',
       photoStock: 'Illustration, not a photo of the real hospital',
       photoView: 'See a photo', photoTitle: 'Photo of this place',
       photoNone: 'No photo of this place yet', photoAdd: 'Take a photo here', photoRetake: 'Retake',
@@ -795,6 +797,7 @@
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
       galleryHint: '地图上每个地点都有对应图片。点击可查看大图，或用实景照片替换。',
+      hospital: '普吉府瓦奇拉医院 · 演示平面图，非医院实际布局',
       photoStock: '示意图，非实际医院照片',
       photoView: '查看实景照片', photoTitle: '该地点的实景照片',
       photoNone: '该地点暂无照片', photoAdd: '在此拍照', photoRetake: '重新拍摄',
@@ -860,6 +863,7 @@
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
       galleryHint: 'မြေပုံပေါ်ရှိ နေရာတိုင်းတွင် ကိုယ်ပိုင်ပုံ ရှိသည်။ ပုံကြီးကြည့်ရန် သို့မဟုတ် တကယ့်ဓာတ်ပုံဖြင့် အစားထိုးရန် နှိပ်ပါ။',
+      hospital: 'ဝချီရ ဖူးခက် ဆေးရုံ · သရုပ်ပြ မြေပုံ ဖြစ်ပြီး အမှန်တကယ့် ဆေးရုံပုံစံ မဟုတ်ပါ',
       photoStock: 'သရုပ်ဖော်ပုံ ဖြစ်ပြီး အမှန်တကယ် ဆေးရုံ၏ ဓာတ်ပုံ မဟုတ်ပါ',
       photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
       photoNone: 'ဤနေရာအတွက် ဓာတ်ပုံ မရှိသေးပါ', photoAdd: 'ဤနေရာကို ဓာတ်ပုံရိုက်ရန်', photoRetake: 'ပြန်ရိုက်ရန်',
@@ -925,6 +929,7 @@
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
       galleryHint: 'У каждого места на карте есть своё изображение. Нажмите, чтобы открыть крупно или заменить реальным фото.',
+      hospital: 'Больница Вачира Пхукет · демонстрационная схема, не реальная планировка',
       photoStock: 'Иллюстрация, не фото реальной больницы',
       photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
       photoNone: 'Фото этого места пока нет', photoAdd: 'Сфотографировать это место', photoRetake: 'Переснять',
@@ -1754,7 +1759,7 @@
         </div>
       </section>
 
-      <p class="demo-note">♿ ${esc(t('wheelchair'))}<br>${esc(t('lostHelp'))}</p>
+      <p class="demo-note">♿ ${esc(t('wheelchair'))}<br>${esc(t('lostHelp'))}<br>${esc(t('hospital'))}</p>
     `;
 
     el.actions.innerHTML =
