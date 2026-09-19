@@ -213,6 +213,29 @@
   }
   .langs button[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-ink); }
 
+  dialog {
+    width: min(520px, 100%); margin: auto auto 0; padding: 0; border: none;
+    border-radius: 18px 18px 0 0; background: var(--surface); color: var(--ink);
+    box-shadow: var(--shadow-2);
+  }
+  dialog::backdrop { background: rgba(6, 18, 23, .55); }
+  .sheet { padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
+  .sheet h2 { font-size: 1.1em; }
+  .sheet__label { font-size: .76em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .pick {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    min-height: var(--tap); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--raised); text-align: start; font-weight: 600; cursor: pointer;
+  }
+  .pick[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+
+  .report-btn {
+    min-height: 44px; padding: 8px 14px;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface); font-size: .84em; font-weight: 700; cursor: pointer;
+  }
+
   :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
 </style>
 
@@ -245,9 +268,14 @@
       <button class="btn" id="prevBtn">←</button>
       <button class="btn btn--primary btn--grow" id="nextBtn"></button>
     </div>
-    <div class="langs" id="langs"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="report-btn" id="reportBtn">🚧 <span id="reportLabel"></span></button>
+      <div class="langs" id="langs" style="margin-inline-start:auto"></div>
+    </div>
   </section>
 </div>
+
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
 
 <script>
 (() => {
@@ -273,6 +301,11 @@
 
   const DICT = {
     th: {
+      report: 'แจ้งเส้นทางมีปัญหา', reportTitle: 'ตรงนี้มีปัญหาอะไร',
+      reportWhere: 'แจ้งจุดไหน', reportThanks: 'ขอบคุณ ระบบแจ้งเจ้าหน้าที่แล้ว และจะเลี่ยงจุดนี้ให้คุณก่อน',
+      reportSeg: 'ทางเดินช่วงนี้', cancel: 'ยกเลิก',
+      r_broken: 'ลิฟต์เสีย ใช้ไม่ได้', r_repair: 'ปิดซ่อม มีป้ายกั้น', r_blocked: 'มีของวางขวางทาง',
+      r_wet: 'พื้นลื่น มีน้ำขัง', r_locked: 'ประตูล็อก เข้าไม่ได้', r_other: 'อื่น ๆ',
       to: 'กำลังไป', floor: 'อ.{b} ชั้น {f}', next: 'ถัดไป', arrived: 'ถึงแล้ว',
       of: 'ช่วงที่ {a} จาก {b}',
       walk: 'เดินตามเส้น {m} เมตร', walkTo: 'เดินตามเส้น {m} เมตร ไปที่{to}',
@@ -287,6 +320,11 @@
       noRoute: 'ตอนนี้ไม่มีเส้นทางที่รถเข็นไปได้ กรุณาแจ้งเจ้าหน้าที่',
     },
     en: {
+      report: 'Report a problem here', reportTitle: 'What is wrong here?',
+      reportWhere: 'Which part?', reportThanks: 'Thank you. Staff have been notified and we will route you around it.',
+      reportSeg: 'This corridor', cancel: 'Cancel',
+      r_broken: 'Lift is out of order', r_repair: 'Closed for repair', r_blocked: 'Something is blocking the way',
+      r_wet: 'Wet or slippery floor', r_locked: 'Door is locked', r_other: 'Something else',
       to: 'Heading to', floor: 'Bldg {b} · {f}F', next: 'Next', arrived: 'I am here',
       of: 'Leg {a} of {b}',
       walk: 'Follow the line for {m} m', walkTo: 'Follow the line {m} m to {to}',
@@ -301,6 +339,11 @@
       noRoute: 'No wheelchair route right now. Please ask a staff member.',
     },
     zh: {
+      report: '报告此处有问题', reportTitle: '这里出了什么问题？',
+      reportWhere: '哪一段？', reportThanks: '谢谢。已通知工作人员，我们会为您绕开此处。',
+      reportSeg: '这段走廊', cancel: '取消',
+      r_broken: '电梯故障', r_repair: '维修封闭', r_blocked: '有物品挡路',
+      r_wet: '地面湿滑', r_locked: '门已上锁', r_other: '其他情况',
       to: '前往', floor: '{b} 座 {f} 层', next: '下一段', arrived: '我到了',
       of: '第 {a} 段，共 {b} 段',
       walk: '沿线步行 {m} 米', walkTo: '沿线步行 {m} 米到{to}',
@@ -315,6 +358,11 @@
       noRoute: '目前没有轮椅可通行的路线，请告知工作人员。',
     },
     my: {
+      report: 'ဤနေရာ ပြဿနာကို အကြောင်းကြားရန်', reportTitle: 'ဤနေရာတွင် ဘာဖြစ်နေပါသလဲ',
+      reportWhere: 'မည်သည့်အပိုင်းလဲ', reportThanks: 'ကျေးဇူးတင်ပါသည်။ ဝန်ထမ်းကို အကြောင်းကြားပြီးဖြစ်ပြီး ဤနေရာကို ရှောင်ပေးပါမည်။',
+      reportSeg: 'ဤစင်္ကြံပိုင်း', cancel: 'ပယ်ဖျက်ရန်',
+      r_broken: 'ဓာတ်လှေကား ပျက်နေသည်', r_repair: 'ပြုပြင်ရန် ပိတ်ထားသည်', r_blocked: 'ပစ္စည်းများ ပိတ်ဆို့နေသည်',
+      r_wet: 'ကြမ်းပြင် ရေစို ချော်နေသည်', r_locked: 'တံခါး သော့ခတ်ထားသည်', r_other: 'အခြား',
       to: 'သွားနေသည်', floor: '{b} · {f} လွှာ', next: 'နောက်တစ်ပိုင်း', arrived: 'ရောက်ပါပြီ',
       of: '{b} ပိုင်းအနက် {a} ပိုင်း',
       walk: 'မျဉ်းအတိုင်း {m} မီတာ လျှောက်ပါ', walkTo: 'မျဉ်းအတိုင်း {m} မီတာ {to} သို့ လျှောက်ပါ',
@@ -329,6 +377,11 @@
       noRoute: 'ယခု ဘီးတပ်ကုလားထိုင် သွားနိုင်သော လမ်းမရှိပါ။ ဝန်ထမ်းကို အကြောင်းကြားပါ။',
     },
     ru: {
+      report: 'Сообщить о проблеме', reportTitle: 'Что здесь не так?',
+      reportWhere: 'Какой участок?', reportThanks: 'Спасибо. Персонал уведомлён, маршрут построим в обход.',
+      reportSeg: 'Этот коридор', cancel: 'Отмена',
+      r_broken: 'Лифт не работает', r_repair: 'Закрыто на ремонт', r_blocked: 'Проход чем-то загорожен',
+      r_wet: 'Мокрый скользкий пол', r_locked: 'Дверь заперта', r_other: 'Другое',
       to: 'Идёте в', floor: 'Корп. {b} · {f} эт.', next: 'Дальше', arrived: 'Я на месте',
       of: 'Участок {a} из {b}',
       walk: 'Идите по линии {m} м', walkTo: 'Идите по линии {m} м до {to}',
@@ -581,6 +634,7 @@
   function render() {
     document.documentElement.lang = state.lang;
     $('toLabel').textContent = t('to');
+    $('reportLabel').textContent = t('report');
     $('toName').textContent = nameOf(state.to);
     $('nextBtn').textContent = '';
 
@@ -661,6 +715,114 @@
     const legs = toLegs(shortestPath(state.from, state.to));
     if (state.leg < legs.length - 1) { state.leg += 1; render(); return; }
     location.href = 'patient-mobile.html';
+  });
+
+
+  /* ==========================================================================
+     แจ้งเส้นทางชำรุดจากผู้ใช้
+     ต้นแบบเก็บไว้ในเครื่องเพื่อให้หน้าผู้ดูแลระบบอ่านได้ทันทีตอนสาธิต
+     ระบบจริงยิงเป็น POST /api/reports แล้วเข้าคิวให้เจ้าหน้าที่ยืนยันก่อนปิดเส้นทาง
+     ========================================================================== */
+
+  const REASONS = [
+    { key: 'r_broken', icon: '🛗', kinds: ['elevator'] },
+    { key: 'r_repair', icon: '🚧' },
+    { key: 'r_blocked', icon: '📦' },
+    { key: 'r_wet', icon: '💧' },
+    { key: 'r_locked', icon: '🔒' },
+    { key: 'r_other', icon: '❓' },
+  ];
+
+  const loadReports = () => {
+    try { return JSON.parse(localStorage.getItem('carepath.reports') ?? '[]'); }
+    catch { return []; }
+  };
+
+  function saveReport(entry) {
+    try {
+      const all = loadReports();
+      all.unshift(entry);
+      localStorage.setItem('carepath.reports', JSON.stringify(all.slice(0, 50)));
+    } catch { /* โหมดส่วนตัวเขียนไม่ได้ */ }
+  }
+
+  /** สิ่งที่แจ้งได้จากหน้าจอนี้: ทางขึ้นลงชั้นของช่วงนี้ และตัวทางเดินเอง */
+  function reportTargets(leg) {
+    const targets = [];
+    if (leg.exit) {
+      const label = `${nameOf(leg.exit.f)} → ${nameOf(leg.exit.t)}`;
+      targets.push({
+        key: [leg.exit.f, leg.exit.t].sort().join('|'),
+        kind: leg.exit.k,
+        icon: leg.exit.k === 'elevator' ? '🛗' : leg.exit.k === 'stairs' ? '🪜' : leg.exit.k === 'ramp' ? '♿' : '🌉',
+        label,
+      });
+    }
+    const first = leg.nodes[0];
+    const last = leg.nodes.at(-1);
+    targets.push({
+      key: `seg:${[first, last].sort().join('|')}`,
+      kind: 'corridor',
+      icon: '🚶',
+      label: `${t('reportSeg')} · ${nameOf(first)} → ${nameOf(last)}`,
+    });
+    return targets;
+  }
+
+  function reportSheet() {
+    const legs = toLegs(shortestPath(state.from, state.to));
+    if (legs.length === 0) return;
+    const targets = reportTargets(legs[state.leg]);
+    let target = targets[0].key;
+
+    const draw = () => {
+      $('sheetBody').innerHTML = `
+        <h2>${esc(t('reportTitle'))}</h2>
+        <p class="sheet__label">${esc(t('reportWhere'))}</p>
+        ${targets.map((item) => `
+          <button class="pick" type="button" data-target="${esc(item.key)}" aria-pressed="${item.key === target}">
+            <span aria-hidden="true">${item.icon}</span><span>${esc(item.label)}</span>
+          </button>`).join('')}
+        <p class="sheet__label" style="margin-top:6px">${esc(t('reportTitle'))}</p>
+        ${REASONS.map((reason) => `
+          <button class="pick" type="button" data-reason="${reason.key}">
+            <span aria-hidden="true">${reason.icon}</span><span>${esc(t(reason.key))}</span>
+          </button>`).join('')}
+        <button class="btn" type="button" data-close="1">${esc(t('cancel'))}</button>`;
+    };
+
+    draw();
+    $('sheet').showModal();
+
+    $('sheetBody').onclick = (event) => {
+      const pick = event.target.closest('[data-target]');
+      if (pick) { target = pick.dataset.target; draw(); return; }
+
+      if (event.target.closest('[data-close]')) { $('sheet').close(); return; }
+
+      const reason = event.target.closest('[data-reason]');
+      if (!reason) return;
+
+      const chosen = targets.find((item) => item.key === target);
+      saveReport({
+        id: `${Date.now()}`,
+        key: chosen.key,
+        kind: chosen.kind,
+        label: chosen.label,
+        reason: reason.dataset.reason,
+        reasonTh: DICT.th[reason.dataset.reason],
+        ticket: new URLSearchParams(location.search).get('ticket') ?? 'A-017',
+        at: state.from,
+        ts: new Date().toISOString(),
+      });
+      $('sheet').close();
+      alert(t('reportThanks'));
+    };
+  }
+
+  $('reportBtn').addEventListener('click', reportSheet);
+  $('sheet').addEventListener('click', (event) => {
+    if (event.target === $('sheet')) $('sheet').close();
   });
 
   /* ---------- รับค่าจากหน้าผู้ป่วย ---------- */

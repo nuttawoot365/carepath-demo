@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
-const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html'];
+const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html'];
 
 /**
  * ไฟล์ใน app/ เขียนไว้สำหรับเผยแพร่เป็น artifact ซึ่งใส่หัวเอกสารให้เอง

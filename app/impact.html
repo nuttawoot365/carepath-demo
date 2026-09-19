@@ -1,0 +1,696 @@
+<title>CarePath ผลกระทบการปิดเส้นทาง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 44px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px;
+    background: var(--primary); color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar a {
+    padding: 4px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    font-size: .85em; color: inherit; text-decoration: none;
+  }
+
+  .wrap {
+    max-width: 1280px; margin: 0 auto; padding: 18px;
+    display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 18px; align-items: start;
+  }
+  @media (max-width: 960px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow-1); overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--raised);
+  }
+  .card__head b { font-size: 1.02em; }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 15px 16px; }
+
+  .links { display: flex; flex-direction: column; gap: 6px; }
+  .link {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center; gap: 11px;
+    width: 100%; min-height: var(--tap); padding: 9px 12px;
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    background: var(--raised); text-align: start; cursor: pointer;
+  }
+  .link:hover { border-color: var(--line-strong); }
+  .link[aria-pressed="true"] { border-color: var(--warn); background: var(--warn-soft); }
+  .link__icon { font-size: 1.3em; }
+  .link__name { font-weight: 700; font-size: .93em; }
+  .link__where { display: block; font-size: .76em; color: var(--ink-3); }
+  .link__state { font-size: .74em; font-weight: 700; color: var(--ink-3); white-space: nowrap; }
+  .link[aria-pressed="true"] .link__state { color: var(--warn); }
+
+  /* ---------- ตัวเลขเปรียบเทียบ ---------- */
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 620px) { .compare { grid-template-columns: 1fr; } }
+
+  .who {
+    padding: 16px; border-radius: var(--r); border: 1px solid var(--line); background: var(--raised);
+  }
+  .who--heavy { border: 2px solid var(--warn); background: var(--warn-soft); }
+  .who__label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92em; }
+  .who__big {
+    font-family: 'IBM Plex Mono', monospace; font-size: 2.3em; font-weight: 800; line-height: 1.1;
+    margin-top: 8px;
+  }
+  .who--heavy .who__big { color: var(--warn); }
+  .who__unit { font-size: .44em; font-weight: 600; color: var(--ink-3); }
+  .who__sub { font-size: .82em; color: var(--ink-2); margin-top: 4px; }
+
+  .ratio {
+    margin-top: 14px; padding: 14px 16px;
+    border-radius: var(--r); background: var(--ink); color: var(--ground);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ratio b { font-family: 'IBM Plex Mono', monospace; font-size: 1.9em; line-height: 1; }
+  .ratio span { font-size: .92em; }
+
+  .bars { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .bar { display: grid; grid-template-columns: 116px minmax(0, 1fr) auto; align-items: center; gap: 11px; font-size: .88em; }
+  .bar__track { height: 14px; border-radius: 7px; background: var(--line); overflow: hidden; }
+  .bar__fill { height: 100%; border-radius: 7px; background: var(--primary); }
+  .bar__fill--heavy { background: var(--warn); }
+  .bar__value { font-family: 'IBM Plex Mono', monospace; font-size: .86em; color: var(--ink-2); }
+
+  .table { width: 100%; border-collapse: collapse; font-size: .9em; }
+  .table th, .table td { padding: 9px 10px; text-align: start; border-bottom: 1px solid var(--line); }
+  .table th { font-size: .74em; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  .table td.num { font-family: 'IBM Plex Mono', monospace; text-align: end; white-space: nowrap; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
+    font-size: .74em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+  .tag--ok { background: var(--success-soft); color: var(--success); }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap); padding: 11px 18px;
+    border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+    background: var(--surface); font-weight: 700; cursor: pointer;
+  }
+  .btn--warn { background: var(--warn); border-color: var(--warn); color: #fff; }
+  .btn--grow { flex: 1; }
+  .btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+  .note { font-size: .83em; color: var(--ink-3); line-height: 1.65; }
+  .note code {
+    font-family: 'IBM Plex Mono', monospace; font-size: .92em;
+    background: var(--raised); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+  }
+
+  .empty { padding: 34px 20px; text-align: center; color: var(--ink-3); }
+  .empty span { font-size: 2.4em; display: block; margin-bottom: 8px; }
+
+  .toast {
+    position: fixed; inset-block-start: 68px; inset-inline: 0; z-index: 40;
+    display: flex; justify-content: center; pointer-events: none;
+  }
+  .toast div {
+    max-width: 92%; padding: 10px 18px; border-radius: 999px;
+    background: var(--ink); color: var(--ground); font-size: .88em; font-weight: 600;
+    box-shadow: var(--shadow-2);
+  }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🛠</span>
+  <b>ผลกระทบเมื่อปิดเส้นทาง</b>
+  <span style="opacity:.8;font-size:.9em">โรงพยาบาลวชิระภูเก็ต · ผังสาธิต</span>
+  <span class="spacer"></span>
+  <a href="map.html">ผังเส้นทาง</a>
+  <a href="login.html">ออกจากระบบ</a>
+</header>
+
+<div class="wrap">
+  <aside style="display:flex;flex-direction:column;gap:18px">
+  <section class="card" id="reportsCard">
+    <div class="card__head">
+      <b>รายงานจากผู้ใช้</b>
+      <span class="spacer"></span>
+      <span id="reportsTag"></span>
+    </div>
+    <div class="card__body">
+      <div class="links" id="reports"></div>
+      <p class="note" style="margin-top:10px">ผู้ป่วยและเจ้าหน้าที่แจ้งจากหน้าแผนที่ได้เลยเมื่อเจอลิฟต์เสียหรือทางถูกปิด
+        กดรายงานเพื่อดูผลกระทบก่อนตัดสินใจ</p>
+      <button class="btn" id="clearReports" style="margin-top:10px;width:100%">ล้างรายงานทั้งหมด</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card__head"><b>เลือกเส้นทางที่จะปิด</b></div>
+    <div class="card__body">
+      <div class="links" id="links"></div>
+      <p class="note" style="margin-top:12px">ลิฟต์ บันได ทางลาด และทางเชื่อม คือจุดที่ปิดแล้วกระทบคนไม่เท่ากัน
+        ระบบคำนวณให้ก่อนกดยืนยัน</p>
+    </div>
+  </section>
+  </aside>
+
+  <main style="display:flex;flex-direction:column;gap:18px">
+    <section class="card">
+      <div class="card__head">
+        <b id="headline">ยังไม่ได้เลือกเส้นทาง</b>
+        <span class="spacer"></span>
+        <span id="headTag"></span>
+      </div>
+      <div class="card__body" id="summary"></div>
+    </section>
+
+    <section class="card" id="routesCard" hidden>
+      <div class="card__head"><b>เส้นทางที่กระทบหนักที่สุด</b></div>
+      <div class="card__body" style="overflow-x:auto">
+        <table class="table" id="routes"></table>
+      </div>
+    </section>
+
+    <section class="card" id="peopleCard" hidden>
+      <div class="card__head">
+        <b>ผู้ป่วยที่กำลังใช้เส้นทางนี้อยู่</b>
+        <span class="spacer"></span>
+        <span id="peopleTag"></span>
+      </div>
+      <div class="card__body" style="display:flex;flex-direction:column;gap:12px">
+        <div style="overflow-x:auto"><table class="table" id="people"></table></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn--warn btn--grow" id="confirmBtn">ยืนยันปิดและแจ้งผู้ป่วยที่กระทบ</button>
+          <button class="btn" id="cancelBtn">ยกเลิก</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card__head"><b>ทำไมหน้าจอนี้ถึงมีอยู่</b></div>
+      <div class="card__body" style="display:flex;flex-direction:column;gap:9px">
+        <p class="note">เจ้าหน้าที่ที่กดปิดลิฟต์เพื่อซ่อมบำรุงมองไม่เห็นว่ากำลังทำอะไรกับใคร เพราะตัวเองเดินบันไดได้
+          ระบบมีข้อมูลผังและความต้องการพิเศษของผู้ป่วยอยู่แล้ว จึงคำนวณให้ดูก่อนตัดสินใจได้</p>
+        <p class="note">ตัวเลขทั้งหมดคำนวณสดด้วย Dijkstra บนผังจริงใน <code>data/edges.csv</code>
+          เทียบระยะทางก่อนปิดกับหลังปิด สำหรับทุกคู่จุดบริการที่ผู้ป่วยต้องไป</p>
+        <p class="note">ผลที่ได้ไม่ได้แปลว่าห้ามปิด — แต่แปลว่าถ้าจะปิด ควรรู้ว่าต้องเตรียมคนช่วยเข็นไว้กี่คน
+          และควรแจ้งใครบ้าง</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = {"nodes":[{"code":"A1-ENT","b":"A","f":1,"d":null,"kind":"entrance","th":"ทางเข้าหลัก","en":"Main entrance","lm":"ประตูกระจกหน้าอาคาร A","icon":"🚪","x":280,"y":540},{"code":"A1-INFO","b":"A","f":1,"d":null,"kind":"poi","th":"ประชาสัมพันธ์","en":"Information","lm":"ตรงข้ามประตูทางเข้า","icon":"ℹ️","x":280,"y":470},{"code":"A1-REG","b":"A","f":1,"d":"A1-OPD","kind":"counter","th":"เวชระเบียน","en":"Registration","lm":"ตรงข้ามประชาสัมพันธ์","icon":"🪪","x":280,"y":400},{"code":"A1-J1","b":"A","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"ทางแยกหน้าลิฟต์ A","icon":null,"x":370,"y":400},{"code":"A1-PAY","b":"A","f":1,"d":"A1-FIN","kind":"cashier","th":"การเงิน","en":"Cashier","lm":"ช่อง 1-4 ข้างเวชระเบียน","icon":"💳","x":370,"y":330},{"code":"A1-PHA","b":"A","f":1,"d":"A1-PHA","kind":"pharmacy","th":"ห้องยา","en":"Pharmacy","lm":"ข้างประตูทางออก","icon":"💊","x":430,"y":400},{"code":"A1-APT","b":"A","f":1,"d":"A1-OPD","kind":"appointment","th":"จุดนัดหมาย","en":"Appointment desk","lm":"หน้าห้องยา","icon":"📅","x":430,"y":355},{"code":"A1-LIFT","b":"A","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A1-STAIR","b":"A","f":1,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A1-WC","b":"A","f":1,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 1","en":"Toilet 1F","lm":"ข้างบันได A","icon":"🚻","x":325,"y":455},{"code":"A1-CAFE","b":"A","f":1,"d":null,"kind":"poi","th":"ร้านกาแฟ","en":"Café","lm":"โถงทางเข้า","icon":"☕","x":170,"y":470},{"code":"A1-ATM","b":"A","f":1,"d":null,"kind":"poi","th":"ตู้เอทีเอ็ม","en":"ATM","lm":"ข้างร้านกาแฟ โถงทางเข้า","icon":"🏧","x":140,"y":430},{"code":"A2-LIFT","b":"A","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A2-STAIR","b":"A","f":2,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A2-J1","b":"A","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ A ชั้น 2","icon":null,"x":370,"y":400},{"code":"A2-SCR","b":"A","f":2,"d":"A2-SCR","kind":"screening","th":"จุดคัดกรอง","en":"Screening","lm":"ข้างตู้น้ำดื่ม","icon":"🩺","x":280,"y":400},{"code":"A2-GP","b":"A","f":2,"d":"A2-GP","kind":"exam_room","th":"ห้องตรวจทั่วไป","en":"General clinic","lm":"ห้อง 201-204","icon":"👨‍⚕️","x":280,"y":330},{"code":"A2-WC","b":"A","f":2,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 2","en":"Toilet 2F","lm":null,"icon":"🚻","x":248,"y":455},{"code":"A2-BR","b":"A","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม A→B","en":"Bridge A→B","lm":"ปลายทางเดินชั้น 2","icon":"🌉","x":440,"y":400},{"code":"B2-BR","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง A)","en":"Bridge B (A side)","lm":null,"icon":"🌉","x":560,"y":400},{"code":"B2-J1","b":"B","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ B","icon":null,"x":650,"y":400},{"code":"B2-LIFT","b":"B","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B2-STAIR","b":"B","f":2,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B2-FIRE","b":"B","f":2,"d":null,"kind":"stairs","th":"บันไดหนีไฟ B","en":"Fire stairs B","lm":null,"icon":"🪜","x":702,"y":460},{"code":"B2-BRC","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B→C","en":"Bridge B→C","lm":null,"icon":"🌉","x":880,"y":400},{"code":"B1-LIFT","b":"B","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B1-J1","b":"B","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 1","icon":null,"x":650,"y":400},{"code":"B1-XR","b":"B","f":1,"d":"B1-XR","kind":"xray","th":"ห้องเอกซเรย์","en":"X-ray","lm":"สุดทางเดิน","icon":"📷","x":800,"y":400},{"code":"B3-LIFT","b":"B","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B3-STAIR","b":"B","f":3,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B3-J1","b":"B","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 3","icon":null,"x":650,"y":400},{"code":"B3-LAB","b":"B","f":3,"d":"B3-LAB","kind":"lab","th":"ห้องเจาะเลือด","en":"Blood test","lm":"ขวามือ ข้างตู้น้ำดื่ม","icon":"🩸","x":780,"y":400},{"code":"B3-WAIT","b":"B","f":3,"d":"B3-LAB","kind":"waiting_area","th":"จุดพักคอยรอผล","en":"Lab waiting area","lm":"หน้าห้องเจาะเลือด","icon":"🪑","x":780,"y":462},{"code":"B3-WC","b":"B","f":3,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 3","en":"Toilet 3F","lm":null,"icon":"🚻","x":832,"y":455},{"code":"C2-BR","b":"C","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม C (ฝั่ง B)","en":"Bridge C (B side)","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"C2-J1","b":"C","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ C","icon":null,"x":1080,"y":400},{"code":"C2-LIFT","b":"C","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C2-RAMP","b":"C","f":2,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-LIFT","b":"C","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C3-RAMP","b":"C","f":3,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-J1","b":"C","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 3","icon":null,"x":1080,"y":400},{"code":"C3-BRB","b":"C","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม C→B ชั้น 3","en":"Bridge C→B 3F","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"B3-BRC","b":"B","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง C) ชั้น 3","en":"Bridge B (C side) 3F","lm":null,"icon":"🌉","x":880,"y":400},{"code":"C4-LIFT","b":"C","f":4,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C4-J1","b":"C","f":4,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 4","icon":null,"x":1080,"y":400},{"code":"C4-MED-CTR","b":"C","f":4,"d":"C4-MED","kind":"counter","th":"ยื่นบัตรอายุรกรรม","en":"Med. clinic counter","lm":"ประตูทางเข้าคลินิก ป้ายสีเขียว","icon":"🪪","x":1180,"y":400},{"code":"C4-MED-WAIT","b":"C","f":4,"d":"C4-MED","kind":"waiting_area","th":"ที่นั่งรออายุรกรรม","en":"Waiting area","lm":null,"icon":"🪑","x":1242,"y":400},{"code":"C4-MED-401","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 401","en":"Room 401","lm":"ห้องแรกซ้ายมือ","icon":"👨‍⚕️","x":1242,"y":338},{"code":"C4-MED-403","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 403","en":"Room 403","lm":"ห้องที่ 3 ซ้ายมือ","icon":"👨‍⚕️","x":1302,"y":338},{"code":"C4-WC","b":"C","f":4,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 4","en":"Toilet 4F","lm":null,"icon":"🚻","x":1180,"y":460}],"edges":[{"f":"A1-ENT","t":"A1-INFO","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-ENT","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-REG","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-REG","t":"A1-INFO","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-REG","t":"A1-J1","k":"corridor","m":25,"s":25,"turn":"right","a":true},{"f":"A1-J1","t":"A1-REG","k":"corridor","m":25,"s":25,"turn":"left","a":true},{"f":"A1-J1","t":"A1-PAY","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-PAY","t":"A1-J1","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-J1","t":"A1-PHA","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-J1","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-APT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-APT","t":"A1-PHA","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-J1","t":"A1-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"A1-LIFT","t":"A1-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"A1-J1","t":"A1-STAIR","k":"door","m":6,"s":6,"turn":"right","a":false},{"f":"A1-STAIR","t":"A1-J1","k":"door","m":6,"s":6,"turn":"left","a":false},{"f":"A1-J1","t":"A1-WC","k":"corridor","m":9,"s":9,"turn":"left","a":true},{"f":"A1-WC","t":"A1-J1","k":"corridor","m":9,"s":9,"turn":"right","a":true},{"f":"A1-INFO","t":"A1-CAFE","k":"corridor","m":12,"s":12,"turn":"right","a":true},{"f":"A1-CAFE","t":"A1-INFO","k":"corridor","m":12,"s":12,"turn":"left","a":true},{"f":"A1-CAFE","t":"A1-ATM","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"A1-ATM","t":"A1-CAFE","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"A1-LIFT","t":"A2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A2-LIFT","t":"A1-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A1-STAIR","t":"A2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-STAIR","t":"A1-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-LIFT","t":"A2-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-STAIR","t":"A2-J1","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"A2-J1","t":"A2-STAIR","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"A2-J1","t":"A2-SCR","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"A2-J1","t":"A2-GP","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"A2-GP","t":"A2-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-WC","t":"A2-SCR","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-BR","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"A2-J1","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"B2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"A2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"B2-J1","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-BR","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"B2-LIFT","t":"B2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"B2-J1","t":"B2-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B2-STAIR","t":"B2-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B2-J1","t":"B2-FIRE","k":"door","m":5,"s":5,"turn":"left","a":false},{"f":"B2-J1","t":"B2-BRC","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-BRC","t":"B2-J1","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-LIFT","t":"B3-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B3-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B2-LIFT","t":"B1-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B1-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B2-STAIR","t":"B3-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B3-STAIR","t":"B2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B1-LIFT","t":"B1-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-XR","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B1-XR","t":"B1-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-LIFT","t":"B3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-STAIR","t":"B3-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B3-J1","t":"B3-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B3-J1","t":"B3-LAB","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"B3-LAB","t":"B3-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"B3-LAB","t":"B3-WAIT","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-WAIT","t":"B3-LAB","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-LAB","t":"B3-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-WC","t":"B3-LAB","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-BRC","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B3-BRC","t":"B3-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-BRC","t":"C3-BRB","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"B3-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"C3-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-BRB","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"B2-BRC","t":"C2-BR","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"B2-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"C2-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-BR","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"C2-LIFT","t":"C2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"C2-J1","t":"C2-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C2-RAMP","t":"C2-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C2-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C3-LIFT","t":"C2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C2-RAMP","t":"C3-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-RAMP","t":"C2-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-LIFT","t":"C3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-RAMP","t":"C3-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C3-J1","t":"C3-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C3-LIFT","t":"C4-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C4-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-MED-CTR","k":"corridor","m":15,"s":15,"turn":"left","a":true},{"f":"C4-MED-CTR","t":"C4-J1","k":"corridor","m":15,"s":15,"turn":"right","a":true},{"f":"C4-MED-CTR","t":"C4-MED-WAIT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-CTR","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-401","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"C4-MED-401","t":"C4-MED-WAIT","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-403","k":"corridor","m":14,"s":14,"turn":"left","a":true},{"f":"C4-MED-403","t":"C4-MED-WAIT","k":"corridor","m":14,"s":14,"turn":"right","a":true},{"f":"C4-J1","t":"C4-WC","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"C4-WC","t":"C4-J1","k":"corridor","m":10,"s":10,"turn":"left","a":true}],"pathway":[{"seq":1,"name_th":"ยื่นบัตรและยืนยันการนัด","name_en":"Check-in & confirm appointment","point":"A1-REG","wait":false,"prereq":[],"deadline":null,"reason":null,"min":5,"wait_after":0,"th":"ยื่นบัตรและยืนยันการนัด","en":"Check-in & confirm appointment"},{"seq":2,"name_th":"ชั่งน้ำหนัก วัดความดัน","name_en":"Weight & blood pressure","point":"A2-SCR","wait":false,"prereq":[1],"deadline":null,"reason":null,"min":10,"wait_after":0,"th":"ชั่งน้ำหนัก วัดความดัน","en":"Weight & blood pressure"},{"seq":3,"name_th":"เจาะเลือด","name_en":"Blood test","point":"B3-LAB","wait":false,"prereq":[1],"deadline":"11:00","reason":"ผู้ป่วยงดอาหารมา ต้องเจาะก่อน 11:00","min":10,"wait_after":0,"th":"เจาะเลือด","en":"Blood test"},{"seq":4,"name_th":"รอผลตรวจ","name_en":"Wait for lab results","point":"B3-WAIT","wait":true,"prereq":[3],"deadline":null,"reason":null,"min":75,"wait_after":0,"th":"รอผลตรวจ","en":"Wait for lab results"},{"seq":5,"name_th":"พบแพทย์","name_en":"See doctor","point":"C4-MED-CTR","wait":false,"prereq":[3,4],"deadline":null,"reason":null,"min":15,"wait_after":0,"th":"พบแพทย์","en":"See doctor"},{"seq":6,"name_th":"ชำระเงิน","name_en":"Payment","point":"A1-PAY","wait":false,"prereq":[5],"deadline":null,"reason":null,"min":5,"wait_after":0,"th":"ชำระเงิน","en":"Payment"},{"seq":7,"name_th":"รับยา","name_en":"Pharmacy","point":"A1-PHA","wait":false,"prereq":[6],"deadline":null,"reason":null,"min":15,"wait_after":0,"th":"รับยา","en":"Pharmacy"}],"visits":[{"ticket":"A-017","at":"A2-SCR","to":"B3-LAB","wheelchair":true},{"ticket":"A-014","at":"A1-REG","to":"A2-SCR","wheelchair":false},{"ticket":"A-021","at":"B3-WAIT","to":"C4-MED-CTR","wheelchair":false},{"ticket":"A-009","at":"B3-LAB","to":"B3-WAIT","wheelchair":true},{"ticket":"A-025","at":"A1-ENT","to":"A1-REG","wheelchair":false},{"ticket":"A-030","at":"C4-MED-CTR","to":"A1-PAY","wheelchair":true},{"ticket":"A-032","at":"B1-XR","to":"A1-PAY","wheelchair":false}]};
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+
+  /* ==========================================================================
+     โปรไฟล์ผู้ป่วยและการคำนวณเส้นทาง — กติกาเดียวกับ backend/src/domain/graph.js
+     ========================================================================== */
+
+  const PROFILES = [
+    { key: 'walk', icon: '🚶', name: 'คนเดินปกติ', wheelchair: false, speed: 1 },
+    { key: 'wheel', icon: '♿', name: 'ผู้ใช้รถเข็น', wheelchair: true, speed: 1.5 },
+  ];
+
+  /** จุดบริการที่ผู้ป่วยต้องไปจริงตามแม่แบบ บวกประตูทางเข้า */
+  const SERVICE_POINTS = [...new Set(['A1-ENT', ...DATA.pathway.map((step) => step.point)])];
+
+  /** ผู้ป่วยที่กำลังเดินอยู่ในโรงพยาบาลตอนนี้ (ข้อมูลสาธิต) */
+  const VISITS = DATA.visits;
+
+  const state = { closed: null };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const nameOf = (code) => NODES.get(code)?.th || code;
+  const whereOf = (code) => {
+    const node = NODES.get(code);
+    return node ? `อาคาร ${node.b} ชั้น ${node.f}` : '';
+  };
+
+  /** เส้นเชื่อมที่ปิดได้ — จับคู่สองทิศเป็นหนึ่งรายการ */
+  const CLOSABLE = (() => {
+    const KIND = {
+      elevator: { icon: '🛗', word: 'ลิฟต์' },
+      stairs: { icon: '🪜', word: 'บันได' },
+      ramp: { icon: '♿', word: 'ทางลาด' },
+      bridge: { icon: '🌉', word: 'ทางเชื่อม' },
+    };
+    const seen = new Map();
+
+    for (const edge of DATA.edges) {
+      if (!KIND[edge.k]) continue;
+      const key = [edge.f, edge.t].sort().join('|');
+      if (seen.has(key)) { seen.get(key).edges.push(`${edge.f}>${edge.t}`); continue; }
+
+      const from = NODES.get(edge.f);
+      const to = NODES.get(edge.t);
+      seen.set(key, {
+        key,
+        icon: KIND[edge.k].icon,
+        name: `${KIND[edge.k].word} ${nameOf(edge.f).replace(/^(ลิฟต์|บันได|ทางลาด|ทางเชื่อม)\s*/, '')}`.trim(),
+        where: from.b === to.b
+          ? `อาคาร ${from.b} ชั้น ${from.f} ↔ ${to.f}`
+          : `อาคาร ${from.b} ↔ อาคาร ${to.b} ชั้น ${from.f}`,
+        edges: [`${edge.f}>${edge.t}`],
+      });
+    }
+    return [...seen.values()];
+  })();
+
+  function adjacency(closedEdges) {
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) {
+      if (closedEdges?.has(`${edge.f}>${edge.t}`)) continue;
+      adj.get(edge.f)?.push(edge);
+    }
+    return adj;
+  }
+
+  /** ระยะทางและเวลาจากจุดเดียวไปทุกจุด พร้อมเส้นเชื่อมที่ใช้ เพื่อบอกว่าใครกระทบ */
+  function search(adj, from, profile) {
+    const dist = new Map([[from, 0]]);
+    const prev = new Map();
+    const seen = new Set();
+    const queue = [[0, from]];
+
+    while (queue.length > 0) {
+      queue.sort((a, b) => a[0] - b[0]);
+      const [d, at] = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+
+      for (const edge of adj.get(at) ?? []) {
+        if (profile.wheelchair && !edge.a) continue;
+        const weight = edge.s * profile.speed;
+        if (d + weight < (dist.get(edge.t) ?? Infinity)) {
+          dist.set(edge.t, d + weight);
+          prev.set(edge.t, edge);
+          queue.push([d + weight, edge.t]);
+        }
+      }
+    }
+    return { dist, prev };
+  }
+
+  const metresTo = (prev, to) => {
+    let metres = 0;
+    for (let at = to; prev.has(at); at = prev.get(at).f) metres += prev.get(at).m;
+    return metres;
+  };
+
+  const edgesTo = (prev, to) => {
+    const used = [];
+    for (let at = to; prev.has(at); at = prev.get(at).f) used.push(`${prev.get(at).f}>${prev.get(at).t}`);
+    return used;
+  };
+
+  /* ==========================================================================
+     เปรียบเทียบก่อนปิดกับหลังปิด
+     ========================================================================== */
+
+  function analyse(link) {
+    const closedSet = new Set(link.edges);
+    const openAdj = adjacency(null);
+    const shutAdj = adjacency(closedSet);
+    const result = { byProfile: {}, routes: [], people: [] };
+
+    for (const profile of PROFILES) {
+      const pairs = [];
+      let cut = 0;
+
+      for (const from of SERVICE_POINTS) {
+        const before = search(openAdj, from, profile);
+        const after = search(shutAdj, from, profile);
+
+        for (const to of SERVICE_POINTS) {
+          if (from === to || !before.dist.has(to)) continue;
+          const wasMetres = metresTo(before.prev, to);
+
+          if (!after.dist.has(to)) { cut += 1; continue; }
+          const nowMetres = metresTo(after.prev, to);
+          const extra = nowMetres - wasMetres;
+          pairs.push({ from, to, was: wasMetres, now: nowMetres, extra });
+        }
+      }
+
+      const affected = pairs.filter((pair) => pair.extra > 0.5);
+      const worst = affected.slice().sort((a, b) => b.extra - a.extra)[0] ?? null;
+
+      result.byProfile[profile.key] = {
+        profile,
+        pairs: pairs.length,
+        affected: affected.length,
+        cut,
+        avgExtra: affected.length === 0 ? 0 : affected.reduce((sum, p) => sum + p.extra, 0) / affected.length,
+        worst,
+      };
+
+      if (profile.key === 'wheel') {
+        result.routes = affected.slice().sort((a, b) => b.extra - a.extra).slice(0, 6);
+      }
+    }
+
+    // ผู้ป่วยที่เส้นทางปัจจุบันวิ่งผ่านเส้นเชื่อมนี้
+    for (const visit of VISITS) {
+      const profile = PROFILES.find((item) => item.key === (visit.wheelchair ? 'wheel' : 'walk'));
+      const before = search(openAdj, visit.at, profile);
+      if (!before.dist.has(visit.to)) continue;
+      if (!edgesTo(before.prev, visit.to).some((edge) => closedSet.has(edge))) continue;
+
+      const after = search(shutAdj, visit.at, profile);
+      result.people.push({
+        visit,
+        profile,
+        was: Math.round(metresTo(before.prev, visit.to)),
+        now: after.dist.has(visit.to) ? Math.round(metresTo(after.prev, visit.to)) : null,
+      });
+    }
+    return result;
+  }
+
+  /* ==========================================================================
+     แสดงผล
+     ========================================================================== */
+
+  /* ---------- รายงานจากผู้ใช้ ---------- */
+
+  const REASON_ICON = {
+    r_broken: '🛗', r_repair: '🚧', r_blocked: '📦', r_wet: '💧', r_locked: '🔒', r_other: '❓',
+  };
+
+  const loadReports = () => {
+    try { return JSON.parse(localStorage.getItem('carepath.reports') ?? '[]'); }
+    catch { return []; }
+  };
+
+  /** รวมรายงานที่ชี้จุดเดียวกันเข้าด้วยกัน จุดที่ถูกแจ้งซ้ำคือจุดที่ควรดูก่อน */
+  function groupedReports() {
+    const groups = new Map();
+    for (const report of loadReports()) {
+      if (!groups.has(report.key)) {
+        groups.set(report.key, { ...report, count: 0, link: CLOSABLE.find((item) => item.key === report.key) });
+      }
+      groups.get(report.key).count += 1;
+    }
+    return [...groups.values()].sort((a, b) => b.count - a.count);
+  }
+
+  const timeAgo = (iso) => {
+    const minutes = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+    if (minutes < 1) return 'เมื่อสักครู่';
+    if (minutes < 60) return `${minutes} นาทีที่แล้ว`;
+    return `${Math.round(minutes / 60)} ชั่วโมงที่แล้ว`;
+  };
+
+  function renderReports() {
+    const groups = groupedReports();
+    $('reportsTag').innerHTML = groups.length === 0
+      ? '<span class="tag tag--ok">ยังไม่มีรายงาน</span>'
+      : `<span class="tag tag--warn">${groups.length} จุด</span>`;
+
+    $('reports').innerHTML = groups.length === 0
+      ? `<p class="note">ยังไม่มีใครแจ้งเข้ามา — เปิดหน้าแผนที่ผู้ป่วยแล้วกด "แจ้งเส้นทางมีปัญหา" เพื่อทดลอง</p>`
+      : groups.map((group) => `
+          <button class="link" type="button" data-report="${esc(group.key)}"
+                  aria-pressed="${state.closed === group.key}" ${group.link ? '' : 'disabled'}>
+            <span class="link__icon" aria-hidden="true">${REASON_ICON[group.reason] ?? '❓'}</span>
+            <span><span class="link__name">${esc(group.reasonTh ?? group.reason)}</span>
+              <span class="link__where">${esc(group.label)} · ${esc(timeAgo(group.ts))}</span></span>
+            <span class="link__state">${group.count > 1 ? `แจ้ง ${group.count} ครั้ง` : group.link ? 'ดูผล' : 'ทางเดิน'}</span>
+          </button>`).join('');
+  }
+
+  function renderLinks() {
+    $('links').innerHTML = CLOSABLE.map((link) => `
+      <button class="link" type="button" data-key="${esc(link.key)}"
+              aria-pressed="${state.closed === link.key}">
+        <span class="link__icon" aria-hidden="true">${link.icon}</span>
+        <span><span class="link__name">${esc(link.name)}</span>
+          <span class="link__where">${esc(link.where)}</span></span>
+        <span class="link__state">${reportCount(link.key) > 0
+          ? `<span class="tag tag--warn">แจ้ง ${reportCount(link.key)}</span>`
+          : state.closed === link.key ? 'กำลังดูผล' : 'เปิดอยู่'}</span>
+      </button>`).join('');
+  }
+
+  const reportCount = (key) => groupedReports().find((group) => group.key === key)?.count ?? 0;
+
+  function render() {
+    renderReports();
+    renderLinks();
+
+    if (!state.closed) {
+      $('headline').textContent = 'ยังไม่ได้เลือกเส้นทาง';
+      $('headTag').innerHTML = '';
+      $('summary').innerHTML = `
+        <div class="empty">
+          <span aria-hidden="true">🛗</span>
+          <b>เลือกลิฟต์ บันได ทางลาด หรือทางเชื่อมทางซ้าย</b>
+          <p class="note" style="margin-top:6px">ระบบจะคำนวณให้ว่าการปิดจุดนั้นทำให้ใครต้องเดินเพิ่มเท่าไร</p>
+        </div>`;
+      $('routesCard').hidden = true;
+      $('peopleCard').hidden = true;
+      return;
+    }
+
+    const link = CLOSABLE.find((item) => item.key === state.closed);
+    const report = analyse(link);
+    const walk = report.byProfile.walk;
+    const wheel = report.byProfile.wheel;
+
+    $('headline').textContent = `ถ้าปิด ${link.name}`;
+    $('headTag').innerHTML = wheel.cut > 0
+      ? `<span class="tag tag--warn">ทำให้ไปไม่ถึง ${wheel.cut} เส้นทาง</span>`
+      : wheel.avgExtra > walk.avgExtra * 3
+        ? '<span class="tag tag--warn">กระทบผู้ใช้รถเข็นหนักกว่ามาก</span>'
+        : '<span class="tag tag--ok">กระทบใกล้เคียงกันทุกกลุ่ม</span>';
+
+    const ratio = walk.avgExtra > 0.5 ? wheel.avgExtra / walk.avgExtra : null;
+    const maxExtra = Math.max(walk.avgExtra, wheel.avgExtra, 1);
+
+    $('summary').innerHTML = `
+      <div class="compare">
+        ${whoCard(walk, false)}
+        ${whoCard(wheel, wheel.avgExtra > walk.avgExtra * 1.5 || wheel.cut > 0)}
+      </div>
+
+      ${ratio && ratio >= 1.5 ? `
+        <div class="ratio">
+          <b>${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)}×</b>
+          <span>การปิดจุดนี้ทำให้ <b>ผู้ใช้รถเข็นต้องเดินเพิ่มมากกว่าคนเดินปกติ ${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)} เท่า</b>
+            — เป็นต้นทุนที่คนตัดสินใจปิดมักมองไม่เห็น เพราะตัวเองใช้บันไดได้</span>
+        </div>` : ''}
+
+      <div class="bars">
+        ${PROFILES.map((profile) => {
+          const row = report.byProfile[profile.key];
+          const width = Math.round((row.avgExtra / maxExtra) * 100);
+          return `
+            <div class="bar">
+              <span>${profile.icon} ${esc(profile.name)}</span>
+              <span class="bar__track"><span class="bar__fill ${profile.key === 'wheel' ? 'bar__fill--heavy' : ''}"
+                    style="width:${width}%"></span></span>
+              <span class="bar__value">+${Math.round(row.avgExtra)} ม.</span>
+            </div>`;
+        }).join('')}
+      </div>
+
+      <p class="note" style="margin-top:12px">คำนวณจากทุกคู่จุดบริการที่ผู้ป่วยต้องไปจริง ${walk.pairs} เส้นทาง ·
+        ตัวเลขคือระยะทางที่เพิ่มขึ้นโดยเฉลี่ยเฉพาะเส้นทางที่ถูกกระทบ</p>`;
+
+    // เส้นทางที่กระทบหนักสุด
+    if (report.routes.length > 0) {
+      $('routesCard').hidden = false;
+      $('routes').innerHTML = `
+        <thead><tr><th>จาก</th><th>ไป</th><th class="num">เดิม</th><th class="num">หลังปิด</th><th class="num">เพิ่ม</th></tr></thead>
+        <tbody>
+          ${report.routes.map((route) => `
+            <tr>
+              <td>${esc(nameOf(route.from))}<br><span class="note">${esc(whereOf(route.from))}</span></td>
+              <td>${esc(nameOf(route.to))}<br><span class="note">${esc(whereOf(route.to))}</span></td>
+              <td class="num">${Math.round(route.was)} ม.</td>
+              <td class="num">${Math.round(route.now)} ม.</td>
+              <td class="num"><span class="tag tag--warn">+${Math.round(route.extra)} ม.</span></td>
+            </tr>`).join('')}
+        </tbody>`;
+    } else {
+      $('routesCard').hidden = true;
+    }
+
+    // ผู้ป่วยที่กระทบตอนนี้
+    const wheelCount = report.people.filter((row) => row.profile.key === 'wheel').length;
+    $('peopleCard').hidden = false;
+    $('peopleTag').innerHTML = report.people.length === 0
+      ? '<span class="tag tag--ok">ไม่มีใครกำลังใช้เส้นทางนี้</span>'
+      : `<span class="tag tag--warn">${report.people.length} ราย${wheelCount > 0 ? ` · ใช้รถเข็น ${wheelCount} ราย` : ''}</span>`;
+
+    $('people').innerHTML = report.people.length === 0
+      ? '<tbody><tr><td class="note">ตอนนี้ยังไม่มีผู้ป่วยที่เส้นทางวิ่งผ่านจุดนี้ ปิดได้โดยไม่ต้องแจ้งใคร</td></tr></tbody>'
+      : `<thead><tr><th>คิว</th><th>กำลังไป</th><th>ตอนนี้อยู่</th><th class="num">เดิม</th><th class="num">หลังปิด</th></tr></thead>
+         <tbody>
+           ${report.people.map((row) => `
+             <tr>
+               <td class="mono"><b>${esc(row.visit.ticket)}</b> ${row.profile.key === 'wheel' ? '<span class="tag">♿</span>' : ''}</td>
+               <td>${esc(nameOf(row.visit.to))}</td>
+               <td>${esc(nameOf(row.visit.at))}</td>
+               <td class="num">${row.was} ม.</td>
+               <td class="num">${row.now === null
+                 ? '<span class="tag tag--warn">ไปไม่ถึง</span>'
+                 : `${row.now} ม. <span class="tag tag--amber">+${row.now - row.was}</span>`}</td>
+             </tr>`).join('')}
+         </tbody>`;
+
+    $('confirmBtn').disabled = false;
+    $('confirmBtn').textContent = report.people.length === 0
+      ? 'ยืนยันปิดเส้นทางนี้'
+      : `ยืนยันปิดและแจ้งผู้ป่วย ${report.people.length} ราย`;
+    $('confirmBtn').dataset.count = String(report.people.length);
+  }
+
+  const whoCard = (row, heavy) => `
+    <div class="who ${heavy ? 'who--heavy' : ''}">
+      <span class="who__label"><span aria-hidden="true">${row.profile.icon}</span>${esc(row.profile.name)}</span>
+      <p class="who__big">+${Math.round(row.avgExtra)}<span class="who__unit"> เมตรโดยเฉลี่ย</span></p>
+      <p class="who__sub">
+        กระทบ ${row.affected} จาก ${row.pairs} เส้นทาง
+        ${row.cut > 0 ? ` · <b style="color:var(--warn)">ไปไม่ถึงเลย ${row.cut} เส้นทาง</b>` : ''}
+        ${row.worst ? `<br>หนักสุด ${esc(nameOf(row.worst.from))} → ${esc(nameOf(row.worst.to))} +${Math.round(row.worst.extra)} ม.` : ''}
+      </p>
+    </div>`;
+
+  function toast(message) {
+    $('toast').innerHTML = `<div>${esc(message)}</div>`;
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => { $('toast').innerHTML = ''; }, 3600);
+  }
+
+  $('reports').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-report]');
+    if (!button || button.disabled) return;
+    state.closed = state.closed === button.dataset.report ? null : button.dataset.report;
+    render();
+  });
+
+  $('clearReports').addEventListener('click', () => {
+    try { localStorage.removeItem('carepath.reports'); } catch { /* โหมดส่วนตัว */ }
+    toast('ล้างรายงานทั้งหมดแล้ว');
+    render();
+  });
+
+  // หน้านี้อาจเปิดค้างไว้ระหว่างที่ผู้ป่วยแจ้งเข้ามาจากอีกแท็บ
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'carepath.reports') render();
+  });
+
+  $('links').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-key]');
+    if (!button) return;
+    state.closed = state.closed === button.dataset.key ? null : button.dataset.key;
+    render();
+  });
+
+  $('confirmBtn').addEventListener('click', () => {
+    const count = Number($('confirmBtn').dataset.count ?? 0);
+    toast(count === 0
+      ? 'บันทึกการปิดเส้นทางแล้ว ไม่มีผู้ป่วยที่ต้องแจ้ง'
+      : `บันทึกการปิดเส้นทาง และแจ้งผู้ป่วย ${count} รายแล้ว — ระบบคำนวณเส้นทางใหม่ให้ทุกคนทันที`);
+  });
+
+  $('cancelBtn').addEventListener('click', () => { state.closed = null; render(); });
+
+  render();
+})();
+</script>

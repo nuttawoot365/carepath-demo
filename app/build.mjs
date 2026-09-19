@@ -88,6 +88,17 @@ await build('pathway', { templates, places });
 
 // ---- แผนที่สำหรับผู้ป่วย: ใช้ข้อมูลผังชุดเดียวกับหน้าผู้ดูแลระบบ ----
 await build('patient-map', { nodes, edges });
+console.log('สร้าง app/patient-map.html แล้ว');
+
+// ---- ผลกระทบเมื่อปิดเส้นทาง: ต้องรู้ด้วยว่าตอนนี้ใครกำลังเดินอยู่ตรงไหน ----
+const visits = (await read('active-visits')).map((row) => ({
+  ticket: row.ticket,
+  at: row.at,
+  to: row.to,
+  wheelchair: csvBool(row.wheelchair),
+}));
+
+await build('impact', { nodes, edges, pathway, visits });
+console.log(`สร้าง app/impact.html แล้ว · ผู้ป่วยที่กำลังเดินอยู่ ${visits.length} ราย`);
 console.log(`สร้าง app/pathway.html แล้ว · ${templates.length} แม่แบบ · `
   + templates.map((t) => `${t.code} ${t.steps.length} ขั้น`).join(' · '));
-console.log('สร้าง app/patient-map.html แล้ว');

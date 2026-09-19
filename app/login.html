@@ -345,6 +345,13 @@
     <div class="accounts" id="accounts"></div>
     <p class="note">รหัสผ่านทุกบัญชีคือ <code>demo@1234</code> · ในระบบจริงเก็บเป็น bcrypt และตรวจที่ API เท่านั้น หน้าเว็บไม่เคยเห็นรหัสผ่านที่ถูกต้อง</p>
 
+    <a class="account" href="impact.html" style="text-decoration:none">
+      <span class="account__icon" aria-hidden="true">🚧</span>
+      <span><span class="account__name">ผลกระทบเมื่อปิดเส้นทาง</span>
+        <span class="account__what">ก่อนปิดลิฟต์หรือทางเชื่อม ดูก่อนว่าใครต้องเดินเพิ่มเท่าไร และใครไปไม่ถึงเลย</span></span>
+      <span class="account__user">ใหม่</span>
+    </a>
+
     <a class="account" href="pathway.html" style="text-decoration:none">
       <span class="account__icon" aria-hidden="true">📋</span>
       <span><span class="account__name">แม่แบบการมาโรงพยาบาลหนึ่งครั้ง</span>
@@ -390,7 +397,7 @@
     { username: 'scr1', name: 'มานพ', role: 'station', icon: '🩺',
       what: 'จุดบริการ จุดคัดกรอง — คิวของแผนกตัวเอง', go: 'mockups/d2-station.html', still: true },
     { username: 'admin', name: 'ผู้ดูแลระบบ', role: 'admin', icon: '🛠',
-      what: 'ผัง เส้นทาง แม่แบบ ผู้ใช้ และ audit', go: 'mockups/d3-admin-map.html', still: true },
+      what: 'ผัง เส้นทาง และผลกระทบเมื่อปิดเส้นทาง', go: 'impact.html' },
     { username: 'exec1', name: 'ผู้อำนวยการ', role: 'executive', icon: '📊',
       what: 'ภาพรวมเวลารอและจุดคอขวด', go: 'mockups/d5-dashboard.html', still: true },
   ];
