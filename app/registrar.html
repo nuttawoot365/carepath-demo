@@ -426,6 +426,12 @@
           </button>
         </div>
         <p class="note">ถ้าผู้ป่วยไม่มีมือถือ ระบบจะพิมพ์คำสั่งเดินทางลงบัตรกระดาษให้ละเอียดขึ้น และตั้งค่าให้เจ้าหน้าที่แต่ละจุดเป็นคนยืนยันตำแหน่งแทน</p>
+        <button class="toggle" id="noticeToggle" type="button" aria-pressed="false">
+          <span aria-hidden="true">🔐</span>
+          <span style="flex:1">แจ้งผู้ป่วยเรื่องข้อมูลส่วนบุคคลแล้ว
+            <span class="sub">เปิด <a href="privacy.html?from=registrar" target="_blank" rel="noopener">ประกาศความเป็นส่วนตัว</a>
+              ให้ผู้ป่วยอ่านหรือพิมพ์แจกได้ · ระบบบันทึกว่าแจ้งเมื่อไรและใครเป็นผู้แจ้ง</span></span>
+        </button>
       </div>
     </section>
 
@@ -506,6 +512,7 @@
     profile: { wheelchair: true, elderly: true },
     lang: 'th',
     hasPhone: true,
+    noticeGiven: false,
     visit: null,
     patientUrl: 'https://claude.ai/code/artifact/d8fd0557-d4e7-4dc4-be5b-312abfe7e8bf',
   };
@@ -562,6 +569,8 @@
         <span style="flex:1">${esc(flag.label)}<span class="sub">${esc(flag.effect)}</span></span>
       </button>`).join('');
 
+    $('noticeToggle').setAttribute('aria-pressed', String(state.noticeGiven));
+    $('noticeToggle').classList.toggle('toggle--on', state.noticeGiven);
     $('phoneToggle').setAttribute('aria-pressed', String(state.hasPhone));
     $('phoneToggle').classList.toggle('toggle--on', state.hasPhone);
     $('phoneLabel').textContent = state.hasPhone ? 'มีมือถือ ใช้ QR ได้' : 'ไม่มีมือถือ ใช้บัตรกระดาษ';
@@ -576,7 +585,8 @@
     $('summary').textContent =
       `กำลังจะเปิด: ${state.patient.name} · ${TEMPLATES[state.template].name} · `
       + `${flags.length ? flags.join(' · ') : 'ไม่มีความต้องการพิเศษ'} · ภาษา ${LANG_LABEL[state.lang]}`
-      + ` · ${state.hasPhone ? 'มีมือถือ' : 'ไม่มีมือถือ'}`;
+      + ` · ${state.hasPhone ? 'มีมือถือ' : 'ไม่มีมือถือ'}`
+      + (state.noticeGiven ? ' · แจ้งความเป็นส่วนตัวแล้ว' : ' · ยังไม่ได้แจ้งความเป็นส่วนตัว');
   }
 
   /* ---------- เปิด visit: สิ่งที่ระบบสร้างขึ้นจริง ---------- */
@@ -694,6 +704,8 @@
           ${madeRow('visit_step_prereqs', `${visit.steps.filter((s) => s.prereq).length} แถว`, 'เงื่อนไขว่าขั้นไหนต้องทำหลังขั้นไหน')}
           ${madeRow('audit_logs', '1 แถว', 'ใครเปิด visit เมื่อไหร่ · เวลาเซิร์ฟเวอร์ แก้ไม่ได้')}
           ${madeRow('notifications', '0 แถว', 'จะเริ่มมีเมื่อเส้นทางเปลี่ยนหรือมีขั้นแทรก')}
+          ${madeRow('audit_logs', state.noticeGiven ? '+1 แถว' : '—',
+            state.noticeGiven ? 'บันทึกว่าแจ้งความเป็นส่วนตัวกับผู้ป่วยแล้ว' : 'ยังไม่ได้ติ๊กว่าแจ้งความเป็นส่วนตัว')}
         </div>
         <p class="note" style="margin-top:11px">รวมเวลาที่คาดว่าจะใช้ทั้งวัน ~${totalMin} นาที · ผู้ป่วยเห็นขั้นถัดไปทันทีที่สแกน</p>
         ${visit.reordered ? `
@@ -792,6 +804,13 @@
     if (!button) return;
     const key = button.dataset.flag;
     state.profile[key] = !state.profile[key];
+    renderProfile();
+    renderSummary();
+  });
+
+  $('noticeToggle').addEventListener('click', (event) => {
+    if (event.target.closest('a')) return;        // กดลิงก์อ่านประกาศ ไม่ใช่ติ๊ก
+    state.noticeGiven = !state.noticeGiven;
     renderProfile();
     renderSummary();
   });

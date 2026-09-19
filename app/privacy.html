@@ -1,0 +1,497 @@
+<title>CarePath ความเป็นส่วนตัว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&family=Noto+Sans+Myanmar:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 46px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, 'Noto Sans', 'Noto Sans SC', 'Noto Sans Myanmar', -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-text-size-adjust: 100%;
+  }
+  body[data-lang="my"] { line-height: 1.95; }
+  body[data-lang="zh"] { line-height: 1.8; }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; }
+
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 18px; background: var(--primary); color: #fff;
+  }
+  .bar b { font-size: 1.02em; }
+  .bar .spacer { margin-inline-start: auto; }
+  .bar a {
+    padding: 4px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    font-size: .84em; color: inherit; text-decoration: none;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+  .langs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .langs button {
+    min-height: 40px; padding: 6px 14px;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    background: var(--surface); font-size: .86em; font-weight: 700; cursor: pointer;
+  }
+  .langs button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  :root[data-theme="dark"] .langs button[aria-pressed="true"] { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .langs button[aria-pressed="true"] { color: #08171d; }
+  }
+
+  .draft {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border: 2px solid var(--amber); border-radius: var(--r);
+    background: var(--amber-soft); font-size: .92em;
+  }
+
+  h1 { font-size: 1.6em; font-weight: 800; line-height: 1.25; text-wrap: balance; }
+  .lead { color: var(--ink-2); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow-1); padding: 18px;
+  }
+  .card h2 {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.06em; font-weight: 800; margin-bottom: 10px;
+  }
+  .card h2 span {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center; border-radius: 50%;
+    background: var(--primary-soft); color: var(--primary-ink);
+    font-family: 'IBM Plex Mono', monospace; font-size: .8em; font-weight: 700;
+  }
+  .card li {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px;
+    padding: 5px 0; align-items: start;
+  }
+  .card li::before { content: '·'; color: var(--ink-3); font-weight: 700; }
+  .card p + ul { margin-top: 6px; }
+  .card .sub { color: var(--ink-2); font-size: .94em; }
+
+  .card--keep { border: 2px solid var(--success); background: var(--success-soft); }
+  .card--never { border: 2px solid var(--line-strong); }
+  .card--never li::before { content: '✕'; color: var(--warn); }
+  .card--keep li::before { content: '✓'; color: var(--success); }
+
+  .contact {
+    padding: 16px 18px; border: 1px dashed var(--line-strong); border-radius: var(--r);
+    background: var(--raised); font-size: .94em; color: var(--ink-2);
+  }
+
+  .foot { color: var(--ink-3); font-size: .84em; line-height: 1.7; }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+  @media print {
+    .bar, .langs { display: none !important; }
+    body { background: #fff; font-size: 11pt; }
+    .card { box-shadow: none; break-inside: avoid; }
+    @page { size: A4; margin: 15mm; }
+  }
+</style>
+
+<header class="bar">
+  <span aria-hidden="true">🔐</span>
+  <b id="barTitle">ความเป็นส่วนตัว</b>
+  <span class="spacer"></span>
+  <a href="patient-mobile.html" id="backLink">กลับ</a>
+</header>
+
+<div class="wrap">
+  <div class="langs" id="langs"></div>
+  <main id="doc"></main>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================================
+     ประกาศความเป็นส่วนตัวสำหรับผู้ป่วย
+     เป็นร่างสำหรับระบบสาธิต ข้อความจริงต้องผ่านเจ้าหน้าที่คุ้มครองข้อมูลของโรงพยาบาล
+     ฉบับภาษาไทยเป็นฉบับอ้างอิง ภาษาอื่นแปลไว้เพื่อความเข้าใจ
+     ========================================================================== */
+
+  const LANGS = [
+    { code: 'th', native: 'ไทย' },
+    { code: 'en', native: 'English' },
+    { code: 'zh', native: '中文' },
+    { code: 'my', native: 'မြန်မာ' },
+    { code: 'ru', native: 'Русский' },
+  ];
+
+  const DOC = {
+    th: {
+      bar: 'ความเป็นส่วนตัว', back: 'กลับ',
+      draft: 'ร่างสำหรับระบบสาธิต — ข้อความจริงต้องผ่านเจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคลของโรงพยาบาลก่อนใช้งานจริง',
+      title: 'ระบบนี้เก็บข้อมูลอะไรของคุณบ้าง',
+      lead: 'CarePath ช่วยบอกว่าวันนี้คุณต้องไปที่ไหนต่อและไปยังไง ระบบจึงต้องรู้เพียงบางอย่างเท่านั้น หน้านี้บอกครบว่ามีอะไรบ้าง ใครเห็นได้ และคุณมีสิทธิอะไร',
+      sections: [
+        { n: 1, title: 'ข้อมูลที่เก็บ', kind: 'keep', items: [
+          'เลขประจำตัวผู้ป่วย (HN) และชื่อที่ใช้เรียก',
+          'ภาษาที่คุณอ่านได้',
+          'ความต้องการพิเศษที่คุณแจ้งเอง เช่น ใช้รถเข็น เป็นผู้สูงอายุ สายตาเลือนราง',
+          'ขั้นตอนที่ต้องทำในวันนี้ และเวลาที่ผ่านแต่ละจุด',
+          'ตำแหน่งภายในอาคารเฉพาะตอนที่เจ้าหน้าที่ยืนยัน หรือคุณกดบอกเอง',
+        ] },
+        { n: 2, title: 'ข้อมูลที่ไม่เก็บ', kind: 'never', items: [
+          'เลขบัตรประชาชน',
+          'เบอร์โทรศัพท์และที่อยู่',
+          'ผลตรวจ การวินิจฉัย และประวัติการรักษา',
+          'ตำแหน่ง GPS หรือการติดตามตัวนอกอาคาร',
+          'ภาพถ่ายของตัวคุณ',
+        ] },
+        { n: 3, title: 'ใช้เพื่ออะไร', items: [
+          'คำนวณเส้นทางที่เหมาะกับคุณ เช่น เลี่ยงบันไดเมื่อใช้รถเข็น',
+          'จัดลำดับขั้นตอนให้ทันเวลาที่กำหนด เช่น เจาะเลือดก่อนเวลาที่หมอสั่ง',
+          'แจ้งเตือนเมื่อเส้นทางเปลี่ยนหรือมีขั้นตอนเพิ่ม',
+          'รวมเวลารอของแต่ละแผนกแบบไม่ระบุตัวบุคคล เพื่อปรับปรุงบริการ',
+        ] },
+        { n: 4, title: 'ใครเห็นข้อมูลได้บ้าง', items: [
+          'เจ้าหน้าที่แผนกที่คุณกำลังไป เห็นเฉพาะคิวของแผนกตัวเอง ไม่เห็นของแผนกอื่น',
+          'เจ้าหน้าที่ประชาสัมพันธ์ เห็นได้เมื่อคุณเดินไปขอความช่วยเหลือและแจ้งเลขคิว',
+          'จอเรียกคิวหน้าห้องตรวจ แสดงเฉพาะเลขคิว ไม่มีชื่อและไม่มีเลขประจำตัว',
+          'ทุกครั้งที่เจ้าหน้าที่เปิดดูข้อมูลของคุณ ระบบบันทึกไว้และลบบันทึกนั้นไม่ได้',
+        ] },
+        { n: 5, title: 'เก็บไว้นานแค่ไหน', items: [
+          'ลิงก์และคิวอาร์บนบัตรคิวหมดอายุเมื่อสิ้นวัน หลังจากนั้นเปิดไม่ได้อีก',
+          'ข้อมูลการเดินทางในวันนั้นเก็บตามระยะเวลาที่โรงพยาบาลกำหนด แล้วลบหรือทำให้ไม่ระบุตัวบุคคล',
+          'ตัวเลขสถิติที่ใช้ปรับปรุงบริการไม่มีข้อมูลที่ระบุตัวคุณได้',
+        ] },
+        { n: 6, title: 'สิทธิของคุณ', items: [
+          'ขอดูข้อมูลที่ระบบเก็บเกี่ยวกับคุณ',
+          'ขอแก้ไขข้อมูลที่ไม่ถูกต้อง',
+          'ขอให้ลบข้อมูล หรือขอให้หยุดใช้ข้อมูล',
+          'ปฏิเสธการใช้ระบบนี้ได้ โดยยังได้รับบริการตามปกติผ่านบัตรคิวกระดาษและป้ายในโรงพยาบาล',
+          'ร้องเรียนต่อโรงพยาบาลหรือสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล',
+        ] },
+      ],
+      contactTitle: 'ติดต่อเรื่องข้อมูลส่วนบุคคล',
+      contact: 'เจ้าหน้าที่คุ้มครองข้อมูลส่วนบุคคล โรงพยาบาลวชิระภูเก็ต — ช่องทางติดต่อจริงจะเติมโดยโรงพยาบาลก่อนเปิดใช้งาน',
+      foot: 'ฐานทางกฎหมายที่ใช้ต้องยืนยันโดยโรงพยาบาล โดยทั่วไปคือความจำเป็นในการให้บริการสาธารณสุขตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 · ข้อมูลความต้องการพิเศษอาจเข้าข่ายข้อมูลอ่อนไหวตามมาตรา 26 ซึ่งต้องมีฐานทางกฎหมายเฉพาะ',
+    },
+
+    en: {
+      bar: 'Privacy', back: 'Back',
+      draft: 'Draft for the demo system — the real notice must be approved by the hospital data protection officer before live use.',
+      title: 'What this system knows about you',
+      lead: 'CarePath tells you where to go next and how to get there, so it only needs a few things. This page lists all of them, who can see them, and what rights you have.',
+      sections: [
+        { n: 1, title: 'What we collect', kind: 'keep', items: [
+          'Hospital number (HN) and the name you are called by',
+          'The language you read',
+          'Special needs you tell us, such as using a wheelchair, being elderly, or low vision',
+          "Today's steps and the time you passed each point",
+          'Your position inside the buildings, only when staff confirm it or you tap it yourself',
+        ] },
+        { n: 2, title: 'What we never collect', kind: 'never', items: [
+          'National ID number',
+          'Phone number and home address',
+          'Test results, diagnosis, or treatment history',
+          'GPS location or any tracking outside the buildings',
+          'Photographs of you',
+        ] },
+        { n: 3, title: 'What it is used for', items: [
+          'Working out a route that suits you, such as avoiding stairs for a wheelchair',
+          'Ordering your steps to meet clinical deadlines, such as a fasting blood test',
+          'Telling you when the route changes or a step is added',
+          'Measuring waiting time per department, without identifying anyone, to improve service',
+        ] },
+        { n: 4, title: 'Who can see it', items: [
+          'Staff at the department you are visiting see only their own queue',
+          'Information desk staff can look you up when you come and give your queue number',
+          'Screens outside consultation rooms show queue numbers only — no names, no hospital numbers',
+          'Every time staff open your record the system logs it, and that log cannot be edited or deleted',
+        ] },
+        { n: 5, title: 'How long it is kept', items: [
+          'The link and QR code on your ticket expire at the end of the day',
+          "That day's journey data is kept for the period the hospital sets, then deleted or anonymised",
+          'Statistics used to improve service contain nothing that can identify you',
+        ] },
+        { n: 6, title: 'Your rights', items: [
+          'Ask to see the data held about you',
+          'Ask to correct anything that is wrong',
+          'Ask for your data to be deleted, or for its use to stop',
+          'Decline to use this system — you still receive normal service through the paper ticket and hospital signs',
+          'Complain to the hospital or to the Personal Data Protection Committee',
+        ] },
+      ],
+      contactTitle: 'Data protection contact',
+      contact: 'Data Protection Officer, Vachira Phuket Hospital — real contact details to be filled in by the hospital before live use.',
+      foot: 'The Thai version is the authoritative text. The lawful basis must be confirmed by the hospital; it is normally necessity for the provision of health services under the Personal Data Protection Act B.E. 2562. Special-needs data may fall under Section 26 sensitive data, which requires a specific lawful basis.',
+    },
+
+    zh: {
+      bar: '隐私说明', back: '返回',
+      draft: '演示系统的草稿 — 正式文本须经医院个人资料保护负责人审核后方可使用。',
+      title: '本系统会掌握您的哪些信息',
+      lead: 'CarePath 只负责告诉您下一步去哪里、怎么走，因此只需要少量信息。本页列出全部内容、谁能看到，以及您享有的权利。',
+      sections: [
+        { n: 1, title: '我们收集的信息', kind: 'keep', items: [
+          '病历号（HN）和您的称呼',
+          '您能阅读的语言',
+          '您主动告知的特殊需要，例如使用轮椅、高龄、视力不佳',
+          '今天的就诊流程，以及经过每个地点的时间',
+          '您在院内的位置，仅在工作人员确认或您自己点选时记录',
+        ] },
+        { n: 2, title: '我们绝不收集的信息', kind: 'never', items: [
+          '身份证号码',
+          '电话号码和住址',
+          '检验结果、诊断和病史',
+          'GPS 定位或院外的任何追踪',
+          '您本人的照片',
+        ] },
+        { n: 3, title: '用途', items: [
+          '为您规划合适的路线，例如轮椅使用者避开台阶',
+          '安排流程顺序以赶上临床时限，例如空腹抽血',
+          '在路线变更或新增流程时通知您',
+          '以不识别个人的方式统计各科室等候时间，用于改善服务',
+        ] },
+        { n: 4, title: '谁能看到', items: [
+          '您前往的科室工作人员只能看到本科室的队列',
+          '咨询台工作人员在您出示排队号求助时可以查询',
+          '诊室外的屏幕只显示排队号，没有姓名也没有病历号',
+          '工作人员每次查看您的记录，系统都会记录，且该记录无法修改或删除',
+        ] },
+        { n: 5, title: '保存多久', items: [
+          '排队单上的链接和二维码于当日结束后失效',
+          '当日的行程数据按医院规定的期限保存，之后删除或匿名化',
+          '用于改善服务的统计数据不含任何可识别您的信息',
+        ] },
+        { n: 6, title: '您的权利', items: [
+          '要求查看本系统持有的您的信息',
+          '要求更正不正确的信息',
+          '要求删除您的信息，或要求停止使用',
+          '拒绝使用本系统 — 仍可通过纸质排队单和院内指示牌正常就诊',
+          '向医院或个人资料保护委员会办公室投诉',
+        ] },
+      ],
+      contactTitle: '个人资料保护联系方式',
+      contact: '普吉府瓦奇拉医院个人资料保护负责人 — 正式联系方式由医院在启用前填写。',
+      foot: '以泰文版本为准。法律依据须由医院确认，通常为《个人资料保护法》(B.E. 2562) 项下提供医疗服务之必要。特殊需要信息可能属于第 26 条敏感资料，需具备特定法律依据。',
+    },
+
+    my: {
+      bar: 'ကိုယ်ရေးအချက်အလက်', back: 'နောက်သို့',
+      draft: 'သရုပ်ပြစနစ်အတွက် မူကြမ်း — အမှန်တကယ် အသုံးပြုမည့် စာသားကို ဆေးရုံ၏ ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေးအရာရှိက အတည်ပြုရမည်။',
+      title: 'ဤစနစ်သည် သင့်အကြောင်း ဘာတွေ သိထားသလဲ',
+      lead: 'CarePath သည် နောက်တစ်ဆင့် ဘယ်ကိုသွားရမည်၊ ဘယ်လိုသွားရမည်ကိုသာ ပြောပေးသဖြင့် အချက်အလက် အနည်းငယ်သာ လိုအပ်သည်။ ဤစာမျက်နှာတွင် အားလုံးကို ဖော်ပြထားသည်။',
+      sections: [
+        { n: 1, title: 'ကျွန်ုပ်တို့ စုဆောင်းသည့် အချက်အလက်', kind: 'keep', items: [
+          'ဆေးရုံမှတ်ပုံတင်နံပါတ် (HN) နှင့် သင့်ကို ခေါ်သည့် အမည်',
+          'သင် ဖတ်နိုင်သော ဘာသာစကား',
+          'သင် ကိုယ်တိုင် ပြောပြသော အထူးလိုအပ်ချက်များ — ဥပမာ ဘီးတပ်ကုလားထိုင် သုံးခြင်း၊ သက်ကြီးရွယ်အို၊ အမြင်အာရုံ အားနည်းခြင်း',
+          'ယနေ့ လုပ်ဆောင်ရမည့် အဆင့်များနှင့် နေရာတစ်ခုစီသို့ ရောက်သည့် အချိန်',
+          'ဝန်ထမ်းက အတည်ပြုသည့်အခါ သို့မဟုတ် သင်ကိုယ်တိုင် နှိပ်သည့်အခါမှသာ အဆောက်အအုံတွင်း တည်နေရာ',
+        ] },
+        { n: 2, title: 'ဘယ်တော့မှ မစုဆောင်းသော အချက်အလက်', kind: 'never', items: [
+          'နိုင်ငံသား မှတ်ပုံတင် နံပါတ်',
+          'ဖုန်းနံပါတ်နှင့် နေရပ်လိပ်စာ',
+          'စစ်ဆေးမှု ရလဒ်၊ ရောဂါ အဆုံးအဖြတ်နှင့် ကုသမှု မှတ်တမ်း',
+          'GPS တည်နေရာ သို့မဟုတ် အဆောက်အအုံ ပြင်ပ ခြေရာခံခြင်း',
+          'သင့် ဓာတ်ပုံများ',
+        ] },
+        { n: 3, title: 'ဘာအတွက် သုံးသလဲ', items: [
+          'သင့်နှင့် ကိုက်ညီသော လမ်းကြောင်း တွက်ချက်ရန် — ဥပမာ ဘီးတပ်ကုလားထိုင်အတွက် လှေကားရှောင်ခြင်း',
+          'ဆရာဝန် သတ်မှတ်ချိန် မီအောင် အဆင့်များကို စီစဉ်ပေးရန်',
+          'လမ်းကြောင်း ပြောင်းလဲမှု သို့မဟုတ် အဆင့် ထပ်တိုးမှုကို အကြောင်းကြားရန်',
+          'ဌာနအလိုက် စောင့်ဆိုင်းချိန်ကို မည်သူမည်ဝါ မသိစေဘဲ တွက်ချက်ပြီး ဝန်ဆောင်မှု တိုးတက်စေရန်',
+        ] },
+        { n: 4, title: 'ဘယ်သူတွေ မြင်နိုင်သလဲ', items: [
+          'သင်သွားမည့် ဌာန၏ ဝန်ထမ်းများသည် ၎င်းတို့ဌာန၏ တန်းစီစာရင်းကိုသာ မြင်သည်',
+          'အချက်အလက်ကောင်တာ ဝန်ထမ်းသည် သင် တန်းစီနံပါတ် ပြသည့်အခါ ရှာဖွေနိုင်သည်',
+          'ဆေးခန်းရှေ့ ဖန်သားပြင်များတွင် တန်းစီနံပါတ်သာ ပြသည် — အမည်နှင့် မှတ်ပုံတင်နံပါတ် မပါပါ',
+          'ဝန်ထမ်းက သင့်မှတ်တမ်းကို ဖွင့်ကြည့်တိုင်း စနစ်က မှတ်တမ်းတင်ပြီး ထိုမှတ်တမ်းကို ပြင်၍ ဖျက်၍ မရပါ',
+        ] },
+        { n: 5, title: 'ဘယ်လောက်ကြာ သိမ်းထားသလဲ', items: [
+          'တန်းစီလက်မှတ်ပေါ်ရှိ လင့်နှင့် QR သည် ထိုနေ့ ကုန်ဆုံးချိန်တွင် သက်တမ်းကုန်သည်',
+          'ထိုနေ့၏ ခရီးစဉ် အချက်အလက်ကို ဆေးရုံသတ်မှတ်သည့် ကာလအတိုင်း သိမ်းပြီး ဖျက်ခြင်း သို့မဟုတ် မည်သူမည်ဝါ မသိအောင် ပြုလုပ်သည်',
+          'ဝန်ဆောင်မှု တိုးတက်ရန် သုံးသော ကိန်းဂဏန်းများတွင် သင့်ကို ဖော်ထုတ်နိုင်သည့် အရာ မပါပါ',
+        ] },
+        { n: 6, title: 'သင့် အခွင့်အရေးများ', items: [
+          'စနစ်တွင် သိမ်းထားသော သင့်အချက်အလက်ကို ကြည့်ရန် တောင်းဆိုနိုင်သည်',
+          'မမှန်သော အချက်အလက်ကို ပြင်ဆင်ရန် တောင်းဆိုနိုင်သည်',
+          'အချက်အလက်ကို ဖျက်ရန် သို့မဟုတ် အသုံးပြုမှု ရပ်တန့်ရန် တောင်းဆိုနိုင်သည်',
+          'ဤစနစ်ကို မသုံးဘဲ ငြင်းဆိုနိုင်ပြီး စာရွက်လက်မှတ်နှင့် ဆေးရုံဆိုင်းဘုတ်များဖြင့် ပုံမှန်အတိုင်း ဝန်ဆောင်မှု ရရှိမည်',
+          'ဆေးရုံ သို့မဟုတ် ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေး ကော်မတီရုံးသို့ တိုင်ကြားနိုင်သည်',
+        ] },
+      ],
+      contactTitle: 'ကိုယ်ရေးအချက်အလက် ဆက်သွယ်ရန်',
+      contact: 'ဝချီရ ဖူးခက် ဆေးရုံ၏ ကိုယ်ရေးအချက်အလက် ကာကွယ်ရေးအရာရှိ — အမှန်တကယ် ဆက်သွယ်ရန် အချက်အလက်ကို ဆေးရုံက ဖြည့်စွက်ပါမည်။',
+      foot: 'ထိုင်းဘာသာ မူကို အခြေခံ စာသားအဖြစ် သတ်မှတ်သည်။ ဥပဒေအရ အခြေခံချက်ကို ဆေးရုံက အတည်ပြုရမည်။ အထူးလိုအပ်ချက် အချက်အလက်သည် ပုဒ်မ ၂၆ အရ အထိခိုက်မခံသော အချက်အလက် ဖြစ်နိုင်သည်။',
+    },
+
+    ru: {
+      bar: 'Конфиденциальность', back: 'Назад',
+      draft: 'Черновик для демонстрационной системы — окончательный текст должен утвердить ответственный за защиту данных больницы.',
+      title: 'Какие данные о вас знает эта система',
+      lead: 'CarePath лишь подсказывает, куда идти дальше и как туда добраться, поэтому ему нужно совсем немного. Здесь перечислено всё: что собирается, кто это видит и какие у вас права.',
+      sections: [
+        { n: 1, title: 'Что собирается', kind: 'keep', items: [
+          'Больничный номер (HN) и имя, которым к вам обращаются',
+          'Язык, на котором вы читаете',
+          'Особые потребности, о которых вы сами сообщили: коляска, пожилой возраст, слабое зрение',
+          'Этапы на сегодня и время прохождения каждого пункта',
+          'Ваше положение внутри корпусов — только когда его подтверждает персонал или вы отмечаете сами',
+        ] },
+        { n: 2, title: 'Что никогда не собирается', kind: 'never', items: [
+          'Номер удостоверения личности',
+          'Телефон и домашний адрес',
+          'Результаты анализов, диагноз и история лечения',
+          'GPS-координаты и любое отслеживание вне корпусов',
+          'Ваши фотографии',
+        ] },
+        { n: 3, title: 'Для чего используется', items: [
+          'Построить маршрут, подходящий именно вам — например, без лестниц для коляски',
+          'Расставить этапы так, чтобы успеть к клиническому сроку, например к анализу натощак',
+          'Сообщить, если маршрут изменился или добавился этап',
+          'Считать время ожидания по отделениям обезличенно, чтобы улучшать обслуживание',
+        ] },
+        { n: 4, title: 'Кто это видит', items: [
+          'Персонал отделения видит только свою очередь',
+          'Сотрудник справочной может найти вас, когда вы подходите и называете номер очереди',
+          'Экраны у кабинетов показывают только номер очереди — без имён и больничных номеров',
+          'Каждое открытие вашей записи персоналом фиксируется, и эту запись нельзя изменить или удалить',
+        ] },
+        { n: 5, title: 'Сколько хранится', items: [
+          'Ссылка и QR-код на талоне перестают работать в конце дня',
+          'Данные о маршруте за этот день хранятся в срок, установленный больницей, затем удаляются или обезличиваются',
+          'Статистика для улучшения обслуживания не содержит данных, позволяющих вас опознать',
+        ] },
+        { n: 6, title: 'Ваши права', items: [
+          'Запросить данные, которые система хранит о вас',
+          'Потребовать исправить неверные данные',
+          'Потребовать удалить данные или прекратить их использование',
+          'Отказаться от системы — обслуживание по бумажному талону и указателям сохраняется полностью',
+          'Подать жалобу в больницу или в Комитет по защите персональных данных',
+        ] },
+      ],
+      contactTitle: 'Контакт по защите данных',
+      contact: 'Ответственный за защиту персональных данных, больница Вачира Пхукет — реальные контакты больница заполнит до запуска.',
+      foot: 'Тайская версия является основной. Правовое основание подтверждает больница; обычно это необходимость оказания медицинской помощи по Закону о защите персональных данных B.E. 2562. Данные об особых потребностях могут относиться к чувствительным по статье 26.',
+    },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  let lang = 'th';
+
+  function render() {
+    const doc = DOC[lang];
+    document.documentElement.lang = lang;
+    document.body.dataset.lang = lang;
+    $('barTitle').textContent = doc.bar;
+    $('backLink').textContent = doc.back;
+
+    $('langs').innerHTML = LANGS.map((item) => `
+      <button type="button" data-lang="${item.code}" aria-pressed="${item.code === lang}">${esc(item.native)}</button>`).join('');
+
+    $('doc').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="draft"><span aria-hidden="true">📝</span><span>${esc(doc.draft)}</span></div>
+
+        <div>
+          <h1>${esc(doc.title)}</h1>
+          <p class="lead" style="margin-top:8px">${esc(doc.lead)}</p>
+        </div>
+
+        ${doc.sections.map((section) => `
+          <section class="card ${section.kind === 'keep' ? 'card--keep' : section.kind === 'never' ? 'card--never' : ''}">
+            <h2><span>${section.n}</span>${esc(section.title)}</h2>
+            <ul>${section.items.map((item) => `<li><span>${esc(item)}</span></li>`).join('')}</ul>
+          </section>`).join('')}
+
+        <section class="contact">
+          <b>${esc(doc.contactTitle)}</b><br>${esc(doc.contact)}
+        </section>
+
+        <p class="foot">${esc(doc.foot)}</p>
+      </div>`;
+  }
+
+  $('langs').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-lang]');
+    if (!button) return;
+    lang = button.dataset.lang;
+    try { localStorage.setItem('carepath.lang', lang); } catch { /* โหมดส่วนตัว */ }
+    render();
+  });
+
+  try {
+    const saved = localStorage.getItem('carepath.lang');
+    if (LANGS.some((item) => item.code === saved)) lang = saved;
+  } catch { /* โหมดส่วนตัว */ }
+
+  const from = new URLSearchParams(location.search).get('from');
+  if (from === 'registrar') $('backLink').href = 'registrar.html';
+  if (from === 'login') $('backLink').href = 'login.html';
+
+  render();
+})();
+</script>

@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
-const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html', 'admin.html', 'station.html', 'helpdesk.html'];
+const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html', 'admin.html', 'station.html', 'helpdesk.html', 'privacy.html'];
 
 /**
  * ไฟล์ใน app/ เขียนไว้สำหรับเผยแพร่เป็น artifact ซึ่งใส่หัวเอกสารให้เอง
@@ -43,7 +43,7 @@ for (const page of APP_PAGES) {
 await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'index.html'));
 // สำเนาใน app/ ต้องชี้ขึ้นไปหนึ่งชั้น เขียนไว้ในไฟล์เลยจะได้ไม่ต้องพึ่งสคริปต์ตอนโหลด
 const nested = withHead(await fs.readFile(path.join(root, 'app', 'login.html'), 'utf8'))
-  .replace(/href="((?!\.\.\/|mockups\/|https?:)[\w-]+\.html)"/g, 'href="../$1"');
+  .replace(/href="((?!\.\.\/|mockups\/|https?:)[\w-]+\.html(?:\?[^"]*)?)"/g, 'href="../$1"');
 await fs.writeFile(path.join(dist, 'app', 'login.html'), nested);
 
 // ภาพประกอบของจุดบริการ อยู่ข้าง ๆ หน้าเว็บเพื่อให้อ้างด้วยเส้นทางสัมพัทธ์ได้

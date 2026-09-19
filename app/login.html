@@ -383,6 +383,8 @@
         <button class="btn btn--primary" type="submit" style="flex:1">เปิดหน้าติดตามขั้นตอน</button>
         <button class="btn" type="button" id="scanBtn">📷 สแกน QR</button>
       </div>
+      <p class="note"><a href="privacy.html?from=login">ระบบนี้เก็บข้อมูลอะไรของคุณบ้าง</a>
+        — อ่านได้ 5 ภาษา ก่อนเริ่มใช้งาน</p>
       <p class="note">ปกติผู้ป่วยสแกน QR บนบัตรคิว ช่องนี้ไว้ให้คนที่กล้องเสียหรือบัตรเปียกพิมพ์รหัสเข้าแทน</p>
     </form>
 
@@ -425,9 +427,11 @@
 
   // สำเนาหน้านี้ที่อยู่ใน app/ ต้องชี้ขึ้นไปหนึ่งชั้น ไม่งั้นการ์ดด้านล่างจะเปิดไม่ได้
   if (MOCKUP_BASE === '../') {
-    for (const link of document.querySelectorAll('a[href$=".html"]')) {
+    for (const link of document.querySelectorAll('a[href*=".html"]')) {
       const href = link.getAttribute('href');
-      if (!href.startsWith('.') && !href.startsWith('mockups/')) link.setAttribute('href', `../${href}`);
+      if (!href.startsWith('.') && !href.startsWith('mockups/') && !href.startsWith('http')) {
+        link.setAttribute('href', `../${href}`);
+      }
     }
   }
 
