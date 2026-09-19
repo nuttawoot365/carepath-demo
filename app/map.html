@@ -211,6 +211,14 @@
 
   /* ---------- ชิ้นส่วนของแผนที่ ---------- */
 
+  .slab-top { stroke: var(--plate-edge); stroke-width: 1.5; }
+  .slab-side { stroke: var(--plate-edge); stroke-width: 1; }
+  .slab-name { fill: var(--ink-2); font-size: 15px; font-weight: 800; letter-spacing: .08em; }
+  .slab-floor { fill: var(--ink-3); font-size: 10px; font-weight: 700; }
+  .iso-corridor { stroke: var(--corridor); stroke-width: 3.5; stroke-linecap: round; fill: none; }
+  .iso-vertical { stroke: var(--ink-3); stroke-width: 2.5; stroke-dasharray: 3 5; opacity: .75; }
+  .iso-label { fill: var(--ink-2); font-size: 10px; }
+
   .plate { fill: var(--plate); stroke: var(--plate-edge); stroke-width: 1.5; }
   .plate-label { fill: var(--ink-3); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
   .corridor { stroke: var(--corridor); stroke-width: 5; stroke-linecap: round; fill: none; }
@@ -296,7 +304,7 @@
      ========================================================================== */
 
   const state = {
-    view: 'all',            // 'all' = ผังรวม · ที่เหลือเป็นรหัสชั้น เช่น 'B3'
+    view: 'iso',            // 'iso' = ภาพเดียวทั้งโรงพยาบาล · 'all' = ตัดขวาง · ที่เหลือคือรหัสชั้น
     wheelchair: true,
     liftBClosed: false,
     focusStep: null,        // ขั้นที่เลือกดูเฉพาะ
@@ -389,8 +397,20 @@
     Math.max(...DATA.nodes.map((node) => node.y)),
   ];
 
+  /**
+   * ภาพฉายเอียง (oblique) สำหรับมุมมองภาพเดียว
+   * แกนลึกเอียงซ้ายเล็กน้อยและชั้นยกขึ้นตามความสูง จึงเห็นทุกอาคารทุกชั้นพร้อมกันในรูปเดียว
+   */
+  const ISO = { dx: -0.42, dy: 0.36, floorH: 64, ox: 140, oy: 130, thickness: 15 };
+
+  const iso = (x, y, floor) => ({
+    x: x + y * ISO.dx + ISO.ox,
+    y: y * ISO.dy - (floor - 1) * ISO.floorH + ISO.oy,
+  });
+
   /** ตำแหน่งบนภาพของจุดหนึ่ง ตามมุมมองที่เลือกอยู่ */
   function place(node) {
+    if (state.view === 'iso') return iso(node.x, node.y, node.f);
     if (state.view !== 'all') {
       return { x: node.x, y: 90 + (node.y - yRange[0]) * 1.15 };
     }
@@ -400,7 +420,7 @@
   }
 
   const visible = (node) =>
-    state.view === 'all' || `${node.b}${node.f}` === state.view;
+    state.view === 'all' || state.view === 'iso' || `${node.b}${node.f}` === state.view;
 
   /* ==========================================================================
      วาดภาพ
@@ -425,33 +445,77 @@
     drawTabs();
 
     document.getElementById('viewTitle').textContent =
-      state.view === 'all' ? 'ผังรวมเส้นทางทั้งวัน' : `ผังพื้น อาคาร ${state.view[0]} ชั้น ${state.view.slice(1)}`;
+      state.view === 'iso' ? 'ภาพรวมทั้งโรงพยาบาลในรูปเดียว'
+        : state.view === 'all' ? 'ภาพตัดขวางทุกชั้น พร้อมเส้นทางทั้งวัน'
+        : `ผังพื้น อาคาร ${state.view[0]} ชั้น ${state.view.slice(1)}`;
 
     const blocked = legs.filter((leg) => !leg.path);
     document.getElementById('mapNote').innerHTML = blocked.length > 0
       ? `<b style="color:var(--warn)">ไม่มีเส้นทางไป ${blocked.map((leg) => esc(leg.step.th)).join(', ')}</b>
          — ลองปิดโหมดรถเข็นหรือเปิดลิฟต์ B คืน`
-      : state.view === 'all'
-        ? 'ภาพตัดขวาง: ชั้นล่างอยู่ล่าง ชั้นบนอยู่บน · เส้นแนวตั้งคือลิฟต์ บันได และทางลาด · เส้นแนวนอนระหว่างอาคารคือทางเชื่อม'
-        : 'ผังพื้นของชั้นนี้ · จุดที่เชื่อมไปชั้นอื่นแสดงเป็นเส้นประออกนอกผัง';
+      : state.view === 'iso'
+        ? 'ทุกจุดในผังอยู่ในภาพเดียว · อาคารซ้อนขึ้นตามชั้น · หมุดเลขคือขั้นตอนของคิว A-017 · จุดเล็กคือจุดอื่นในผัง'
+        : state.view === 'all'
+          ? 'ภาพตัดขวาง: ชั้นล่างอยู่ล่าง ชั้นบนอยู่บน · เส้นแนวตั้งคือลิฟต์ บันได และทางลาด · เส้นแนวนอนระหว่างอาคารคือทางเชื่อม'
+          : 'ผังพื้นของชั้นนี้ · จุดที่เชื่อมไปชั้นอื่นแสดงเป็นเส้นประออกนอกผัง';
   }
 
   function drawMap(legs, shown, onRoute) {
-    const height = state.view === 'all' ? OVERVIEW_H + 40 : 520;
+    const height = state.view === 'iso' ? 420 : state.view === 'all' ? OVERVIEW_H + 40 : 520;
     const svg = make('svg', {
       viewBox: `0 0 ${VIEW_W} ${height}`,
       role: 'img',
       'aria-label': 'ผังเส้นทางในโรงพยาบาล',
     });
 
-    drawPlates(svg);
+    if (state.view === 'iso') drawSlabs(svg);
+    else drawPlates(svg);
     drawEdges(svg, onRoute);
     for (const leg of shown) drawRoute(svg, leg);
     drawNodes(svg, legs, onRoute);
 
     const box = document.getElementById('mapbox');
     box.replaceChildren(svg);
-    svg.style.minWidth = state.view === 'all' ? '900px' : '760px';
+    svg.style.minWidth = state.view === 'iso' ? '1040px' : state.view === 'all' ? '900px' : '760px';
+  }
+
+  /** อาคารในมุมมองภาพเดียว: แผ่นพื้นซ้อนกันตามชั้น มีผนังด้านหน้าให้เห็นความหนา */
+  function drawSlabs(svg) {
+    const buildings = [...new Set(DATA.nodes.map((node) => node.b))].sort();
+
+    for (const building of buildings) {
+      const own = DATA.nodes.filter((node) => node.b === building);
+      const x1 = Math.min(...own.map((node) => node.x)) - 34;
+      const x2 = Math.max(...own.map((node) => node.x)) + 34;
+      const y1 = Math.min(...own.map((node) => node.y)) - 28;
+      const y2 = Math.max(...own.map((node) => node.y)) + 28;
+      const floors = [...new Set(own.map((node) => node.f))].sort((a, b) => a - b);
+
+      for (const floor of floors) {
+        const corner = [[x1, y1], [x2, y1], [x2, y2], [x1, y2]].map(([x, y]) => iso(x, y, floor));
+        const top = corner.map((p) => `${p.x},${p.y}`).join(' ');
+
+        // ผนังด้านหน้า วาดก่อนเพื่อให้พื้นทับด้านบน
+        svg.append(make('polygon', {
+          class: 'slab-side',
+          fill: 'var(--plate-edge)', 'fill-opacity': '.55',
+          points: `${corner[3].x},${corner[3].y} ${corner[2].x},${corner[2].y}
+                   ${corner[2].x},${corner[2].y + ISO.thickness} ${corner[3].x},${corner[3].y + ISO.thickness}`,
+        }));
+        svg.append(make('polygon', {
+          class: 'slab-top', fill: 'var(--plate)', points: top,
+        }));
+
+        const label = make('text', { class: 'slab-floor', x: corner[3].x + 10, y: corner[3].y - 8 });
+        label.textContent = `ชั้น ${floor}`;
+        svg.append(label);
+      }
+
+      const head = iso(x1, y1, floors.at(-1));
+      const name = make('text', { class: 'slab-name', x: head.x + 8, y: head.y - 14 });
+      name.textContent = `อาคาร ${building}`;
+      svg.append(name);
+    }
   }
 
   /** แผ่นพื้นของแต่ละชั้น วาดจากกรอบของจุดที่อยู่บนชั้นนั้น */
@@ -485,8 +549,8 @@
       const a = place(from);
       const b = place(to);
       const vertical = from.f !== to.f;
-      const classes = ['corridor'];
-      if (vertical) classes.push('corridor--vertical');
+      const classes = [state.view === 'iso' ? 'iso-corridor' : 'corridor'];
+      if (vertical) classes.push(state.view === 'iso' ? 'iso-vertical' : 'corridor--vertical');
       if (isClosed(edge)) classes.push('corridor--closed');
 
       svg.append(make('line', {
@@ -523,7 +587,10 @@
           class: 'dot', cx: x, cy: y, r: onRoute.has(node.code) ? 5 : 3.2,
         }));
         if (state.view !== 'all' && node.th) {
-          const label = make('text', { class: 'pin__label--muted', x: x + 9, y: y + 4 });
+          const label = make('text', {
+            class: state.view === 'iso' ? 'iso-label' : 'pin__label--muted',
+            x: x + 8, y: y + 4,
+          });
           label.textContent = node.th;
           svg.append(label);
         }
@@ -607,11 +674,13 @@
     const tabs = document.getElementById('tabs');
     tabs.replaceChildren();
 
-    for (const key of ['all', ...floorsPresent]) {
+    for (const key of ['iso', 'all', ...floorsPresent]) {
       const button = document.createElement('button');
       button.className = 'tab';
       button.type = 'button';
-      button.textContent = key === 'all' ? 'ผังรวม' : `${key[0]} ชั้น ${key.slice(1)}`;
+      button.textContent = key === 'iso' ? 'ภาพรวมทั้งโรงพยาบาล'
+        : key === 'all' ? 'ตัดขวางทุกชั้น'
+        : `${key[0]} ชั้น ${key.slice(1)}`;
       button.setAttribute('aria-pressed', String(state.view === key));
       button.addEventListener('click', () => { state.view = key; render(); });
       tabs.append(button);
