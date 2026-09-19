@@ -1,0 +1,1140 @@
+<title>CarePath คิว A-017</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --bar-bg: #ffffffd9;
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --r-lg: 20px;
+    --tap: 48px;
+    --step: 1;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4;
+      --primary-ink: #9ed2e3;
+      --primary-soft: #14313c;
+      --warn: #ef8e6b;
+      --warn-soft: #3a1f16;
+      --amber: #e0a84a;
+      --amber-soft: #382a12;
+      --success: #62bf8d;
+      --success-soft: #16311f;
+
+      --ground: #0d171c;
+      --surface: #15242b;
+      --raised: #1a2c34;
+      --ink: #e8f0f3;
+      --ink-2: #a5bac3;
+      --ink-3: #74909b;
+      --line: #273b44;
+      --line-strong: #375059;
+
+      --bar-bg: #15242bd9;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4;
+    --primary-ink: #9ed2e3;
+    --primary-soft: #14313c;
+    --warn: #ef8e6b;
+    --warn-soft: #3a1f16;
+    --amber: #e0a84a;
+    --amber-soft: #382a12;
+    --success: #62bf8d;
+    --success-soft: #16311f;
+
+    --ground: #0d171c;
+    --surface: #15242b;
+    --raised: #1a2c34;
+    --ink: #e8f0f3;
+    --ink-2: #a5bac3;
+    --ink-3: #74909b;
+    --line: #273b44;
+    --line-strong: #375059;
+
+    --bar-bg: #15242bd9;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: calc(16px * var(--step));
+    line-height: 1.55;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body[data-large="on"] { --step: 1.35; }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; }
+
+  .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- โครงหน้าจอ ---------- */
+
+  .phone {
+    max-width: 460px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background: var(--ground);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bar-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ticket {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .ticket b {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: calc(1.22em);
+    letter-spacing: .04em;
+  }
+  .ticket span { font-size: .78em; color: var(--ink-2); }
+
+  .topbar__tools { margin-inline-start: auto; display: flex; gap: 6px; }
+
+  .chip {
+    min-height: 38px;
+    min-width: 42px;
+    padding: 4px 11px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: .82em;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary-ink);
+  }
+
+  .scroll {
+    flex: 1;
+    padding: 14px 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .actionbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+    background: var(--bar-bg);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+  }
+
+  /* ---------- ส่วนประกอบ ---------- */
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 15px;
+    box-shadow: var(--shadow-1);
+  }
+
+  .eyebrow {
+    font-size: .76em;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .alert {
+    display: flex;
+    gap: 11px;
+    padding: 13px 15px;
+    border-radius: var(--r);
+    border: 1px solid;
+    align-items: flex-start;
+  }
+  .alert__icon { font-size: 1.3em; line-height: 1.2; }
+  .alert--amber { background: var(--amber-soft); border-color: var(--amber); }
+  .alert--warn { background: var(--warn-soft); border-color: var(--warn); }
+  .alert b { display: block; }
+  .alert p { font-size: .92em; color: var(--ink-2); }
+  .alert--amber b, .alert--warn b { color: var(--ink); }
+
+  .hero {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    box-shadow: var(--shadow-2);
+  }
+  .hero__row { display: flex; align-items: center; gap: 15px; }
+  .hero__icon {
+    width: calc(60px * var(--step));
+    height: calc(60px * var(--step));
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 18px;
+    background: var(--primary-soft);
+    font-size: calc(1.9em);
+  }
+  .hero__name { font-size: 1.45em; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+  .hero__at { color: var(--ink-2); font-size: .92em; }
+  .hero__walk {
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-strong);
+    display: flex;
+    gap: 18px;
+  }
+  .metric { display: flex; flex-direction: column; line-height: 1.15; }
+  .metric b { font-family: 'IBM Plex Mono', monospace; font-size: 1.22em; font-variant-numeric: tabular-nums; }
+  .metric span { font-size: .76em; color: var(--ink-3); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: var(--tap);
+    padding: 11px 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .08s ease, background-color .15s ease;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--success { background: var(--success); border-color: var(--success); color: #fff; }
+  .btn--grow { flex: 1; }
+  .btn--lg { min-height: 56px; font-size: 1.06em; }
+  :root[data-theme="dark"] .btn--primary,
+  :root[data-theme="dark"] .btn--success { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary,
+    :root:not([data-theme="light"]) .btn--success { color: #08171d; }
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: .76em;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--primary-soft);
+    color: var(--primary-ink);
+  }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--success { background: var(--success-soft); color: var(--success); }
+  .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+  /* ---------- รายการขั้นตอน ---------- */
+
+  .progress { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+  .progress b { font-size: 1.05em; }
+  .progress span { color: var(--ink-3); font-size: .85em; margin-inline-start: auto; }
+
+  .rail { display: flex; gap: 4px; }
+  .rail i {
+    height: 5px;
+    flex: 1;
+    border-radius: 3px;
+    background: var(--line);
+  }
+  .rail i[data-on="done"] { background: var(--success); }
+  .rail i[data-on="now"] { background: var(--primary); }
+
+  .steps { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+  .step {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+  }
+  .step--done { background: var(--success-soft); border-color: transparent; }
+  .step--done .step__name { color: var(--ink-2); text-decoration: line-through; text-decoration-color: var(--ink-3); }
+  .step--now { background: var(--surface); border: 2px solid var(--primary); }
+  .step__no {
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--line);
+    color: var(--ink-2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .8em;
+    font-weight: 700;
+  }
+  .step--done .step__no { background: var(--success); color: #fff; }
+  .step--now .step__no { background: var(--primary); color: #fff; }
+  .step__icon { font-size: 1.25em; }
+  .step__name { font-weight: 600; line-height: 1.3; }
+  .step__where { font-size: .78em; color: var(--ink-3); }
+
+  /* ---------- เส้นทาง ---------- */
+
+  .routehead {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px;
+    border-radius: var(--r);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary);
+  }
+
+  .route { display: flex; flex-direction: column; gap: 9px; }
+  .leg {
+    display: grid;
+    grid-template-columns: calc(48px * var(--step)) 1fr;
+    align-items: center;
+    gap: 13px;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--surface);
+  }
+  .leg--current { border: 2px solid var(--primary); box-shadow: var(--shadow-2); }
+  .leg--past { opacity: .5; }
+  .leg__arrow { font-size: calc(1.9em); text-align: center; line-height: 1; }
+  .leg__text { font-weight: 700; line-height: 1.35; text-wrap: balance; }
+  .leg__sub { font-size: .84em; color: var(--ink-2); margin-top: 2px; }
+  .leg__dist {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .76em;
+    color: var(--ink-3);
+    margin-top: 4px;
+  }
+
+  .solo { text-align: center; padding: 26px 18px; }
+  .solo .leg__arrow { font-size: calc(3.4em); margin-bottom: 6px; }
+  .solo .leg__text { font-size: 1.3em; }
+  .solo__count { font-family: 'IBM Plex Mono', monospace; font-size: .8em; color: var(--ink-3); letter-spacing: .06em; }
+
+  /* ---------- แผ่นเลื่อนขึ้น ---------- */
+
+  dialog {
+    width: min(460px, 100%);
+    margin: auto auto 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--shadow-2);
+  }
+  dialog::backdrop { background: rgba(6, 18, 23, .55); }
+  .sheet { padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+  .sheet__grip { width: 42px; height: 4px; border-radius: 3px; background: var(--line-strong); margin: 0 auto 2px; }
+  .sheet h2 { font-size: 1.1em; }
+
+  .pick {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: var(--tap);
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    text-align: start;
+    cursor: pointer;
+  }
+  .pick b { font-weight: 600; }
+  .pick span { display: block; font-size: .78em; color: var(--ink-3); }
+  .pick__icon { font-size: 1.3em; }
+
+  /* ---------- แผงเดโม ---------- */
+
+  .demo-open {
+    position: fixed;
+    inset-block-end: calc(76px + env(safe-area-inset-bottom));
+    inset-inline-end: max(14px, calc(50% - 216px));
+    z-index: 30;
+    min-height: 46px;
+    padding: 9px 15px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+    font-size: .85em;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .demo-note {
+    font-size: .8em;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+
+  .toast {
+    position: fixed;
+    inset-block-start: 68px;
+    inset-inline: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .toast div {
+    max-width: 92%;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--ground);
+    font-size: .86em;
+    font-weight: 600;
+    box-shadow: var(--shadow-2);
+    animation: rise .28s ease;
+  }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(-8px); } }
+
+  .fade { animation: fade .22s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+
+  :where(button, [tabindex]):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+  .done-screen { text-align: center; padding: 34px 18px; }
+  .done-screen .hero__icon { margin: 0 auto 14px; background: var(--success-soft); }
+</style>
+
+<div class="phone">
+  <header class="topbar">
+    <div class="ticket">
+      <b class="mono">A-017</b>
+      <span id="who">สมชาย · เบาหวานตามนัด</span>
+    </div>
+    <div class="topbar__tools">
+      <button class="chip" id="langBtn" aria-pressed="false">EN</button>
+      <button class="chip" id="largeBtn" aria-pressed="false" aria-label="ตัวใหญ่">ก+</button>
+    </div>
+  </header>
+
+  <main class="scroll" id="view"></main>
+
+  <footer class="actionbar" id="actions"></footer>
+</div>
+
+<button class="demo-open" id="demoBtn">🎬 <span id="demoLabel">เดโม</span></button>
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+(() => {
+  'use strict';
+
+  // ---------- ข้อความสองภาษา ----------
+
+  const T = {
+    th: {
+      who: 'สมชาย · เบาหวานตามนัด',
+      demo: 'เดโม',
+      nowGo: 'ตอนนี้ไปที่',
+      viewRoute: 'ดูเส้นทาง',
+      backSteps: 'ขั้นตอนทั้งหมด',
+      arrived: 'ถึงแล้ว บอกเจ้าหน้าที่',
+      lost: 'ไม่เจอ / หลงทาง',
+      progress: 'ขั้นตอนวันนี้',
+      remain: (n) => `เหลืออีก ${n} ขั้น`,
+      deadlineTitle: 'ต้องรีบ — เจาะเลือดก่อน 11:00',
+      deadlineBody: 'งดอาหารมา ต้องเจาะเลือดก่อน 11:00 ระบบจึงจัดให้ไปเจาะเลือดก่อนคัดกรอง เหลืออีก 20 นาที',
+      rerouteTitle: 'เส้นทางเปลี่ยน',
+      rerouteBody: 'ลิฟต์ B ปิดซ่อม ระบบเปลี่ยนให้ไปทางลาดอาคาร C แล้ว ไม่ต้องย้อนกลับ',
+      position: 'ตำแหน่งล่าสุด',
+      confirmedBy: 'เจ้าหน้าที่ยืนยัน',
+      youSet: 'คุณยืนยันเอง',
+      whereAmI: 'ฉันอยู่ที่…',
+      scanQr: 'สแกน QR ที่ผนัง',
+      pickTitle: 'ตอนนี้คุณอยู่ตรงไหน',
+      pickHint: 'เลือกจุดที่มองเห็นรอบตัว ระบบจะคิดเส้นทางใหม่จากตรงนั้น',
+      routeTo: 'ไปที่',
+      soloMode: 'ทีละข้อ',
+      listMode: 'ดูทั้งหมด',
+      next: 'ถัดไป',
+      prev: 'ก่อนหน้า',
+      readAloud: 'อ่านออกเสียง',
+      of: (a, b) => `ข้อ ${a} จาก ${b}`,
+      meters: 'เมตร',
+      minutes: 'นาที',
+      wheelchair: 'ใช้รถเข็น — ระบบเลี่ยงบันไดให้อัตโนมัติ',
+      lostHelp: 'ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว A-017',
+      demoTitle: 'ควบคุมการสาธิต',
+      demoHint: 'ปุ่มเหล่านี้แทนเหตุการณ์จริงที่เกิดจากเจ้าหน้าที่หรือผู้ดูแลระบบ ในระบบจริงหน้านี้จะอัปเดตเองภายใน 5 วินาที',
+      demoFinish: 'เจ้าหน้าที่กด "เสร็จ"',
+      demoLift: 'ผู้ดูแลปิดลิฟต์ B',
+      demoLiftOpen: 'เปิดลิฟต์ B คืน',
+      demoXray: 'แพทย์สั่งเอกซเรย์เพิ่ม',
+      demoReset: 'เริ่มใหม่ทั้งหมด',
+      close: 'ปิด',
+      toastDone: (s) => `${s} เรียบร้อย — ขั้นถัดไปพร้อมแล้ว`,
+      toastLift: 'ลิฟต์ B ปิดซ่อม — คำนวณเส้นทางใหม่ให้แล้ว',
+      toastLiftOpen: 'ลิฟต์ B กลับมาใช้ได้',
+      toastMoved: (p) => `ตั้งตำแหน่งเป็น ${p} แล้ว`,
+      toastXray: 'แทรกขั้น "เอกซเรย์" ก่อนชำระเงินแล้ว',
+      toastReset: 'เริ่มสถานการณ์ใหม่',
+      allDone: 'เสร็จครบทุกขั้นแล้ว',
+      allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
+      added: 'แทรกเพิ่ม',
+      deadlineTag: 'ก่อน 11:00',
+    },
+    en: {
+      who: 'Somchai · Diabetes follow-up',
+      demo: 'Demo',
+      nowGo: 'Go to now',
+      viewRoute: 'Show directions',
+      backSteps: 'All steps',
+      arrived: "I'm here — tell staff",
+      lost: "Can't find it",
+      progress: "Today's steps",
+      remain: (n) => `${n} steps left`,
+      deadlineTitle: 'Hurry — blood test before 11:00',
+      deadlineBody: 'You are fasting, so the blood test must finish before 11:00. We moved it ahead of screening. 20 minutes left.',
+      rerouteTitle: 'Route changed',
+      rerouteBody: 'Lift B is closed for repair. We routed you via the Building C ramp — no need to turn back.',
+      position: 'Last known position',
+      confirmedBy: 'Confirmed by staff',
+      youSet: 'You set this',
+      whereAmI: 'Where am I?',
+      scanQr: 'Scan wall QR',
+      pickTitle: 'Where are you now?',
+      pickHint: 'Pick something you can see around you and we will recalculate from there.',
+      routeTo: 'To',
+      soloMode: 'One at a time',
+      listMode: 'Show all',
+      next: 'Next',
+      prev: 'Back',
+      readAloud: 'Read aloud',
+      of: (a, b) => `Step ${a} of ${b}`,
+      meters: 'm',
+      minutes: 'min',
+      wheelchair: 'Wheelchair — stairs are excluded automatically',
+      lostHelp: 'Lost? Show queue A-017 to any staff member.',
+      demoTitle: 'Demo controls',
+      demoHint: 'These stand in for real events from staff or the administrator. In the live system this screen updates on its own within 5 seconds.',
+      demoFinish: 'Staff taps "Done"',
+      demoLift: 'Admin closes Lift B',
+      demoLiftOpen: 'Reopen Lift B',
+      demoXray: 'Doctor orders an X-ray',
+      demoReset: 'Start over',
+      close: 'Close',
+      toastDone: (s) => `${s} done — next step is ready`,
+      toastLift: 'Lift B closed — new route calculated',
+      toastLiftOpen: 'Lift B is back in service',
+      toastMoved: (p) => `Position set to ${p}`,
+      toastXray: 'X-ray inserted before payment',
+      toastReset: 'Scenario restarted',
+      allDone: 'All steps complete',
+      allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
+      added: 'added',
+      deadlineTag: 'before 11:00',
+    },
+  };
+
+  // ---------- ข้อมูลของสถานการณ์ ----------
+
+  const PLACES = {
+    'A1-REG':  { icon: '🪪', th: 'เวชระเบียน',       en: 'Registration',   where: { th: 'อาคาร A ชั้น 1', en: 'Building A · 1F' } },
+    'B3-LAB':  { icon: '🩸', th: 'ห้องเจาะเลือด',     en: 'Blood test',     where: { th: 'อาคาร B ชั้น 3', en: 'Building B · 3F' } },
+    'A2-SCR':  { icon: '🩺', th: 'จุดคัดกรอง',        en: 'Screening',      where: { th: 'อาคาร A ชั้น 2', en: 'Building A · 2F' } },
+    'B3-WAIT': { icon: '🪑', th: 'จุดพักคอยรอผล',     en: 'Lab waiting area', where: { th: 'อาคาร B ชั้น 3', en: 'Building B · 3F' } },
+    'C4-MED':  { icon: '👨‍⚕️', th: 'คลินิกอายุรกรรม', en: 'Internal medicine', where: { th: 'อาคาร C ชั้น 4', en: 'Building C · 4F' } },
+    'B1-XR':   { icon: '📷', th: 'ห้องเอกซเรย์',      en: 'X-ray',          where: { th: 'อาคาร B ชั้น 1', en: 'Building B · 1F' } },
+    'A1-PAY':  { icon: '💳', th: 'การเงิน',           en: 'Cashier',        where: { th: 'อาคาร A ชั้น 1', en: 'Building A · 1F' } },
+    'A1-PHA':  { icon: '💊', th: 'ห้องยา',            en: 'Pharmacy',       where: { th: 'อาคาร A ชั้น 1', en: 'Building A · 1F' } },
+  };
+
+  const BASE_STEPS = [
+    { id: 1, point: 'A1-REG',  th: 'ยื่นบัตรและยืนยันการนัด', en: 'Check in',           status: 'done', at: '09:52' },
+    { id: 3, point: 'B3-LAB',  th: 'เจาะเลือด',              en: 'Blood test',          status: 'pending', deadline: true },
+    { id: 2, point: 'A2-SCR',  th: 'ชั่งน้ำหนัก วัดความดัน',  en: 'Weight & blood pressure', status: 'pending' },
+    { id: 4, point: 'B3-WAIT', th: 'รอผลตรวจ',               en: 'Wait for results',    status: 'pending' },
+    { id: 5, point: 'C4-MED',  th: 'พบแพทย์',                en: 'See the doctor',      status: 'pending' },
+    { id: 6, point: 'A1-PAY',  th: 'ชำระเงิน',               en: 'Payment',             status: 'pending' },
+    { id: 7, point: 'A1-PHA',  th: 'รับยา',                  en: 'Collect medicine',    status: 'pending' },
+  ];
+
+  // เส้นทางเขียนจาก data/edges.csv ของโครงการ · คีย์คือ "ต้นทาง>ปลายทาง"
+  const ROUTES = {
+    'A2-SCR>B3-LAB': [
+      { a: '➡', th: 'ออกจากจุดคัดกรอง เลี้ยวขวา เดิน 25 เมตร', en: 'Leave screening, turn right, walk 25 m', s_th: 'ถึงหน้าลิฟต์ A ชั้น 2', s_en: 'to the Lift A lobby, 2F', m: 25 },
+      { a: '⬆', th: 'เดินตรงไป 25 เมตร ถึงทางเชื่อม', en: 'Go straight 25 m to the bridge', s_th: 'ปลายทางเดินชั้น 2', s_en: 'end of the 2F corridor', m: 25 },
+      { a: '🌉', th: 'ผ่านทางเชื่อมไปอาคาร B ชั้น 2', en: 'Cross the bridge to Building B, 2F', s_th: 'พื้นเรียบ รถเข็นผ่านได้', s_en: 'level floor, wheelchair friendly', m: 40 },
+      { a: '▲', th: 'ขึ้นลิฟต์ B ไปชั้น 3', en: 'Take Lift B up to floor 3', s_th: 'ลิฟต์อยู่ขวามือของโถง', s_en: 'lift is on the right of the lobby', m: 0 },
+      { a: '⬅', th: 'เลี้ยวซ้าย เดิน 24 เมตร', en: 'Turn left and walk 24 m', s_th: '🩸 ห้องเจาะเลือดอยู่ขวามือ ข้างตู้น้ำดื่ม', s_en: '🩸 blood test room on your right, next to the water dispenser', m: 24 },
+    ],
+    'A2-SCR>B3-LAB@detour': [
+      { a: '➡', th: 'ออกจากจุดคัดกรอง เลี้ยวขวา เดิน 25 เมตร', en: 'Leave screening, turn right, walk 25 m', s_th: 'ถึงหน้าลิฟต์ A ชั้น 2', s_en: 'to the Lift A lobby, 2F', m: 25 },
+      { a: '🌉', th: 'ผ่านทางเชื่อมไปอาคาร B ชั้น 2', en: 'Cross the bridge to Building B, 2F', s_th: 'เดินตรงไป 25 เมตรก่อนถึงทางเชื่อม', s_en: 'straight 25 m to reach the bridge', m: 65 },
+      { a: '🌉', th: 'เดินตรงไป 35 เมตร ผ่านทางเชื่อมไปอาคาร C', en: 'Walk 35 m and cross to Building C', s_th: 'เลี่ยงลิฟต์ B ที่ปิดซ่อม', s_en: 'avoiding the closed Lift B', m: 35 },
+      { a: '▲', th: 'ขึ้นทางลาด C ไปชั้น 3', en: 'Take the Building C ramp up to floor 3', s_th: '♿ ทางลาด 40 เมตร ไม่มีบันได', s_en: '♿ 40 m ramp, no stairs', m: 40 },
+      { a: '⬅', th: 'ข้ามทางเชื่อมกลับอาคาร B เลี้ยวซ้าย เดิน 24 เมตร', en: 'Cross back to Building B, turn left, walk 24 m', s_th: '🩸 ห้องเจาะเลือดอยู่ขวามือ ข้างตู้น้ำดื่ม', s_en: '🩸 blood test room on your right, next to the water dispenser', m: 59 },
+    ],
+    'A1-REG>B3-LAB': [
+      { a: '➡', th: 'ออกจากเวชระเบียน เลี้ยวขวา เดิน 25 เมตร', en: 'Leave registration, turn right, walk 25 m', s_th: 'ถึงหน้าลิฟต์ A', s_en: 'to the Lift A lobby', m: 25 },
+      { a: '▲', th: 'ขึ้นลิฟต์ A ไปชั้น 2', en: 'Take Lift A up to floor 2', s_th: 'รอลิฟต์ราว 50 วินาที', s_en: 'about 50 s wait', m: 0 },
+      { a: '🌉', th: 'เดินตรงไป 29 เมตร ผ่านทางเชื่อมไปอาคาร B', en: 'Walk 29 m and cross the bridge to Building B', s_th: 'ชั้น 2', s_en: '2F', m: 69 },
+      { a: '▲', th: 'ขึ้นลิฟต์ B ไปชั้น 3', en: 'Take Lift B up to floor 3', s_th: '', s_en: '', m: 0 },
+      { a: '⬅', th: 'เลี้ยวซ้าย เดิน 24 เมตร', en: 'Turn left and walk 24 m', s_th: '🩸 ห้องเจาะเลือดอยู่ขวามือ', s_en: '🩸 blood test room on your right', m: 24 },
+    ],
+    'B3-LAB>A2-SCR': [
+      { a: '➡', th: 'ออกจากห้องเจาะเลือด เลี้ยวขวา เดิน 20 เมตร', en: 'Leave the lab, turn right, walk 20 m', s_th: 'ถึงโถงลิฟต์ B ชั้น 3', s_en: 'to the Lift B lobby, 3F', m: 20 },
+      { a: '▼', th: 'ลงลิฟต์ B ไปชั้น 2', en: 'Take Lift B down to floor 2', s_th: '', s_en: '', m: 0 },
+      { a: '🌉', th: 'ผ่านทางเชื่อมกลับอาคาร A ชั้น 2', en: 'Cross the bridge back to Building A, 2F', s_th: 'เดิน 55 เมตร', s_en: '55 m walk', m: 55 },
+      { a: '⬅', th: 'เลี้ยวซ้าย เดิน 20 เมตร', en: 'Turn left and walk 20 m', s_th: '🩺 จุดคัดกรองอยู่ขวามือ ข้างตู้น้ำดื่ม', s_en: '🩺 screening on your right, by the water dispenser', m: 20 },
+    ],
+    'A2-SCR>B3-WAIT': [
+      { a: '➡', th: 'กลับไปทางเดิมที่มา ผ่านทางเชื่อมไปอาคาร B', en: 'Head back the way you came, cross to Building B', s_th: 'เดิน 90 เมตร', s_en: '90 m walk', m: 90 },
+      { a: '▲', th: 'ขึ้นชั้น 3', en: 'Go up to floor 3', s_th: 'ลิฟต์ B หรือทางลาด C ตามที่ระบบแนะนำ', s_en: 'Lift B or the C ramp as advised', m: 0 },
+      { a: '⬆', th: 'เดินตรงไป 26 เมตร', en: 'Walk straight 26 m', s_th: '🪑 จุดพักคอยอยู่หน้าห้องเจาะเลือด', s_en: '🪑 waiting area in front of the lab', m: 26 },
+    ],
+    'B3-WAIT>C4-MED': [
+      { a: '➡', th: 'ออกจากจุดพักคอย เลี้ยวขวา เดิน 30 เมตร', en: 'Leave the waiting area, turn right, walk 30 m', s_th: 'ถึงทางเชื่อมชั้น 3', s_en: 'to the 3F bridge', m: 30 },
+      { a: '🌉', th: 'ผ่านทางเชื่อมไปอาคาร C ชั้น 3', en: 'Cross the bridge to Building C, 3F', s_th: '', s_en: '', m: 35 },
+      { a: '▲', th: 'ขึ้นลิฟต์ C ไปชั้น 4', en: 'Take Lift C up to floor 4', s_th: '', s_en: '', m: 0 },
+      { a: '⬅', th: 'เลี้ยวซ้าย เดิน 15 เมตร', en: 'Turn left and walk 15 m', s_th: '👨‍⚕️ คลินิกอายุรกรรม ป้ายสีเขียว ซ้ายมือ', s_en: '👨‍⚕️ internal medicine, green sign on your left', m: 15 },
+    ],
+    'C4-MED>B1-XR': [
+      { a: '➡', th: 'ออกจากคลินิก เดินกลับไปลิฟต์ C 15 เมตร', en: 'Leave the clinic, walk back 15 m to Lift C', s_th: '', s_en: '', m: 15 },
+      { a: '▼', th: 'ลงลิฟต์ C ไปชั้น 3 แล้วข้ามทางเชื่อมไปอาคาร B', en: 'Take Lift C down to 3F, then cross to Building B', s_th: 'เดิน 47 เมตร', s_en: '47 m walk', m: 47 },
+      { a: '▼', th: 'ลงลิฟต์ B ไปชั้น 1', en: 'Take Lift B down to floor 1', s_th: '', s_en: '', m: 0 },
+      { a: '➡', th: 'เลี้ยวขวา เดิน 30 เมตร', en: 'Turn right and walk 30 m', s_th: '📷 ห้องเอกซเรย์อยู่สุดทางเดิน', s_en: '📷 X-ray at the end of the corridor', m: 30 },
+    ],
+    'C4-MED>A1-PAY': [
+      { a: '▼', th: 'ลงลิฟต์ C ไปชั้น 2 แล้วข้ามทางเชื่อมไปอาคาร B', en: 'Take Lift C to 2F and cross to Building B', s_th: 'เดิน 62 เมตร', s_en: '62 m walk', m: 62 },
+      { a: '🌉', th: 'ข้ามทางเชื่อมต่อไปอาคาร A ชั้น 2', en: 'Cross the next bridge to Building A, 2F', s_th: '', s_en: '', m: 40 },
+      { a: '▼', th: 'ลงลิฟต์ A ไปชั้น 1', en: 'Take Lift A down to floor 1', s_th: '', s_en: '', m: 0 },
+      { a: '⬅', th: 'เลี้ยวซ้าย เดิน 10 เมตร', en: 'Turn left and walk 10 m', s_th: '💳 การเงินช่อง 1-4 ข้างเวชระเบียน', s_en: '💳 cashier counters 1–4, next to registration', m: 10 },
+    ],
+    'B1-XR>A1-PAY': [
+      { a: '⬅', th: 'ออกจากห้องเอกซเรย์ เดินกลับ 30 เมตร ขึ้นลิฟต์ B ไปชั้น 2', en: 'Leave X-ray, walk back 30 m, take Lift B to 2F', s_th: '', s_en: '', m: 34 },
+      { a: '🌉', th: 'ข้ามทางเชื่อมไปอาคาร A ชั้น 2', en: 'Cross the bridge to Building A, 2F', s_th: '', s_en: '', m: 55 },
+      { a: '▼', th: 'ลงลิฟต์ A ไปชั้น 1 เลี้ยวซ้าย เดิน 10 เมตร', en: 'Take Lift A to 1F, turn left, walk 10 m', s_th: '💳 การเงินอยู่ข้างเวชระเบียน', s_en: '💳 cashier next to registration', m: 10 },
+    ],
+    'A1-PAY>A1-PHA': [
+      { a: '➡', th: 'ออกจากการเงิน เลี้ยวขวา เดิน 20 เมตร', en: 'Leave the cashier, turn right, walk 20 m', s_th: '💊 ห้องยาอยู่ข้างประตูทางออก', s_en: '💊 pharmacy next to the exit door', m: 20 },
+    ],
+  };
+
+  const NEARBY = [
+    { code: 'A1-INFO', icon: 'ℹ️', th: 'ประชาสัมพันธ์', en: 'Information desk', s_th: 'ตรงข้ามประตูทางเข้า', s_en: 'opposite the entrance' },
+    { code: 'A2-SCR', icon: '🩺', th: 'จุดคัดกรอง', en: 'Screening', s_th: 'ข้างตู้น้ำดื่ม ชั้น 2 อาคาร A', s_en: 'by the water dispenser, A 2F' },
+    { code: 'B3-J1', icon: '🛗', th: 'โถงลิฟต์ B ชั้น 3', en: 'Lift B lobby, 3F', s_th: 'หน้าลิฟต์ฝั่งอาคาร B', s_en: 'in front of the Building B lift' },
+    { code: 'A1-CAFE', icon: '☕', th: 'ร้านกาแฟ', en: 'Café', s_th: 'โถงทางเข้าอาคาร A', s_en: 'Building A entrance hall' },
+    { code: 'C4-J1', icon: '🪧', th: 'ป้ายสีเขียวคลินิกอายุรกรรม', en: 'Green internal-medicine sign', s_th: 'หน้าลิฟต์ C ชั้น 4', s_en: 'by Lift C, 4F' },
+  ];
+
+  const POSITION_NAMES = {
+    'A1-REG': { th: 'เวชระเบียน', en: 'Registration' },
+    'A1-INFO': { th: 'ประชาสัมพันธ์', en: 'Information desk' },
+    'A1-CAFE': { th: 'ร้านกาแฟ', en: 'Café' },
+    'A2-SCR': { th: 'จุดคัดกรอง', en: 'Screening' },
+    'B3-J1': { th: 'โถงลิฟต์ B ชั้น 3', en: 'Lift B lobby 3F' },
+    'B3-LAB': { th: 'ห้องเจาะเลือด', en: 'Blood test' },
+    'B3-WAIT': { th: 'จุดพักคอยรอผล', en: 'Lab waiting area' },
+    'C4-MED': { th: 'คลินิกอายุรกรรม', en: 'Internal medicine' },
+    'C4-J1': { th: 'หน้าลิฟต์ C ชั้น 4', en: 'Lift C lobby 4F' },
+    'B1-XR': { th: 'ห้องเอกซเรย์', en: 'X-ray' },
+    'A1-PAY': { th: 'การเงิน', en: 'Cashier' },
+    'A1-PHA': { th: 'ห้องยา', en: 'Pharmacy' },
+  };
+
+  // ---------- สถานะ ----------
+
+  const initialState = () => ({
+    lang: 'th',
+    view: 'steps',
+    steps: BASE_STEPS.map((s) => ({ ...s })),
+    at: 'A2-SCR',
+    atSource: 'station',
+    liftClosed: false,
+    deadlineOpen: true,
+    rerouteOpen: false,
+    leg: 0,
+    solo: false,
+  });
+
+  let state = initialState();
+
+  const el = {
+    view: document.getElementById('view'),
+    actions: document.getElementById('actions'),
+    sheet: document.getElementById('sheet'),
+    sheetBody: document.getElementById('sheetBody'),
+    toast: document.getElementById('toast'),
+    who: document.getElementById('who'),
+    langBtn: document.getElementById('langBtn'),
+    largeBtn: document.getElementById('largeBtn'),
+    demoBtn: document.getElementById('demoBtn'),
+    demoLabel: document.getElementById('demoLabel'),
+  };
+
+  const t = () => T[state.lang];
+  const L = (obj, key) => obj[`${key}_${state.lang}`] ?? obj[state.lang] ?? '';
+  const nextStep = () => state.steps.find((s) => s.status === 'pending') ?? null;
+  const placeName = (code) => (POSITION_NAMES[code] ?? { th: code, en: code })[state.lang];
+
+  function currentRoute() {
+    const target = nextStep();
+    if (!target) return [];
+    const key = `${state.at}>${target.point}`;
+    const detour = ROUTES[`${key}@detour`];
+    if (state.liftClosed && detour) return detour;
+    return ROUTES[key] ?? fallbackRoute(target);
+  }
+
+  // ปลายทางที่ยังไม่มีชุดคำสั่งเขียนไว้ ใช้คำสั่งรวบ 1 ข้อ แทนการโชว์หน้าจอว่าง
+  function fallbackRoute(target) {
+    const place = PLACES[target.point];
+    return [{
+      a: '⬆',
+      th: `เดินไป${place.th} ${place.where.th}`,
+      en: `Head to ${place.en}, ${place.where.en}`,
+      s_th: 'ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว A-017',
+      s_en: 'Ask any staff member, show queue A-017',
+      m: 120,
+    }];
+  }
+
+  const routeTotals = (route) => {
+    const m = route.reduce((sum, leg) => sum + leg.m, 0);
+    return { m, min: Math.max(1, Math.round(m / 60 + route.length * 0.35)) };
+  };
+
+  // ---------- การวาดหน้าจอ ----------
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function render() {
+    el.who.textContent = t().who;
+    el.langBtn.textContent = state.lang === 'th' ? 'EN' : 'ไทย';
+    el.langBtn.setAttribute('aria-pressed', String(state.lang === 'en'));
+    el.demoLabel.textContent = t().demo;
+    document.documentElement.lang = state.lang;
+
+    const target = nextStep();
+    if (!target) return renderDone();
+    if (state.view === 'route') return renderRoute(target);
+    renderSteps(target);
+  }
+
+  function renderSteps(target) {
+    const place = PLACES[target.point];
+    const route = currentRoute();
+    const totals = routeTotals(route);
+    const remaining = state.steps.filter((s) => s.status === 'pending').length;
+    const total = state.steps.length;
+
+    el.view.className = 'scroll fade';
+    el.view.innerHTML = `
+      ${state.rerouteOpen ? alertHtml('warn', '🔔', t().rerouteTitle, t().rerouteBody) : ''}
+      ${state.deadlineOpen && target.deadline ? alertHtml('amber', '⏰', t().deadlineTitle, t().deadlineBody) : ''}
+
+      <section class="hero">
+        <p class="eyebrow">${t().nowGo}</p>
+        <div class="hero__row" style="margin-top:9px">
+          <div class="hero__icon">${place.icon}</div>
+          <div>
+            <h2 class="hero__name">${esc(place[state.lang])}</h2>
+            <p class="hero__at">${esc(place.where[state.lang])}${target.deadline ? ' · <span class="tag tag--amber">' + t().deadlineTag + '</span>' : ''}</p>
+          </div>
+        </div>
+        <div class="hero__walk">
+          <span class="metric"><b>${totals.m}</b><span>${t().meters}</span></span>
+          <span class="metric"><b>${totals.min}</b><span>${t().minutes}</span></span>
+          <span class="metric"><b>${route.length}</b><span>${state.lang === 'th' ? 'ข้อ' : 'turns'}</span></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="progress">
+          <b>${t().progress}</b>
+          <span>${t().remain(remaining)}</span>
+        </div>
+        <div class="rail">${state.steps.map(railMark).join('')}</div>
+        <ol class="steps">${state.steps.map((s, i) => stepHtml(s, i, target)).join('')}</ol>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">${t().position}</p>
+        <p style="margin-top:5px">📍 ${esc(placeName(state.at))}
+          <span class="tag tag--muted">${state.atSource === 'station' ? t().confirmedBy : t().youSet}</span>
+        </p>
+        <div style="display:flex;gap:9px;margin-top:11px">
+          <button class="btn btn--grow" data-act="where">📍 ${t().whereAmI}</button>
+          <button class="btn" data-act="qr" aria-label="${t().scanQr}">📷</button>
+        </div>
+      </section>
+
+      <p class="demo-note">♿ ${t().wheelchair}<br>${t().lostHelp}</p>
+    `;
+
+    el.actions.innerHTML = `<button class="btn btn--primary btn--lg btn--grow" data-act="route">${t().viewRoute} ➡</button>`;
+  }
+
+  const railMark = (s) =>
+    `<i data-on="${s.status === 'done' ? 'done' : s === nextStep() ? 'now' : ''}"></i>`;
+
+  function stepHtml(s, index, target) {
+    const place = PLACES[s.point];
+    const isNow = s === target;
+    const cls = s.status === 'done' ? 'step step--done' : isNow ? 'step step--now' : 'step';
+    const mark = s.status === 'done' ? '✓' : String(index + 1);
+    const tail = s.status === 'done'
+      ? `<span class="tag tag--success mono">${s.at ?? ''}</span>`
+      : s.deadline
+        ? `<span class="tag tag--amber">${t().deadlineTag}</span>`
+        : s.added
+          ? `<span class="tag">${t().added}</span>`
+          : '';
+
+    return `
+      <li class="${cls}">
+        <span class="step__no">${mark}</span>
+        <span class="step__icon" aria-hidden="true">${place.icon}</span>
+        <span>
+          <span class="step__name">${esc(s[state.lang])}</span><br>
+          <span class="step__where">${esc(place.where[state.lang])} · ${esc(place[state.lang])}</span>
+        </span>
+        ${tail}
+      </li>`;
+  }
+
+  function renderRoute(target) {
+    const place = PLACES[target.point];
+    const route = currentRoute();
+    const totals = routeTotals(route);
+    state.leg = Math.min(state.leg, route.length - 1);
+
+    const legs = state.solo
+      ? soloHtml(route[state.leg], state.leg, route.length)
+      : route.map((leg, i) => legHtml(leg, i)).join('');
+
+    el.view.className = 'scroll fade';
+    el.view.innerHTML = `
+      ${state.rerouteOpen ? alertHtml('warn', '🔔', t().rerouteTitle, t().rerouteBody) : ''}
+
+      <section class="routehead">
+        <div class="hero__icon" style="width:52px;height:52px;font-size:1.6em">${place.icon}</div>
+        <div>
+          <p class="eyebrow">${t().routeTo}</p>
+          <h2 style="font-size:1.2em;font-weight:800;line-height:1.2">${esc(place[state.lang])}</h2>
+          <p class="mono" style="font-size:.84em;color:var(--ink-2)">${totals.m} ${t().meters} · ${totals.min} ${t().minutes}</p>
+        </div>
+      </section>
+
+      <div style="display:flex;gap:9px">
+        <button class="btn btn--grow" data-act="mode">${state.solo ? '☰ ' + t().listMode : '1️⃣ ' + t().soloMode}</button>
+        <button class="btn" data-act="speak" aria-label="${t().readAloud}">🔊</button>
+      </div>
+
+      <ol class="route">${legs}</ol>
+
+      <button class="btn" data-act="where">🙋 ${t().lost}</button>
+      <p class="demo-note">${t().lostHelp}</p>
+    `;
+
+    el.actions.innerHTML = state.solo && state.leg < route.length - 1
+      ? `<button class="btn" data-act="prevleg">← ${t().prev}</button>
+         <button class="btn btn--primary btn--grow btn--lg" data-act="nextleg">${t().next} →</button>`
+      : `<button class="btn btn--grow" data-act="steps">☰ ${t().backSteps}</button>
+         <button class="btn btn--success btn--grow btn--lg" data-act="arrive">✔ ${t().arrived}</button>`;
+  }
+
+  const legHtml = (leg, i) => `
+    <li class="leg${i === state.leg ? ' leg--current' : i < state.leg ? ' leg--past' : ''}">
+      <span class="leg__arrow" aria-hidden="true">${leg.a}</span>
+      <span>
+        <span class="leg__text">${esc(L(leg, ''))}</span>
+        ${L(leg, 's') ? `<span class="leg__sub">${esc(L(leg, 's'))}</span>` : ''}
+        ${leg.m ? `<span class="leg__dist">${leg.m} ${t().meters}</span>` : ''}
+      </span>
+    </li>`;
+
+  const soloHtml = (leg, i, total) => `
+    <li class="leg leg--current solo">
+      <p class="solo__count">${t().of(i + 1, total)}</p>
+      <p class="leg__arrow" aria-hidden="true">${leg.a}</p>
+      <p class="leg__text">${esc(L(leg, ''))}</p>
+      ${L(leg, 's') ? `<p class="leg__sub">${esc(L(leg, 's'))}</p>` : ''}
+      ${leg.m ? `<p class="leg__dist">${leg.m} ${t().meters}</p>` : ''}
+    </li>`;
+
+  const alertHtml = (kind, icon, title, body) => `
+    <div class="alert alert--${kind}" role="status">
+      <span class="alert__icon" aria-hidden="true">${icon}</span>
+      <span><b>${esc(title)}</b><p>${esc(body)}</p></span>
+    </div>`;
+
+  function renderDone() {
+    el.view.className = 'scroll fade';
+    el.view.innerHTML = `
+      <section class="card done-screen">
+        <div class="hero__icon">✅</div>
+        <h2 class="hero__name">${t().allDone}</h2>
+        <p style="color:var(--ink-2);margin-top:8px">${t().allDoneBody}</p>
+      </section>
+      <section class="card">
+        <div class="rail">${state.steps.map(() => '<i data-on="done"></i>').join('')}</div>
+        <ol class="steps">${state.steps.map((s, i) => stepHtml(s, i, null)).join('')}</ol>
+      </section>`;
+    el.actions.innerHTML = `<button class="btn btn--grow btn--lg" data-act="reset">↻ ${t().demoReset}</button>`;
+  }
+
+  // ---------- แผ่นเลื่อนขึ้น ----------
+
+  function openSheet(html) {
+    el.sheetBody.innerHTML = `<div class="sheet__grip"></div>${html}`;
+    el.sheet.showModal();
+  }
+
+  const whereSheet = () => openSheet(`
+    <h2>${t().pickTitle}</h2>
+    <p class="demo-note">${t().pickHint}</p>
+    ${NEARBY.map((p) => `
+      <button class="pick" data-act="pickplace" data-code="${p.code}">
+        <span class="pick__icon" aria-hidden="true">${p.icon}</span>
+        <span><b>${esc(p[state.lang])}</b><span>${esc(L(p, 's'))}</span></span>
+      </button>`).join('')}
+    <button class="btn" data-act="closesheet">${t().close}</button>`);
+
+  const demoSheet = () => openSheet(`
+    <h2>${t().demoTitle}</h2>
+    <p class="demo-note">${t().demoHint}</p>
+    <button class="pick" data-act="finish"><span class="pick__icon">✔</span><span><b>${t().demoFinish}</b><span>${esc(nextStep() ? nextStep()[state.lang] : '—')}</span></span></button>
+    <button class="pick" data-act="lift"><span class="pick__icon">🛗</span><span><b>${state.liftClosed ? t().demoLiftOpen : t().demoLift}</b><span>${state.lang === 'th' ? 'ทดสอบการเปลี่ยนเส้นทางกลางทาง' : 'tests mid-journey rerouting'}</span></span></button>
+    <button class="pick" data-act="xray"><span class="pick__icon">📷</span><span><b>${t().demoXray}</b><span>${state.lang === 'th' ? 'แทรกขั้นใหม่ก่อนชำระเงิน' : 'inserts a step before payment'}</span></span></button>
+    <button class="pick" data-act="reset"><span class="pick__icon">↻</span><span><b>${t().demoReset}</b></span></button>
+    <button class="btn" data-act="closesheet">${t().close}</button>`);
+
+  function toast(message) {
+    el.toast.innerHTML = `<div>${esc(message)}</div>`;
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => { el.toast.innerHTML = ''; }, 3200);
+  }
+
+  const buzz = (pattern) => { try { navigator.vibrate?.(pattern); } catch { /* ไม่รองรับก็ข้ามไป */ } };
+
+  function speak() {
+    const route = currentRoute();
+    const leg = route[state.solo ? state.leg : 0];
+    const text = `${L(leg, '')} ${L(leg, 's')}`;
+    try {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = state.lang === 'th' ? 'th-TH' : 'en-US';
+      speechSynthesis.speak(utterance);
+    } catch {
+      toast(text);
+    }
+  }
+
+  // ---------- เหตุการณ์ ----------
+
+  const ACTIONS = {
+    route: () => { state.view = 'route'; state.leg = 0; },
+    steps: () => { state.view = 'steps'; },
+    mode: () => { state.solo = !state.solo; state.leg = 0; },
+    speak,
+    nextleg: () => { state.leg = Math.min(state.leg + 1, currentRoute().length - 1); buzz(12); },
+    prevleg: () => { state.leg = Math.max(0, state.leg - 1); },
+    where: whereSheet,
+    qr: whereSheet,
+    closesheet: () => el.sheet.close(),
+
+    arrive: () => {
+      const target = nextStep();
+      state.at = target.point;
+      state.atSource = 'manual';
+      state.view = 'steps';
+      state.rerouteOpen = false;
+      buzz([18, 60, 18]);
+      toast(state.lang === 'th'
+        ? 'บอกเจ้าหน้าที่ว่าคิว A-017 มาถึงแล้ว'
+        : 'Tell staff that queue A-017 has arrived');
+    },
+
+    pickplace: (button) => {
+      state.at = button.dataset.code;
+      state.atSource = 'manual';
+      state.leg = 0;
+      el.sheet.close();
+      toast(t().toastMoved(placeName(state.at)));
+    },
+
+    finish: () => {
+      const target = nextStep();
+      if (!target) return;
+      target.status = 'done';
+      target.at = state.lang === 'th' ? 'เสร็จ' : 'done';
+      state.at = target.point;
+      state.atSource = 'station';
+      state.deadlineOpen = false;
+      state.view = 'steps';
+      state.leg = 0;
+      el.sheet.close();
+      buzz([18, 60, 18]);
+      toast(t().toastDone(target[state.lang]));
+    },
+
+    lift: () => {
+      state.liftClosed = !state.liftClosed;
+      state.rerouteOpen = state.liftClosed;
+      state.leg = 0;
+      el.sheet.close();
+      buzz(state.liftClosed ? [22, 70, 22] : 12);
+      toast(state.liftClosed ? t().toastLift : t().toastLiftOpen);
+    },
+
+    xray: () => {
+      const payIndex = state.steps.findIndex((s) => s.point === 'A1-PAY');
+      if (payIndex === -1 || state.steps.some((s) => s.point === 'B1-XR')) return el.sheet.close();
+      state.steps.splice(payIndex, 0, {
+        id: 8, point: 'B1-XR', th: 'เอกซเรย์ปอด', en: 'Chest X-ray',
+        status: 'pending', added: true,
+      });
+      el.sheet.close();
+      buzz([18, 60, 18]);
+      toast(t().toastXray);
+    },
+
+    reset: () => {
+      const lang = state.lang;
+      state = initialState();
+      state.lang = lang;
+      el.sheet.close();
+      toast(t().toastReset);
+    },
+  };
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-act]');
+    if (!button) return;
+    const run = ACTIONS[button.dataset.act];
+    if (!run) return;
+    run(button);
+    render();
+  });
+
+  el.langBtn.addEventListener('click', () => {
+    state.lang = state.lang === 'th' ? 'en' : 'th';
+    save('carepath.lang', state.lang);
+    render();
+  });
+
+  el.largeBtn.addEventListener('click', () => {
+    const on = document.body.dataset.large !== 'on';
+    document.body.dataset.large = on ? 'on' : 'off';
+    el.largeBtn.setAttribute('aria-pressed', String(on));
+    state.solo = on;
+    save('carepath.large', on ? 'on' : 'off');
+    render();
+  });
+
+  el.demoBtn.addEventListener('click', demoSheet);
+  el.sheet.addEventListener('click', (event) => {
+    if (event.target === el.sheet) el.sheet.close();
+  });
+
+  // ---------- ค่าที่จำไว้ในเครื่องผู้ใช้ ----------
+
+  function save(key, value) {
+    try { localStorage.setItem(key, value); } catch { /* โหมดส่วนตัวเขียนไม่ได้ ข้ามไป */ }
+  }
+  function load(key) {
+    try { return localStorage.getItem(key); } catch { return null; }
+  }
+
+  if (load('carepath.lang') === 'en') state.lang = 'en';
+  if (load('carepath.large') === 'on') {
+    document.body.dataset.large = 'on';
+    el.largeBtn.setAttribute('aria-pressed', 'true');
+    state.solo = true;
+  }
+
+  render();
+})();
+</script>
