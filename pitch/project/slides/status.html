@@ -1,0 +1,31 @@
+<section id="status" style="background:#f4f8f9; color:#0f2730; font-family:Sarabun, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <h2 style="font-size:72px; font-weight:800; line-height:1.1">สถานะจริงของระบบวันนี้</h2>
+  <div style="display:flex; gap:32px; align-items:stretch">
+    <div style="flex:1; background:#e4f2ea; border:2px solid #2e8b57; border-radius:20px; padding:40px; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:34px; font-weight:700">ใช้งานได้จริงแล้ว</h3>
+      <ul style="font-size:26px; color:#20503a; line-height:1.75">
+        <li>หน้าผู้ป่วยห้าภาษา พร้อมแผนที่ทีละชั้น</li>
+        <li>เวชระเบียน เปิด visit และพิมพ์บัตรคิว</li>
+        <li>จอจุดบริการที่ผูกกับมือถือผู้ป่วยจริง</li>
+        <li>โต๊ะช่วยเหลือ และการแจ้งเส้นทางชำรุด</li>
+        <li>ผังเส้นทางและผลกระทบเมื่อปิดเส้นทาง</li>
+        <li>โครงสร้างฐานข้อมูล 13 ตาราง และอัลกอริทึม</li>
+      </ul>
+    </div>
+    <div style="flex:1; background:#ffffff; border:1px solid #d7e3e7; border-radius:20px; padding:40px; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:34px; font-weight:700">ยังเป็นแบบหน้าจอ</h3>
+      <ul style="font-size:26px; color:#4c626c; line-height:1.75">
+        <li>นำเข้าผังจากไฟล์ CSV</li>
+        <li>ภาพรวมผู้บริหารและจุดคอขวด</li>
+        <li>จอเรียกคิวหน้าห้องตรวจ</li>
+      </ul>
+      <h3 style="font-size:34px; font-weight:700; margin-top:8px">ยังไม่ได้ทำ</h3>
+      <ul style="font-size:26px; color:#4c626c; line-height:1.75">
+        <li>ผู้ใช้และสิทธิ์ · บันทึกการใช้งาน</li>
+        <li>REST API ที่ต่อฐานข้อมูลจริง</li>
+      </ul>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; font-size:26px; color:#4c626c">ทุกเมนูในระบบติดป้ายไว้ตามความจริง กดแล้วไม่เงียบ</p>
+  <aside>บอกสถานะตรง ๆ ดีกว่าให้กรรมการกดเจอเอง · ถ้าถามว่าทำไมยังไม่มี API ตอบเรื่องข้อจำกัดของ Cloudflare Workers สามข้อที่บันทึกไว้ใน README</aside>
+</section>

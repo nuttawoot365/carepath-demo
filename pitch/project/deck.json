@@ -1,0 +1,18 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-09-19T16:20:00Z" },
+  "title": "CarePath — Hackathon 977-121",
+  "cover": "cover",
+  "order": ["cover", "problem", "loop", "data-map", "routing", "access-cost", "graph-plan", "no-phone", "languages", "pdpa", "honesty", "status", "next", "close"],
+  "sections": {
+    "intro": { "description": "ปัญหาที่ทุกคนในโรงพยาบาลเคยเห็น และภาพรวมว่าระบบทำงานยังไง", "start": "cover" },
+    "strengths": { "description": "จุดแข็งห้าข้อ พร้อมตัวเลขที่วัดได้จากผังจริงในระบบ", "start": "data-map" },
+    "trust": { "description": "ความเป็นส่วนตัว ความซื่อสัตย์ของข้อมูล และสถานะจริงของระบบ", "start": "pdpa" },
+    "ask": { "description": "สิ่งที่ขอจากโรงพยาบาลเพื่อไปต่อ", "start": "next" }
+  },
+  "faces": {
+    "sarabun": { "family": "Sarabun", "href": "https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" },
+    "ibm-plex-mono": { "family": "IBM Plex Mono", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" }
+  },
+  "designSystems": []
+}
