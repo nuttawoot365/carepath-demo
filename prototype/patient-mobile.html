@@ -639,6 +639,7 @@
       allDone: 'เสร็จครบทุกขั้นแล้ว',
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
+      pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
       galleryHint: 'ทุกจุดในผังมีรูปของตัวเอง กดเพื่อดูภาพใหญ่ หรือถ่ายรูปจริงทับ',
       photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
@@ -697,6 +698,7 @@
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
+      pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
       galleryHint: 'Every place on the map has its own picture. Tap one to see it large or replace it with a real photo.',
       photoView: 'See a photo', photoTitle: 'Photo of this place',
@@ -754,6 +756,7 @@
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
+      pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
       galleryHint: '地图上每个地点都有对应图片。点击可查看大图，或用实景照片替换。',
       photoView: '查看实景照片', photoTitle: '该地点的实景照片',
@@ -811,6 +814,7 @@
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
+      pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
       galleryHint: 'မြေပုံပေါ်ရှိ နေရာတိုင်းတွင် ကိုယ်ပိုင်ပုံ ရှိသည်။ ပုံကြီးကြည့်ရန် သို့မဟုတ် တကယ့်ဓာတ်ပုံဖြင့် အစားထိုးရန် နှိပ်ပါ။',
       photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
@@ -868,6 +872,7 @@
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
+      pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
       galleryHint: 'У каждого места на карте есть своё изображение. Нажмите, чтобы открыть крупно или заменить реальным фото.',
       photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
@@ -951,6 +956,24 @@
       { act: 'ramp', dir: 'up', name: 'RAMP-C', floor: 3, m: 40, hint: 'rampOk' },
       { act: 'walk', turn: 'left', m: 59, arrive: 'B3-LAB', side: 'right', hint: 'water' },
     ],
+    'A1-ENT>A1-REG': [
+      { act: 'walk', turn: 'straight', m: 8, to: 'A1-INFO' },
+      { act: 'walk', turn: 'left', m: 10, arrive: 'A1-REG', side: 'left' },
+    ],
+    'A1-ENT>B3-LAB': [
+      { act: 'walk', turn: 'straight', m: 18, to: 'A1-REG' },
+      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
+      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
+      { act: 'bridge', m: 69, building: 'B', floor: 2 },
+      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 3, m: 0 },
+      { act: 'walk', turn: 'left', m: 24, arrive: 'B3-LAB', side: 'right', hint: 'water' },
+    ],
+    'A1-ENT>A2-SCR': [
+      { act: 'walk', turn: 'straight', m: 18, to: 'A1-REG' },
+      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
+      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
+      { act: 'walk', turn: 'left', m: 24, arrive: 'A2-SCR', side: 'right', hint: 'water' },
+    ],
     'A1-REG>B3-LAB': [
       { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
       { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
@@ -1014,7 +1037,8 @@
     ],
   };
 
-  const NEARBY = ['A1-INFO', 'A2-SCR', 'LOBBY-B3', 'A1-CAFE', 'LOBBY-C4'];
+  // จุดที่ขึ้นก่อนในแผ่น "ตอนนี้คุณอยู่ตรงไหน" — ทุกจุดมีเส้นทางเขียนไว้ครบ
+  const NEARBY = ['A1-ENT', 'A1-REG', 'A2-SCR', 'B3-LAB', 'B3-WAIT', 'C4-MED', 'B1-XR', 'A1-PAY'];
 
   const BASE_STEPS = [
     { id: 1, point: 'A1-REG',  status: 'done', at: '09:52', th: 'ยื่นบัตรและยืนยันการนัด', en: 'Check in', zh: '挂号并确认预约', my: 'မှတ်ပုံတင်ပြီး ချိန်းဆိုမှု အတည်ပြုရန်', ru: 'Регистрация и подтверждение записи' },
@@ -1786,15 +1810,40 @@
       </button>`).join('')}
     <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
 
-  const whereSheet = () => openSheet(`
-    <h2>${esc(t('pickTitle'))}</h2>
-    <p class="demo-note">${esc(t('pickHint'))}</p>
-    ${NEARBY.map((code) => `
-      <button class="pick" data-act="pickplace" data-code="${code}">
-        <span class="pick__icon" aria-hidden="true">${PLACES[code].icon}</span>
-        <span><b>${esc(placeName(code))}</b><span>${esc(placeAt(code))}</span></span>
-      </button>`).join('')}
-    <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
+  /**
+   * ผู้ป่วยที่หลงต้องเลือกจากสิ่งที่ "มองเห็น" ไม่ใช่จากชื่อที่อ่านไม่ออก
+   * แผ่นนี้จึงเป็นตารางรูป จุดที่คนมักยืนอยู่ขึ้นก่อน แล้วตามด้วยที่เหลือแยกตามอาคารและชั้น
+   */
+  function whereSheet() {
+    const rest = Object.keys(SCENES).filter((code) => !NEARBY.includes(code));
+    const groups = new Map();
+    for (const code of rest) {
+      const label = placeAt(code);
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(code);
+    }
+
+    openSheet(`
+      <h2>${esc(t('pickTitle'))}</h2>
+      <p class="demo-note">${esc(t('pickHint'))}</p>
+
+      <p class="group-label">${esc(t('pickNearby'))}</p>
+      <div class="gallery">${NEARBY.map(placeTile).join('')}</div>
+
+      <p class="group-label" style="margin-top:10px">${esc(t('pickAll'))}</p>
+      ${[...groups].sort(([a], [b]) => a.localeCompare(b)).map(([label, codes]) => `
+        <p class="group-label" style="font-weight:400;letter-spacing:0;text-transform:none">${esc(label)}</p>
+        <div class="gallery">${codes.map(placeTile).join('')}</div>`).join('')}
+
+      <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
+  }
+
+  const placeTile = (code) => `
+    <button data-act="pickplace" data-code="${code}">
+      <img src="${photoOf(code).src}" alt="">
+      <b>${PLACES[code].icon} ${esc(placeName(code))}</b>
+      <small>${esc(placeAt(code))}</small>
+    </button>`;
 
   const demoSheet = () => openSheet(`
     <h2>${esc(t('demoTitle'))}</h2>
