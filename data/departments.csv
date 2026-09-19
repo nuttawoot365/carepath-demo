@@ -1,0 +1,9 @@
+code,building,floor,name_th,name_en,color,entrance_node
+A1-OPD,A,1,ผู้ป่วยนอก,Outpatient,#0F766E,A1-REG
+A1-FIN,A,1,การเงิน,Finance,#B45309,A1-PAY
+A1-PHA,A,1,เภสัชกรรม,Pharmacy,#7C3AED,A1-PHA
+A2-SCR,A,2,จุดคัดกรอง,Screening,#0369A1,A2-SCR
+A2-GP,A,2,คลินิกทั่วไป,General clinic,#15803D,A2-GP
+B1-XR,B,1,รังสีวิทยา,Radiology,#475569,B1-XR
+B3-LAB,B,3,ห้องปฏิบัติการ,Laboratory,#BE123C,B3-LAB
+C4-MED,C,4,อายุรกรรม,Internal medicine,#166534,C4-MED-CTR

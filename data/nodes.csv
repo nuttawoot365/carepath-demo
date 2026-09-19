@@ -1,0 +1,50 @@
+code,building,floor,department,kind,name_th,name_en,landmark_th,landmark_en,icon,qr
+A1-ENT,A,1,,entrance,ทางเข้าหลัก,Main entrance,ประตูกระจกหน้าอาคาร A,Glass door Building A,🚪,1
+A1-INFO,A,1,,poi,ประชาสัมพันธ์,Information,ตรงข้ามประตูทางเข้า,Opposite entrance,ℹ️,0
+A1-REG,A,1,A1-OPD,counter,เวชระเบียน,Registration,ตรงข้ามประชาสัมพันธ์,Opposite information desk,🪪,1
+A1-J1,A,1,,junction,,,ทางแยกหน้าลิฟต์ A,Junction at Lift A,,1
+A1-PAY,A,1,A1-FIN,cashier,การเงิน,Cashier,ช่อง 1-4 ข้างเวชระเบียน,Counters 1-4 next to registration,💳,1
+A1-PHA,A,1,A1-PHA,pharmacy,ห้องยา,Pharmacy,ข้างประตูทางออก,Next to exit,💊,1
+A1-APT,A,1,A1-OPD,appointment,จุดนัดหมาย,Appointment desk,หน้าห้องยา,In front of pharmacy,📅,1
+A1-LIFT,A,1,,elevator,ลิฟต์ A,Lift A,,,🛗,0
+A1-STAIR,A,1,,stairs,บันได A,Stairs A,,,🪜,0
+A1-WC,A,1,,toilet,ห้องน้ำชั้น 1,Toilet 1F,ข้างบันได A,Next to stairs A,🚻,0
+A1-CAFE,A,1,,poi,ร้านกาแฟ,Café,โถงทางเข้า,Entrance hall,☕,0
+A2-LIFT,A,2,,elevator,ลิฟต์ A,Lift A,,,🛗,0
+A2-STAIR,A,2,,stairs,บันได A,Stairs A,,,🪜,0
+A2-J1,A,2,,junction,,,หน้าลิฟต์ A ชั้น 2,Lift A lobby 2F,,1
+A2-SCR,A,2,A2-SCR,screening,จุดคัดกรอง,Screening,ข้างตู้น้ำดื่ม,Next to water dispenser,🩺,1
+A2-GP,A,2,A2-GP,exam_room,ห้องตรวจทั่วไป,General clinic,ห้อง 201-204,Rooms 201-204,👨‍⚕️,1
+A2-WC,A,2,,toilet,ห้องน้ำชั้น 2,Toilet 2F,,,🚻,0
+A2-BR,A,2,,bridge,ทางเชื่อม A→B,Bridge A→B,ปลายทางเดินชั้น 2,End of 2F corridor,🌉,1
+B2-BR,B,2,,bridge,ทางเชื่อม B (ฝั่ง A),Bridge B (A side),,,🌉,1
+B2-J1,B,2,,junction,,,โถงลิฟต์ B,Lift B lobby,,1
+B2-LIFT,B,2,,elevator,ลิฟต์ B,Lift B,,,🛗,0
+B2-STAIR,B,2,,stairs,บันได B,Stairs B,,,🪜,0
+B2-FIRE,B,2,,stairs,บันไดหนีไฟ B,Fire stairs B,,,🪜,0
+B2-BRC,B,2,,bridge,ทางเชื่อม B→C,Bridge B→C,,,🌉,1
+B1-LIFT,B,1,,elevator,ลิฟต์ B,Lift B,,,🛗,0
+B1-J1,B,1,,junction,,,หน้าลิฟต์ B ชั้น 1,Lift B lobby 1F,,1
+B1-XR,B,1,B1-XR,xray,ห้องเอกซเรย์,X-ray,สุดทางเดิน,End of corridor,📷,1
+B3-LIFT,B,3,,elevator,ลิฟต์ B,Lift B,,,🛗,0
+B3-STAIR,B,3,,stairs,บันได B,Stairs B,,,🪜,0
+B3-J1,B,3,,junction,,,หน้าลิฟต์ B ชั้น 3,Lift B lobby 3F,,1
+B3-LAB,B,3,B3-LAB,lab,ห้องเจาะเลือด,Blood test,ขวามือ ข้างตู้น้ำดื่ม,On the right next to water dispenser,🩸,1
+B3-WAIT,B,3,B3-LAB,waiting_area,จุดพักคอยรอผล,Lab waiting area,หน้าห้องเจาะเลือด,In front of blood test room,🪑,1
+B3-WC,B,3,,toilet,ห้องน้ำชั้น 3,Toilet 3F,,,🚻,0
+C2-BR,C,2,,bridge,ทางเชื่อม C (ฝั่ง B),Bridge C (B side),,,🌉,1
+C2-J1,C,2,,junction,,,โถงลิฟต์ C,Lift C lobby,,1
+C2-LIFT,C,2,,elevator,ลิฟต์ C,Lift C,,,🛗,0
+C2-RAMP,C,2,,ramp,ทางลาด C,Ramp C,,,♿,0
+C3-LIFT,C,3,,elevator,ลิฟต์ C,Lift C,,,🛗,0
+C3-RAMP,C,3,,ramp,ทางลาด C,Ramp C,,,♿,0
+C3-J1,C,3,,junction,,,หน้าลิฟต์ C ชั้น 3,Lift C lobby 3F,,1
+C3-BRB,C,3,,bridge,ทางเชื่อม C→B ชั้น 3,Bridge C→B 3F,,,🌉,1
+B3-BRC,B,3,,bridge,ทางเชื่อม B (ฝั่ง C) ชั้น 3,Bridge B (C side) 3F,,,🌉,1
+C4-LIFT,C,4,,elevator,ลิฟต์ C,Lift C,,,🛗,0
+C4-J1,C,4,,junction,,,หน้าลิฟต์ C ชั้น 4,Lift C lobby 4F,,1
+C4-MED-CTR,C,4,C4-MED,counter,ยื่นบัตรอายุรกรรม,Med. clinic counter,ประตูทางเข้าคลินิก ป้ายสีเขียว,Clinic entrance green sign,🪪,1
+C4-MED-WAIT,C,4,C4-MED,waiting_area,ที่นั่งรออายุรกรรม,Waiting area,,,🪑,1
+C4-MED-401,C,4,C4-MED,exam_room,ห้องตรวจ 401,Room 401,ห้องแรกซ้ายมือ,First room on the left,👨‍⚕️,0
+C4-MED-403,C,4,C4-MED,exam_room,ห้องตรวจ 403,Room 403,ห้องที่ 3 ซ้ายมือ,Third room on the left,👨‍⚕️,0
+C4-WC,C,4,,toilet,ห้องน้ำชั้น 4,Toilet 4F,,,🚻,0

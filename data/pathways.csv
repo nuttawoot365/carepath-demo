@@ -1,0 +1,13 @@
+template,category,step,name_th,name_en,service_point,kind,prereq_steps,deadline,deadline_reason_th,est_minutes,wait_after_minutes
+DM-FU,chronic,1,ยื่นบัตรและยืนยันการนัด,Check-in & confirm appointment,A1-REG,step,,,,5,0
+DM-FU,chronic,2,ชั่งน้ำหนัก วัดความดัน,Weight & blood pressure,A2-SCR,step,1,,,10,0
+DM-FU,chronic,3,เจาะเลือด,Blood test,B3-LAB,step,1,11:00,ผู้ป่วยงดอาหารมา ต้องเจาะก่อน 11:00,10,0
+DM-FU,chronic,4,รอผลตรวจ,Wait for lab results,B3-WAIT,wait,3,,,75,0
+DM-FU,chronic,5,พบแพทย์,See doctor,C4-MED-CTR,step,3;4,,,15,0
+DM-FU,chronic,6,ชำระเงิน,Payment,A1-PAY,step,5,,,5,0
+DM-FU,chronic,7,รับยา,Pharmacy,A1-PHA,step,6,,,15,0
+WALKIN,general,1,ยื่นบัตร,Check-in,A1-REG,step,,,,5,0
+WALKIN,general,2,คัดกรอง,Screening,A2-SCR,step,1,,,10,0
+WALKIN,general,3,พบแพทย์,See doctor,A2-GP,step,2,,,15,0
+WALKIN,general,4,ชำระเงิน,Payment,A1-PAY,step,3,,,5,0
+WALKIN,general,5,รับยา,Pharmacy,A1-PHA,step,4,,,15,0

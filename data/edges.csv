@@ -1,0 +1,53 @@
+from,to,kind,distance_m,walk_seconds,turn,bidirectional,is_accessible,status,instruction_th,instruction_en
+A1-ENT,A1-INFO,corridor,8,,straight,1,1,open,,
+A1-INFO,A1-REG,corridor,10,,left,1,1,open,เวชระเบียนอยู่ซ้ายมือ,Registration is on your left
+A1-REG,A1-J1,corridor,25,,right,1,1,open,,
+A1-J1,A1-PAY,corridor,10,,left,1,1,open,,
+A1-J1,A1-PHA,corridor,20,,straight,1,1,open,,
+A1-PHA,A1-APT,corridor,5,,straight,1,1,open,,
+A1-J1,A1-LIFT,door,4,,right,1,1,open,,
+A1-J1,A1-STAIR,door,6,,right,1,0,open,,
+A1-J1,A1-WC,corridor,9,,left,1,1,open,,
+A1-INFO,A1-CAFE,corridor,12,,right,1,1,open,,
+A1-LIFT,A2-LIFT,elevator,0,50,,1,1,open,ขึ้นลิฟต์ A ไปชั้น 2,Take Lift A to 2F
+A1-STAIR,A2-STAIR,stairs,0,75,,1,0,open,ขึ้นบันได A ไปชั้น 2,Take stairs A to 2F
+A2-LIFT,A2-J1,door,4,,straight,1,1,open,,
+A2-STAIR,A2-J1,door,8,,left,1,0,open,,
+A2-J1,A2-SCR,corridor,20,,left,1,1,open,จุดคัดกรองอยู่ขวามือ ข้างตู้น้ำดื่ม,Screening is on your right next to the water dispenser
+A2-J1,A2-GP,corridor,30,,right,1,1,open,,
+A2-SCR,A2-WC,corridor,10,,straight,1,1,open,,
+A2-J1,A2-BR,corridor,25,,straight,1,1,open,,
+A2-BR,B2-BR,bridge,40,,straight,1,1,open,ผ่านทางเชื่อมไปอาคาร B (ชั้น 2),Cross the bridge to Building B (2F)
+B2-BR,B2-J1,corridor,15,,straight,1,1,open,,
+B2-J1,B2-LIFT,door,4,,right,1,1,open,,
+B2-J1,B2-STAIR,door,8,,left,1,0,open,,
+B2-J1,B2-FIRE,door,5,,left,0,0,open,บันไดหนีไฟ ลงได้อย่างเดียว,Fire stairs down only
+B2-J1,B2-BRC,corridor,35,,straight,1,1,open,,
+B2-LIFT,B3-LIFT,elevator,0,50,,1,1,open,ขึ้นลิฟต์ B ไปชั้น 3,Take Lift B to 3F
+B2-LIFT,B1-LIFT,elevator,0,60,,1,1,open,ลงลิฟต์ B ไปชั้น 1,Take Lift B to 1F
+B2-STAIR,B3-STAIR,stairs,0,75,,1,0,open,ขึ้นบันได B ไปชั้น 3,Take stairs B to 3F
+B1-LIFT,B1-J1,door,4,,straight,1,1,open,,
+B1-J1,B1-XR,corridor,30,,right,1,1,open,ห้องเอกซเรย์อยู่สุดทางเดิน,X-ray is at the end of the corridor
+B3-LIFT,B3-J1,door,4,,straight,1,1,open,,
+B3-STAIR,B3-J1,door,8,,right,1,0,open,,
+B3-J1,B3-LAB,corridor,20,,left,1,1,open,ห้องเจาะเลือดอยู่ขวามือ ข้างตู้น้ำดื่ม,Blood test room is on your right next to the water dispenser
+B3-LAB,B3-WAIT,corridor,6,,straight,1,1,open,,
+B3-LAB,B3-WC,corridor,10,,straight,1,1,open,,
+B3-J1,B3-BRC,corridor,30,,right,1,1,open,,
+B3-BRC,C3-BRB,bridge,35,,straight,1,1,open,ผ่านทางเชื่อมไปอาคาร C (ชั้น 3),Cross the bridge to Building C (3F)
+C3-BRB,C3-J1,corridor,12,,straight,1,1,open,,
+B2-BRC,C2-BR,bridge,35,,straight,1,1,open,ผ่านทางเชื่อมไปอาคาร C (ชั้น 2),Cross the bridge to Building C (2F)
+C2-BR,C2-J1,corridor,12,,straight,1,1,open,,
+C2-J1,C2-LIFT,door,4,,right,1,1,open,,
+C2-J1,C2-RAMP,door,6,,left,1,1,open,,
+C2-LIFT,C3-LIFT,elevator,0,60,,1,1,open,ขึ้นลิฟต์ C ไปชั้น 3,Take Lift C to 3F
+C2-RAMP,C3-RAMP,ramp,40,,,1,1,open,ขึ้นทางลาด C ไปชั้น 3,Take ramp C to 3F
+C3-LIFT,C3-J1,door,4,,straight,1,1,open,,
+C3-RAMP,C3-J1,door,6,,right,1,1,open,,
+C3-LIFT,C4-LIFT,elevator,0,60,,1,1,open,ขึ้นลิฟต์ C ไปชั้น 4,Take Lift C to 4F
+C4-LIFT,C4-J1,door,4,,straight,1,1,open,,
+C4-J1,C4-MED-CTR,corridor,15,,left,1,1,open,คลินิกอายุรกรรม ป้ายสีเขียว ซ้ายมือ,Medicine clinic green sign on your left
+C4-MED-CTR,C4-MED-WAIT,corridor,5,,straight,1,1,open,,
+C4-MED-WAIT,C4-MED-401,corridor,6,,left,1,1,open,ห้อง 401 ห้องแรกซ้ายมือ,Room 401 first on the left
+C4-MED-WAIT,C4-MED-403,corridor,14,,left,1,1,open,ห้อง 403 ห้องที่ 3 ซ้ายมือ,Room 403 third on the left
+C4-J1,C4-WC,corridor,10,,right,1,1,open,,
