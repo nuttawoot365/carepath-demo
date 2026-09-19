@@ -100,5 +100,14 @@ const visits = (await read('active-visits')).map((row) => ({
 
 await build('impact', { nodes, edges, pathway, visits });
 console.log(`สร้าง app/impact.html แล้ว · ผู้ป่วยที่กำลังเดินอยู่ ${visits.length} ราย`);
+
+// ---- หน้าจัดการระบบ: ตรวจผังเองทุกครั้งที่เปิด จึงต้องมีผังเต็ม ----
+await build('admin', {
+  nodes,
+  edges,
+  visits: visits.length,
+  templates: new Set(pathRows.map((row) => row.template)).size,
+});
+console.log('สร้าง app/admin.html แล้ว');
 console.log(`สร้าง app/pathway.html แล้ว · ${templates.length} แม่แบบ · `
   + templates.map((t) => `${t.code} ${t.steps.length} ขั้น`).join(' · '));

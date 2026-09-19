@@ -1,0 +1,418 @@
+<title>CarePath จัดการระบบ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 44px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; }
+  a { color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px;
+    background: var(--primary); color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar .chip, .topbar a {
+    padding: 4px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    font-size: .85em; text-decoration: none; background: none; cursor: pointer; color: inherit;
+  }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow-1); overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--raised);
+  }
+  .card__head b { font-size: 1.02em; }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 16px; }
+
+  /* ---------- ตัวเลขสรุป ---------- */
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .tile {
+    padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+    box-shadow: var(--shadow-1);
+  }
+  .tile b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 1.85em; font-weight: 800; line-height: 1.1; }
+  .tile span { font-size: .8em; color: var(--ink-3); }
+  .tile--alert { border: 2px solid var(--warn); background: var(--warn-soft); }
+  .tile--alert b { color: var(--warn); }
+
+  /* ---------- เมนูจัดการ ---------- */
+
+  .menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: 12px; }
+  .item {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px;
+    padding: 14px 15px; border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--raised); text-decoration: none; align-items: start;
+  }
+  .item:hover { border-color: var(--primary); background: var(--surface); }
+  .item--soon { opacity: .62; cursor: not-allowed; }
+  .item--soon:hover { border-color: var(--line); background: var(--raised); }
+  .item__icon { font-size: 1.5em; line-height: 1.2; }
+  .item__name { font-weight: 700; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .item__what { display: block; font-size: .8em; color: var(--ink-3); margin-top: 2px; }
+
+  /* ---------- ผลตรวจ ---------- */
+
+  .checks { display: flex; flex-direction: column; gap: 8px; }
+  .check {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 11px; align-items: center;
+    padding: 11px 13px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--raised);
+  }
+  .check--ok { border-color: #bfe0cd; background: var(--success-soft); }
+  .check--note { border-color: var(--line-strong); }
+  .check__name { font-weight: 600; font-size: .93em; }
+  .check__detail { display: block; font-size: .78em; color: var(--ink-3); }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px;
+    font-size: .74em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--ok { background: var(--success-soft); color: var(--success); }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+  .note { font-size: .83em; color: var(--ink-3); line-height: 1.65; }
+  .note code {
+    font-family: 'IBM Plex Mono', monospace; font-size: .92em;
+    background: var(--raised); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+  }
+
+  .alertbar {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px; border: 2px solid var(--warn); border-radius: var(--r);
+    background: var(--warn-soft);
+  }
+  .alertbar a { font-weight: 700; color: var(--warn); }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🛠</span>
+  <b>จัดการระบบ</b>
+  <span style="opacity:.8;font-size:.9em" id="who"></span>
+  <span class="spacer"></span>
+  <span class="chip" id="clock"></span>
+  <button class="chip" id="signout" type="button">ออกจากระบบ</button>
+</header>
+
+<div class="wrap">
+  <div id="alerts"></div>
+
+  <section>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card">
+    <div class="card__head"><b>จัดการ</b><span class="spacer"></span>
+      <span class="note">หน้าที่ยังไม่ได้ทำจะขึ้นป้ายไว้ ไม่ปล่อยให้กดแล้วเงียบ</span></div>
+    <div class="card__body"><div class="menu" id="menu"></div></div>
+  </section>
+
+  <section class="card">
+    <div class="card__head">
+      <b>ตรวจผังอัตโนมัติ</b>
+      <span class="spacer"></span>
+      <span id="checkTag"></span>
+    </div>
+    <div class="card__body">
+      <div class="checks" id="checks"></div>
+      <p class="note" style="margin-top:12px">ตรวจทุกครั้งที่เปิดหน้านี้ โดยเดินกราฟจากประตูทางเข้าหลักไปทุกจุด
+        แยกกันระหว่างคนเดินกับผู้ใช้รถเข็น — ควรตรวจซ้ำทุกครั้งหลังนำเข้าผังใหม่</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card__head"><b>ผังที่ระบบใช้อยู่</b></div>
+    <div class="card__body" style="display:flex;flex-direction:column;gap:9px">
+      <p class="note">ผังอาคาร ชั้น แผนก และเส้นทางเดินทั้งหมดมาจาก <code>data/nodes.csv</code> และ
+        <code>data/edges.csv</code> ไม่ใช่รูปภาพ แก้ไฟล์แล้วรัน <code>node app/build.mjs</code>
+        ทุกหน้าที่เกี่ยวข้องเปลี่ยนตามทันที</p>
+      <p class="note">ผังชุดนี้เป็น <b>ผังสมมุติสำหรับสาธิต</b> ยังไม่ใช่ผังจริงของโรงพยาบาลวชิระภูเก็ต
+        เมื่อได้ผังจริงแล้วแทนที่สองไฟล์นี้ได้ทันทีโดยไม่ต้องแก้โค้ด</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = /*__DATA__*/;
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+  const SERVICE_KINDS = new Set(['counter', 'screening', 'exam_room', 'lab', 'xray',
+                                 'pharmacy', 'cashier', 'appointment', 'waiting_area', 'entrance', 'poi', 'toilet']);
+
+  const $ = (id) => document.getElementById(id);
+
+  /** หน้านี้ใช้ได้ทั้งตอนเปิดจากโฟลเดอร์ app/ ในเครื่อง และตอนเผยแพร่ที่รากเว็บ */
+  const MOCKUP_BASE = location.pathname.includes('/app/') ? '../' : '';
+  const resolve = (path) => (path.startsWith('mockups/') ? MOCKUP_BASE + path : path);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- ตรวจผัง ---------- */
+
+  function reachable(from, wheelchair) {
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) adj.get(edge.f)?.push(edge);
+
+    const seen = new Set([from]);
+    const queue = [from];
+    while (queue.length > 0) {
+      const at = queue.shift();
+      for (const edge of adj.get(at) ?? []) {
+        if (wheelchair && !edge.a) continue;
+        if (!seen.has(edge.t)) { seen.add(edge.t); queue.push(edge.t); }
+      }
+    }
+    return seen;
+  }
+
+  function graphChecks() {
+    const walk = reachable('A1-ENT', false);
+    const wheel = reachable('A1-ENT', true);
+
+    // บันไดไม่นับว่าเป็นปัญหาสำหรับรถเข็น เพราะไม่ใช่จุดที่ต้องไปอยู่แล้ว
+    const isPlace = (node) => SERVICE_KINDS.has(node.kind);
+    const noWalk = DATA.nodes.filter((node) => isPlace(node) && !walk.has(node.code));
+    const noWheel = DATA.nodes.filter((node) => isPlace(node) && !wheel.has(node.code));
+    const stairsOnly = DATA.nodes.filter((node) => !isPlace(node) && !wheel.has(node.code));
+
+    const outgoing = new Map(DATA.nodes.map((node) => [node.code, 0]));
+    for (const edge of DATA.edges) outgoing.set(edge.f, outgoing.get(edge.f) + 1);
+    const oneWay = DATA.nodes.filter((node) => outgoing.get(node.code) === 0);
+
+    return [
+      {
+        name: 'จุดบริการที่เดินไปไม่ถึง',
+        detail: 'เดินจากประตูทางเข้าหลักไปได้ทุกจุดหรือไม่',
+        items: noWalk,
+        ok: noWalk.length === 0,
+      },
+      {
+        name: 'จุดบริการที่รถเข็นไปไม่ถึง',
+        detail: 'ตัดบันไดออกแล้วยังไปได้ครบหรือไม่ — ข้อนี้สำคัญที่สุด',
+        items: noWheel,
+        ok: noWheel.length === 0,
+      },
+      {
+        name: 'จุดที่รถเข็นเข้าไม่ได้',
+        detail: 'ปกติต้องเป็นบันไดเท่านั้น ถ้ามีห้องตรวจปนมาแปลว่าผังผิด',
+        items: stairsOnly,
+        ok: stairsOnly.every((node) => node.kind === 'stairs'),
+        note: true,
+      },
+      {
+        name: 'จุดที่เข้าได้แต่ออกไม่ได้',
+        detail: 'บันไดหนีไฟออกแบบให้ลงทางเดียวโดยตั้งใจ',
+        items: oneWay,
+        ok: oneWay.every((node) => node.kind === 'stairs'),
+        note: true,
+      },
+    ];
+  }
+
+  function renderChecks() {
+    const checks = graphChecks();
+    const problems = checks.filter((check) => !check.ok).length;
+
+    $('checkTag').innerHTML = problems === 0
+      ? '<span class="tag tag--ok">ผ่านทุกข้อ</span>'
+      : `<span class="tag tag--warn">มีปัญหา ${problems} ข้อ</span>`;
+
+    $('checks').innerHTML = checks.map((check) => `
+      <div class="check ${check.ok ? (check.note ? 'check--note' : 'check--ok') : ''}">
+        <span aria-hidden="true">${check.ok ? (check.note ? 'ℹ️' : '✅') : '⚠️'}</span>
+        <span>
+          <span class="check__name">${esc(check.name)}</span>
+          <span class="check__detail">${esc(check.detail)}${check.items.length > 0
+            ? ' · ' + check.items.map((node) => esc(node.th || node.code)).join(', ')
+            : ''}</span>
+        </span>
+        <span class="tag ${check.ok ? (check.note ? 'tag--muted' : 'tag--ok') : 'tag--warn'}">${check.items.length} จุด</span>
+      </div>`).join('');
+  }
+
+  /* ---------- รายงานจากผู้ใช้ ---------- */
+
+  const loadReports = () => {
+    try { return JSON.parse(localStorage.getItem('carepath.reports') ?? '[]'); }
+    catch { return []; }
+  };
+
+  const reportPoints = () => new Set(loadReports().map((report) => report.key)).size;
+
+  /* ---------- ตัวเลขสรุปและเมนู ---------- */
+
+  function renderTiles() {
+    const points = reportPoints();
+    const floors = new Set(DATA.nodes.map((node) => `${node.b}${node.f}`)).size;
+
+    $('tiles').innerHTML = `
+      <div class="tile"><b>${DATA.nodes.length}</b><span>จุดในผัง · ${floors} ชั้น</span></div>
+      <div class="tile"><b>${DATA.edges.length}</b><span>ทิศทางเดิน</span></div>
+      <div class="tile"><b>${DATA.templates}</b><span>แม่แบบขั้นตอน</span></div>
+      <div class="tile"><b>${DATA.visits}</b><span>ผู้ป่วยกำลังเดินอยู่</span></div>
+      <div class="tile ${points > 0 ? 'tile--alert' : ''}"><b>${points}</b><span>จุดที่ถูกแจ้งว่ามีปัญหา</span></div>`;
+
+    $('alerts').innerHTML = points > 0
+      ? `<div class="alertbar">
+           <span aria-hidden="true">🚧</span>
+           <span><b>มีผู้ใช้แจ้งเส้นทางมีปัญหา ${points} จุด</b>
+             <p class="note" style="color:var(--ink-2)">ดูว่าการปิดจุดนั้นกระทบใครบ้างก่อนตัดสินใจ —
+               <a href="impact.html">เปิดหน้าผลกระทบ</a></p></span>
+         </div>`
+      : '';
+  }
+
+  const MENU = [
+    { icon: '🗺', name: 'ผังและเส้นทาง', what: 'ภาพรวมทั้งโรงพยาบาล ตัดขวางทุกชั้น และผังรายชั้น', go: 'map.html' },
+    { icon: '🚧', name: 'ผลกระทบเมื่อปิดเส้นทาง', what: 'ปิดลิฟต์หรือทางเชื่อมแล้วใครต้องเดินเพิ่มเท่าไร', go: 'impact.html', badge: 'ใหม่' },
+    { icon: '📋', name: 'แม่แบบขั้นตอน', what: 'ขั้นตอนการมาหนึ่งครั้ง เงื่อนไขลำดับ และกำหนดเวลา', go: 'pathway.html' },
+    { icon: '🪪', name: 'เวชระเบียน', what: 'เปิด visit และพิมพ์บัตรคิว', go: 'registrar.html' },
+    { icon: '📱', name: 'หน้าผู้ป่วย', what: 'ดูสิ่งที่ผู้ป่วยเห็นบนมือถือ', go: 'patient-mobile.html' },
+    { icon: '🧭', name: 'แผนที่ผู้ป่วย', what: 'แผนที่ทีละชั้นพร้อมปุ่มแจ้งเส้นทางมีปัญหา', go: 'patient-map.html' },
+    { icon: '📥', name: 'นำเข้าผังจาก CSV', what: 'แทนที่ผังทั้งชุดเมื่อได้ผังจริงของโรงพยาบาล', go: 'mockups/d3-admin-map.html', still: true },
+    { icon: '📊', name: 'ภาพรวมผู้บริหาร', what: 'เวลารอรายแผนกและจุดคอขวด', go: 'mockups/d5-dashboard.html', still: true },
+    { icon: '📺', name: 'จอเรียกคิว', what: 'จอหน้าห้องตรวจ แสดงเลขคิวอย่างเดียว', go: 'mockups/tv-queue.html', still: true },
+    { icon: '👥', name: 'ผู้ใช้และสิทธิ์', what: 'เพิ่มเจ้าหน้าที่ กำหนดบทบาทและแผนก', soon: true },
+    { icon: '📜', name: 'บันทึกการใช้งาน', what: 'ใครทำอะไรเมื่อไร เขียนได้อย่างเดียว แก้ไม่ได้', soon: true },
+    { icon: '🎬', name: 'ตัวจำลองสถานการณ์', what: 'ตั้งนาฬิกาจำลองและรีเซ็ตข้อมูลสาธิต', soon: true },
+  ];
+
+  function renderMenu() {
+    const points = reportPoints();
+
+    $('menu').innerHTML = MENU.map((item) => {
+      const badge = item.soon ? '<span class="tag tag--muted">ยังไม่ได้ทำ</span>'
+        : item.still ? '<span class="tag tag--amber">ภาพนิ่ง</span>'
+        : item.badge === 'ใหม่' && points > 0 ? `<span class="tag tag--warn">แจ้ง ${points}</span>`
+        : item.badge ? `<span class="tag">${esc(item.badge)}</span>` : '';
+
+      const inner = `
+        <span class="item__icon" aria-hidden="true">${item.icon}</span>
+        <span>
+          <span class="item__name">${esc(item.name)}${badge}</span>
+          <span class="item__what">${esc(item.what)}</span>
+        </span>`;
+
+      return item.soon
+        ? `<div class="item item--soon" aria-disabled="true">${inner}</div>`
+        : `<a class="item" href="${esc(resolve(item.go))}">${inner}</a>`;
+    }).join('');
+  }
+
+  /* ---------- ผู้ใช้ที่เข้าสู่ระบบ ---------- */
+
+  function renderUser() {
+    let user = null;
+    try { user = JSON.parse(sessionStorage.getItem('carepath.user') ?? 'null'); }
+    catch { user = null; }
+
+    $('who').textContent = user ? `${user.name} · ${user.username}` : 'ผู้ดูแลระบบ';
+    $('clock').textContent = new Date().toLocaleString('th-TH', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  $('signout').addEventListener('click', () => {
+    try { sessionStorage.removeItem('carepath.user'); } catch { /* โหมดส่วนตัว */ }
+    location.href = 'login.html';
+  });
+
+  // ผู้ป่วยอาจแจ้งเข้ามาระหว่างที่หน้านี้เปิดค้างอยู่
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'carepath.reports') { renderTiles(); renderMenu(); }
+  });
+
+  renderUser();
+  renderTiles();
+  renderMenu();
+  renderChecks();
+})();
+</script>
