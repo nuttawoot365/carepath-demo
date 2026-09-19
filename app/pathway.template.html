@@ -1,0 +1,467 @@
+<title>CarePath แม่แบบการมาโรงพยาบาล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 44px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px;
+    background: var(--primary);
+    color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar a {
+    padding: 4px 13px;
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 999px;
+    font-size: .85em;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--raised);
+  }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 15px 16px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab {
+    min-height: 36px; padding: 5px 14px;
+    border: 1px solid var(--line-strong); border-radius: 999px;
+    background: var(--surface); font-size: .86em; font-weight: 700; cursor: pointer;
+  }
+  .tab[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  :root[data-theme="dark"] .tab[aria-pressed="true"] { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .tab[aria-pressed="true"] { color: #08171d; }
+  }
+
+  .chart { overflow-x: auto; background: var(--raised); }
+  svg { display: block; width: 100%; height: auto; }
+
+  .stats { display: flex; gap: 20px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; line-height: 1.15; }
+  .stat b { font-family: 'IBM Plex Mono', monospace; font-size: 1.5em; }
+  .stat span { font-size: .78em; color: var(--ink-3); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr; } }
+
+  .note { font-size: .84em; color: var(--ink-3); line-height: 1.65; }
+  .note code {
+    font-family: 'IBM Plex Mono', monospace; font-size: .92em;
+    background: var(--raised); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
+  }
+
+  .keys { display: flex; flex-direction: column; gap: 8px; }
+  .key { display: flex; align-items: flex-start; gap: 10px; font-size: .88em; }
+  .key__swatch { width: 26px; height: 18px; border-radius: 5px; flex: none; margin-top: 3px; }
+
+  /* ---------- ชิ้นส่วนของแผนภาพ ---------- */
+
+  .lane { fill: var(--line); opacity: .28; }
+  .lane-label { fill: var(--ink-3); font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+  .step-box { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
+  .step-box--deadline { stroke: var(--amber); stroke-width: 2.5; }
+  .step-box--wait { fill: var(--raised); stroke-dasharray: 5 4; }
+  .step-no {
+    fill: var(--primary); font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 700;
+  }
+  .step-name { fill: var(--ink); font-size: 13.5px; font-weight: 700; }
+  .step-where { fill: var(--ink-3); font-size: 11px; }
+  .step-min { fill: var(--ink-2); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+  .step-icon { font-size: 17px; }
+  .dep { stroke: var(--line-strong); stroke-width: 2; fill: none; }
+  .dep--merge { stroke: var(--primary); stroke-width: 2.5; }
+  .deadline-tag { fill: var(--amber); font-size: 11px; font-weight: 700; }
+  .parallel-note { fill: var(--primary-ink); font-size: 11.5px; font-weight: 600; }
+  .parallel-brace { stroke: var(--primary); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">📋</span>
+  <b>แม่แบบการมาโรงพยาบาลหนึ่งครั้ง</b>
+  <span style="opacity:.8;font-size:.9em">โรงพยาบาลวชิระภูเก็ต · ผังสาธิต</span>
+  <span class="spacer"></span>
+  <a href="map.html">ผังเส้นทาง</a>
+  <a href="login.html">ออกจากระบบ</a>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <div class="card__head">
+      <b id="title"></b>
+      <span class="spacer"></span>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="chart" id="chart"></div>
+    <div class="card__body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="stats" id="stats"></div>
+      <p class="note" id="note"></p>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <div class="card__head"><b>อ่านแผนภาพนี้ยังไง</b></div>
+      <div class="card__body keys">
+        <div class="key">
+          <span class="key__swatch" style="background:var(--surface);border:1.5px solid var(--line-strong)"></span>
+          <span><b>กล่องทึบ</b> = ขั้นที่ผู้ป่วยต้องไปทำที่จุดบริการ</span>
+        </div>
+        <div class="key">
+          <span class="key__swatch" style="background:var(--raised);border:1.5px dashed var(--line-strong)"></span>
+          <span><b>กล่องเส้นประ</b> = ช่วงรอ ไม่ต้องทำอะไร แต่กินเวลาในแผน</span>
+        </div>
+        <div class="key">
+          <span class="key__swatch" style="background:var(--surface);border:2.5px solid var(--amber)"></span>
+          <span><b>กรอบสีส้ม</b> = ขั้นที่มีกำหนดเวลา ถ้าเวลาไม่พอ ระบบจะยกขั้นนี้ขึ้นก่อนขั้นอื่นให้เอง</span>
+        </div>
+        <div class="key">
+          <span class="key__swatch" style="background:var(--primary)"></span>
+          <span><b>เส้นเชื่อม</b> = เงื่อนไขลำดับ ขั้นปลายทางเริ่มไม่ได้จนกว่าต้นทางจะเสร็จ</span>
+        </div>
+        <div class="key">
+          <span class="key__swatch" style="background:var(--primary-soft);border:1.5px dashed var(--primary)"></span>
+          <span><b>กล่องประสีฟ้า</b> = ขั้นที่อยู่คอลัมน์เดียวกันและไม่ผูกเงื่อนไขกัน สลับก่อนหลังได้</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card__head"><b>แม่แบบกับผู้ป่วยหนึ่งคน</b></div>
+      <div class="card__body" style="display:flex;flex-direction:column;gap:10px">
+        <p class="note">แผนภาพนี้คือ <b>แม่แบบ</b> ซึ่งเป็นแผนกลางของโรงพยาบาล เก็บอยู่ที่ตาราง
+          <code>pathway_templates</code> และ <code>template_steps</code></p>
+        <p class="note">ตอนเวชระเบียนเปิด visit ระบบ <b>คัดลอก</b> แม่แบบทั้งชุดไปเป็น
+          <code>visit_steps</code> ของผู้ป่วยคนนั้น พร้อมเงื่อนไขลำดับใน <code>visit_step_prereqs</code></p>
+        <p class="note">แก้แม่แบบตอนบ่ายจึงไม่กระทบคนที่กำลังเดินอยู่ตั้งแต่เช้า และเจ้าหน้าที่แทรกขั้นเพิ่ม
+          ให้ผู้ป่วยรายเดียวได้โดยไม่ต้องแตะแม่แบบกลาง</p>
+        <p class="note">แผนภาพนี้วาดจาก <code>data/pathways.csv</code> โดยตรง
+          แก้แม่แบบแล้วรัน <code>node app/build.mjs</code> ภาพเปลี่ยนตามทันที</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = /*__DATA__*/;
+
+  const PLACES = new Map(DATA.places.map((place) => [place.code, place]));
+  let current = DATA.templates[0].code;
+
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const make = (name, attrs = {}) => {
+    const node = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+    return node;
+  };
+  const text = (cls, x, y, content, extra = {}) => {
+    const node = make('text', { class: cls, x, y, ...extra });
+    node.textContent = content;
+    return node;
+  };
+
+  /* ==========================================================================
+     จัดคอลัมน์ตามเงื่อนไขลำดับ
+     คอลัมน์ = จำนวนขั้นที่ต้องทำให้เสร็จก่อนมากที่สุด · ขั้นในคอลัมน์เดียวกันทำสลับกันได้
+     ========================================================================== */
+
+  function layout(template) {
+    const byId = new Map(template.steps.map((step) => [step.seq, step]));
+    const depth = new Map();
+
+    const depthOf = (seq, guard = new Set()) => {
+      if (depth.has(seq)) return depth.get(seq);
+      if (guard.has(seq)) return 0;                 // กันวนซ้ำ ถึงแม้ข้อมูลจริงไม่ควรมี
+      guard.add(seq);
+      const prereqs = byId.get(seq).prereq;
+      const value = prereqs.length === 0
+        ? 0
+        : Math.max(...prereqs.map((id) => depthOf(id, guard) + 1));
+      depth.set(seq, value);
+      return value;
+    };
+
+    for (const step of template.steps) depthOf(step.seq);
+
+    const columns = [];
+    for (const step of template.steps) {
+      const column = depth.get(step.seq);
+      (columns[column] ??= []).push(step);
+    }
+    return columns;
+  }
+
+  /* ==========================================================================
+     วาดแผนภาพ
+     ========================================================================== */
+
+  const BOX_W = 186;
+  const BOX_H = 86;
+  const GAP_X = 52;
+  const GAP_Y = 24;
+  const TOP = 64;
+  const LEFT = 28;
+
+  function render() {
+    const template = DATA.templates.find((item) => item.code === current);
+    const columns = layout(template);
+
+    const rows = Math.max(...columns.map((column) => column.length));
+    const width = LEFT * 2 + columns.length * (BOX_W + GAP_X) - GAP_X;
+    const height = TOP + rows * (BOX_H + GAP_Y) + 56;
+
+    const at = (columnIndex, rowIndex, rowCount) => ({
+      x: LEFT + columnIndex * (BOX_W + GAP_X),
+      y: TOP + rowIndex * (BOX_H + GAP_Y) + ((rows - rowCount) * (BOX_H + GAP_Y)) / 2,
+    });
+
+    const position = new Map();
+    columns.forEach((column, columnIndex) =>
+      column.forEach((step, rowIndex) => position.set(step.seq, at(columnIndex, rowIndex, column.length))));
+
+    const svg = make('svg', {
+      viewBox: `0 0 ${width} ${height}`,
+      role: 'img',
+      'aria-label': `แผนภาพแม่แบบ ${template.name_th}`,
+    });
+
+    drawLanes(svg, columns, height);
+    drawParallelHints(svg, columns, position);
+    drawDependencies(svg, template, position);
+    drawSteps(svg, template, position);
+
+    const chart = document.getElementById('chart');
+    chart.replaceChildren(svg);
+    svg.style.minWidth = `${Math.min(width, 1180)}px`;
+
+    document.getElementById('title').textContent = `${template.name_th} · ${template.code}`;
+    drawStats(template, columns);
+    drawTabs();
+  }
+
+  function drawLanes(svg, columns, height) {
+    columns.forEach((column, index) => {
+      const x = LEFT + index * (BOX_W + GAP_X);
+      if (index % 2 === 1) {
+        svg.append(make('rect', {
+          class: 'lane', x: x - GAP_X / 2, y: 40, width: BOX_W + GAP_X, height: height - 74, rx: 10,
+        }));
+      }
+      svg.append(text('lane-label', x, 30, `ลำดับที่ ${index + 1}`));
+    });
+  }
+
+  /** ขั้นที่อยู่คอลัมน์เดียวกันไม่ผูกเงื่อนไขกัน จึงสลับก่อนหลังได้ — จุดที่ระบบใช้จัดคิวให้ทันกำหนดเวลา */
+  function drawParallelHints(svg, columns, position) {
+    columns.forEach((column) => {
+      if (column.length < 2) return;
+      const points = column.map((step) => position.get(step.seq));
+      const x = points[0].x - 11;
+      const y1 = points[0].y - 7;
+      const y2 = points.at(-1).y + BOX_H + 7;
+
+      svg.append(make('rect', {
+        class: 'parallel-brace', x, y: y1, width: BOX_W + 22, height: y2 - y1, rx: 12,
+        fill: 'var(--primary-soft)', 'fill-opacity': '.45',
+      }));
+      svg.append(text('parallel-note', x + 4, y2 + 15, 'สองขั้นนี้สลับก่อนหลังได้'));
+    });
+  }
+
+  function drawDependencies(svg, template, position) {
+    for (const step of template.steps) {
+      const to = position.get(step.seq);
+      for (const prereq of step.prereq) {
+        const from = position.get(prereq);
+        const merge = step.prereq.length > 1;
+        const x1 = from.x + BOX_W;
+        const y1 = from.y + BOX_H / 2;
+        const x2 = to.x;
+        const y2 = to.y + BOX_H / 2;
+        const mid = (x1 + x2) / 2;
+
+        svg.append(make('path', {
+          class: merge ? 'dep dep--merge' : 'dep',
+          d: `M${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2 - 8} ${y2}`,
+          'marker-end': 'url(#arrow)',
+        }));
+      }
+    }
+
+    const defs = make('defs');
+    const marker = make('marker', {
+      id: 'arrow', viewBox: '0 0 10 10', refX: '8', refY: '5',
+      markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse',
+    });
+    marker.append(make('path', { d: 'M0 0 L10 5 L0 10 z', fill: 'var(--line-strong)' }));
+    defs.append(marker);
+    svg.prepend(defs);
+  }
+
+  function drawSteps(svg, template, position) {
+    for (const step of template.steps) {
+      const { x, y } = position.get(step.seq);
+      const place = PLACES.get(step.point);
+      const isWait = step.wait || /รอ|wait/i.test(step.name_th);
+
+      const classes = ['step-box'];
+      if (isWait) classes.push('step-box--wait');
+      if (step.deadline) classes.push('step-box--deadline');
+
+      svg.append(make('rect', {
+        class: classes.join(' '), x, y, width: BOX_W, height: BOX_H, rx: 12,
+      }));
+
+      svg.append(text('step-no', x + 13, y + 22, String(step.seq)));
+      svg.append(text('step-icon', x + BOX_W - 16, y + 24, place?.icon ?? '', { 'text-anchor': 'end' }));
+      svg.append(text('step-name', x + 13, y + 44, clip(step.name_th, 21)));
+      svg.append(text('step-where', x + 13, y + 61,
+        `${place?.th ?? step.point} · อาคาร ${place?.b ?? '-'} ชั้น ${place?.f ?? '-'}`));
+      svg.append(text('step-min', x + 13, y + 77, `${step.min} นาที`));
+
+      if (step.deadline) {
+        svg.append(text('deadline-tag', x + BOX_W - 13, y + 77, `⏰ ก่อน ${step.deadline}`, { 'text-anchor': 'end' }));
+      }
+    }
+  }
+
+  const clip = (value, max) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
+
+  function drawStats(template, columns) {
+    const totalMin = template.steps.reduce((sum, step) => sum + step.min, 0);
+    const waitMin = template.steps.reduce((sum, step) => sum + step.wait_after, 0);
+    const parallel = columns.filter((column) => column.length > 1).length;
+    const deadlines = template.steps.filter((step) => step.deadline).length;
+    const points = new Set(template.steps.map((step) => step.point)).size;
+
+    document.getElementById('stats').innerHTML = `
+      <span class="stat"><b>${template.steps.length}</b><span>ขั้นตอนต่อการมาหนึ่งครั้ง</span></span>
+      <span class="stat"><b>${columns.length}</b><span>ลำดับที่ต้องทำตามกัน</span></span>
+      <span class="stat"><b>${points}</b><span>จุดบริการที่ต้องไป</span></span>
+      <span class="stat"><b>${totalMin + waitMin}</b><span>นาทีในแผน (ยังไม่รวมเวลาเดิน)</span></span>
+      <span class="stat"><b>${deadlines}</b><span>ขั้นที่มีกำหนดเวลา</span></span>`;
+
+    const step = template.steps.find((item) => item.deadline);
+    document.getElementById('note').innerHTML = parallel > 0
+      ? `มี ${parallel} ช่วงที่ขั้นตอนไม่ผูกเงื่อนไขกัน ระบบจึงเลือกให้ผู้ป่วยไปขั้นที่ใกล้ที่สุดก่อนได้`
+        + (step ? ` — และถ้าเวลาไม่พอสำหรับ "${esc(step.name_th)}" ที่ต้องเสร็จก่อน ${esc(step.deadline)} ระบบจะยกขั้นนั้นขึ้นมาก่อนพร้อมบอกเหตุผลกับผู้ป่วย` : '')
+      : 'แม่แบบนี้เป็นลำดับตายตัว ทุกขั้นต้องทำต่อกันไปตามลำดับ';
+  }
+
+  function drawTabs() {
+    const tabs = document.getElementById('tabs');
+    tabs.replaceChildren();
+
+    for (const template of DATA.templates) {
+      const button = document.createElement('button');
+      button.className = 'tab';
+      button.type = 'button';
+      button.textContent = `${template.name_th} (${template.steps.length} ขั้น)`;
+      button.setAttribute('aria-pressed', String(template.code === current));
+      button.addEventListener('click', () => { current = template.code; render(); });
+      tabs.append(button);
+    }
+  }
+
+  render();
+})();
+</script>

@@ -657,6 +657,7 @@
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
       overviewTitle: 'ภาพรวมเส้นทางวันนี้', overviewFloors: 'ขึ้นลง {n} รอบ', overviewCross: 'ข้ามอาคาร {n} ครั้ง',
       mapFull: 'ดูผังเต็ม', floorShort: 'ชั้น {n}', buildingShort: 'อาคาร {b}',
+      openedByStaff: 'เจ้าหน้าที่เปิดหน้านี้ให้ · การเปิดถูกบันทึกไว้',
       mapOpen: 'ผังเส้นทางทั้งโรงพยาบาล',
       backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด — เดโมนี้มีคิว A-017 ใบเดียว',
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
@@ -720,6 +721,7 @@
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
       overviewTitle: "Today's journey at a glance", overviewFloors: '{n} floor changes', overviewCross: '{n} building crossings',
       mapFull: 'Full map', floorShort: 'Floor {n}', buildingShort: 'Building {b}',
+      openedByStaff: 'Opened for you by staff · this access is logged',
       mapOpen: 'Map of the whole hospital',
       backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket — this demo has only queue A-017',
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
@@ -782,6 +784,7 @@
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
       overviewTitle: '今日路线总览', overviewFloors: '上下楼 {n} 次', overviewCross: '跨楼 {n} 次',
       mapFull: '查看完整地图', floorShort: '{n} 层', buildingShort: '{b} 座',
+      openedByStaff: '由工作人员为您打开 · 此次访问已记录',
       mapOpen: '全院路线图',
       backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 — 本演示只有 A-017 一张',
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
@@ -844,6 +847,7 @@
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
       overviewTitle: 'ယနေ့ ခရီးစဉ် အကျဉ်းချုပ်', overviewFloors: 'အထပ် {n} ကြိမ် ပြောင်းရမည်', overviewCross: 'အဆောက်အအုံ {n} ကြိမ် ကူးရမည်',
       mapFull: 'မြေပုံအပြည့် ကြည့်ရန်', floorShort: '{n} လွှာ', buildingShort: '{b} အဆောက်အအုံ',
+      openedByStaff: 'ဝန်ထမ်းက သင့်အတွက် ဖွင့်ပေးထားသည် · ဤဝင်ရောက်မှုကို မှတ်တမ်းတင်ထားသည်',
       mapOpen: 'ဆေးရုံတစ်ခုလုံး၏ လမ်းကြောင်းမြေပုံ',
       backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ — ဤသရုပ်ပြတွင် A-017 တစ်ခုသာ ရှိသည်',
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
@@ -906,6 +910,7 @@
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
       overviewTitle: 'Весь маршрут на сегодня', overviewFloors: 'смен этажа: {n}', overviewCross: 'переходов между корпусами: {n}',
       mapFull: 'Полная карта', floorShort: 'Этаж {n}', buildingShort: 'Корпус {b}',
+      openedByStaff: 'Открыто для вас сотрудником · доступ зафиксирован',
       mapOpen: 'Карта всей больницы',
       backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону — в демо есть только очередь A-017',
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
@@ -2176,9 +2181,13 @@
     state.solo = true;
   }
 
-  const code = new URLSearchParams(location.search).get('code');
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
   if (code && !code.toUpperCase().startsWith('A017')) {
     setTimeout(() => toast(t('codeUnknown', { c: code.toUpperCase() })), 400);
+  } else if (params.get('by')) {
+    // เปิดจากหลังบ้าน — บอกผู้ป่วยตรง ๆ ว่าใครเป็นคนเปิดและมีการบันทึกไว้
+    setTimeout(() => toast(t('openedByStaff')), 400);
   }
 
   render();
