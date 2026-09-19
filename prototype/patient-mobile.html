@@ -484,6 +484,61 @@
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   }
 
+
+  /* ---------- รูปของจุดหมาย ---------- */
+
+  .photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--r);
+    border: 1px solid var(--line);
+    background: var(--raised);
+  }
+
+  .photo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: var(--tap);
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    cursor: pointer;
+    text-align: start;
+  }
+  .photo-row img {
+    width: 58px; height: 44px; flex: none;
+    object-fit: cover;
+    border-radius: 7px;
+    border: 1px solid var(--line-strong);
+  }
+  .photo-row b { font-weight: 700; font-size: .9em; }
+  .photo-row small { display: block; font-size: .76em; color: var(--ink-3); }
+
+  .photo-leg {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-top: 8px; padding: 5px 10px 5px 5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--raised);
+    font-size: .78em; font-weight: 700;
+    cursor: pointer;
+  }
+  .photo-leg img { width: 30px; height: 24px; object-fit: cover; border-radius: 5px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: .76em; font-weight: 700;
+  }
+  .badge--sample { background: var(--amber-soft); color: var(--amber); }
+  .badge--real { background: var(--success-soft); color: var(--success); }
+
   .done-screen { text-align: center; padding: 34px 18px; }
   .done-screen .hero__icon { margin: 0 auto 14px; background: var(--success-soft); }
 </style>
@@ -508,6 +563,7 @@
 <button class="demo-open" id="demoBtn">🎬 <span id="demoLabel"></span></button>
 <div class="toast" id="toast" aria-live="polite"></div>
 
+<input type="file" id="photoFile" accept="image/*" capture="environment" hidden>
 <dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
 
 <script>
@@ -567,7 +623,13 @@
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
       // ---- แม่แบบประโยคนำทาง ----
-      'turn.left': 'เลี้ยวซ้าย', 'turn.right': 'เลี้ยวขวา',
+photoView: 'ดูรูปจริง', photoTitle: 'รูปจริงของจุดนี้',
+      photoNone: 'ยังไม่มีรูปของจุดนี้', photoAdd: 'ถ่ายรูปจุดนี้', photoRetake: 'ถ่ายใหม่',
+      photoRemove: 'ลบรูป', photoSaved: 'บันทึกรูปของ {p} แล้ว', photoRemoved: 'ลบรูปของ {p} แล้ว',
+      photoHint: 'รูปถ่ายจากมุมที่ผู้ป่วยเดินมา ช่วยให้จำจุดหมายได้เร็วกว่าคำบรรยาย',
+      photoStored: 'เก็บไว้ในเครื่องนี้เท่านั้น · ระบบจริงเก็บที่ตาราง node_photos',
+      photoFull: 'พื้นที่เก็บรูปในเครื่องเต็ม ลบรูปเก่าออกก่อน',
+            'turn.left': 'เลี้ยวซ้าย', 'turn.right': 'เลี้ยวขวา',
       'turn.straight': 'เดินตรงไป', 'turn.back': 'กลับหลังหัน',
       walk: 'เดิน {m} เมตร', toward: 'ถึง{to}',
       lift_up: 'ขึ้น{name} ไปชั้น {floor}', lift_down: 'ลง{name} ไปชั้น {floor}',
@@ -616,7 +678,13 @@
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
-      'turn.left': 'turn left', 'turn.right': 'turn right',
+photoView: 'See a photo', photoTitle: 'Photo of this place',
+      photoNone: 'No photo of this place yet', photoAdd: 'Take a photo here', photoRetake: 'Retake',
+      photoRemove: 'Remove photo', photoSaved: 'Photo of {p} saved', photoRemoved: 'Photo of {p} removed',
+      photoHint: 'A photo taken from the direction patients walk in is recognised faster than any description.',
+      photoStored: 'Stored on this device only. The live system keeps these in the node_photos table.',
+      photoFull: 'Device photo storage is full. Remove an older photo first.',
+            'turn.left': 'turn left', 'turn.right': 'turn right',
       'turn.straight': 'go straight', 'turn.back': 'turn around',
       walk: 'walk {m} m', toward: 'to {to}',
       lift_up: 'take {name} up to floor {floor}', lift_down: 'take {name} down to floor {floor}',
@@ -665,7 +733,13 @@
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
-      'turn.left': '左转', 'turn.right': '右转',
+photoView: '查看实景照片', photoTitle: '该地点的实景照片',
+      photoNone: '该地点暂无照片', photoAdd: '在此拍照', photoRetake: '重新拍摄',
+      photoRemove: '删除照片', photoSaved: '已保存{p}的照片', photoRemoved: '已删除{p}的照片',
+      photoHint: '从患者走来的方向拍摄的照片，比任何文字描述都更容易辨认。',
+      photoStored: '仅保存在本机。正式系统保存在 node_photos 表中。',
+      photoFull: '本机照片存储空间已满，请先删除旧照片。',
+            'turn.left': '左转', 'turn.right': '右转',
       'turn.straight': '直行', 'turn.back': '转身',
       walk: '步行 {m} 米', toward: '到{to}',
       lift_up: '乘{name}上到 {floor} 层', lift_down: '乘{name}下到 {floor} 层',
@@ -714,7 +788,13 @@
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
-      'turn.left': 'ဘယ်ဘက် ကွေ့ပါ', 'turn.right': 'ညာဘက် ကွေ့ပါ',
+photoView: 'တကယ့်ဓာတ်ပုံ ကြည့်ရန်', photoTitle: 'ဤနေရာ၏ ဓာတ်ပုံ',
+      photoNone: 'ဤနေရာအတွက် ဓာတ်ပုံ မရှိသေးပါ', photoAdd: 'ဤနေရာကို ဓာတ်ပုံရိုက်ရန်', photoRetake: 'ပြန်ရိုက်ရန်',
+      photoRemove: 'ဓာတ်ပုံ ဖျက်ရန်', photoSaved: '{p} ၏ ဓာတ်ပုံကို သိမ်းပြီးပါပြီ', photoRemoved: '{p} ၏ ဓာတ်ပုံကို ဖျက်ပြီးပါပြီ',
+      photoHint: 'လူနာများ လျှောက်လာသည့် ဘက်မှ ရိုက်ထားသော ဓာတ်ပုံသည် စာဖြင့် ဖော်ပြခြင်းထက် ပိုမြန်မြန် မှတ်မိစေသည်။',
+      photoStored: 'ဤစက်ထဲတွင်သာ သိမ်းထားသည်။ တကယ့်စနစ်တွင် node_photos ဇယားတွင် သိမ်းသည်။',
+      photoFull: 'စက်၏ ဓာတ်ပုံနေရာ ပြည့်နေပါပြီ။ အဟောင်းများကို အရင်ဖျက်ပါ။',
+            'turn.left': 'ဘယ်ဘက် ကွေ့ပါ', 'turn.right': 'ညာဘက် ကွေ့ပါ',
       'turn.straight': 'တည့်တည့် လျှောက်ပါ', 'turn.back': 'နောက်ပြန် လှည့်ပါ',
       walk: '{m} မီတာ လျှောက်ပါ', toward: '{to} သို့',
       lift_up: '{name} ဖြင့် {floor} လွှာသို့ တက်ပါ', lift_down: '{name} ဖြင့် {floor} လွှာသို့ ဆင်းပါ',
@@ -763,7 +843,13 @@
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
-      'turn.left': 'поверните налево', 'turn.right': 'поверните направо',
+photoView: 'Посмотреть фото', photoTitle: 'Фото этого места',
+      photoNone: 'Фото этого места пока нет', photoAdd: 'Сфотографировать это место', photoRetake: 'Переснять',
+      photoRemove: 'Удалить фото', photoSaved: 'Фото «{p}» сохранено', photoRemoved: 'Фото «{p}» удалено',
+      photoHint: 'Снимок с той стороны, откуда идут пациенты, узнаётся быстрее любого описания.',
+      photoStored: 'Хранится только на этом устройстве. В рабочей системе — в таблице node_photos.',
+      photoFull: 'Память устройства для фото заполнена. Сначала удалите старое фото.',
+            'turn.left': 'поверните налево', 'turn.right': 'поверните направо',
       'turn.straight': 'идите прямо', 'turn.back': 'развернитесь',
       walk: 'пройдите {m} м', toward: 'до {to}',
       lift_up: 'поднимитесь на {name} на {floor} этаж', lift_down: 'спуститесь на {name} на {floor} этаж',
@@ -905,6 +991,264 @@
     th: 'เอกซเรย์ปอด', en: 'Chest X-ray', zh: '胸部 X 光', my: 'ရင်ခေါင်း ဓာတ်မှန်', ru: 'Рентген грудной клетки',
   };
 
+
+  /* ==========================================================================
+     รูปของแต่ละจุด
+     ระบบจริงเก็บที่ตาราง node_photos (node_id, url, caption_th, caption_en)
+     ต้นแบบนี้วาดภาพจำลองด้วย canvas ให้ครบทุกจุด และให้ถ่ายรูปจริงทับได้จากมือถือ
+     ========================================================================== */
+
+  const SCENES = {
+    'A1-REG':   { kind: 'counter', color: '#0f766e', prop: 'plant' },
+    'A1-INFO':  { kind: 'counter', color: '#0369a1' },
+    'A1-CAFE':  { kind: 'counter', color: '#7c2d12', prop: 'plant' },
+    'A1-PAY':   { kind: 'counter', color: '#b45309' },
+    'A1-PHA':   { kind: 'counter', color: '#7c3aed' },
+    'A2-SCR':   { kind: 'counter', color: '#0369a1', prop: 'water' },
+    'B1-XR':    { kind: 'door',    color: '#475569' },
+    'B3-LAB':   { kind: 'door',    color: '#be123c', prop: 'water' },
+    'B3-WAIT':  { kind: 'seats',   color: '#be123c' },
+    'C4-MED':   { kind: 'door',    color: '#166534' },
+    'LIFT-A':   { kind: 'lift',    color: '#1f6f8b' },
+    'LIFT-B':   { kind: 'lift',    color: '#1f6f8b' },
+    'LIFT-C':   { kind: 'lift',    color: '#1f6f8b' },
+    'LOBBY-A2': { kind: 'lift',    color: '#1f6f8b' },
+    'LOBBY-B3': { kind: 'lift',    color: '#1f6f8b' },
+    'LOBBY-C4': { kind: 'lift',    color: '#166534', prop: 'plant' },
+    'RAMP-C':   { kind: 'ramp',    color: '#166534' },
+    'BRIDGE':   { kind: 'bridge',  color: '#0369a1' },
+  };
+
+  const W = 800;
+  const H = 600;
+  const HORIZON = 330;
+  const sceneCache = new Map();
+
+  const roundRect = (ctx, x, y, w, h, r) => {
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, w, h, r);
+    else ctx.rect(x, y, w, h);
+  };
+
+  /** ภาพจำลองของจุดหนึ่ง · คืน data URL และจำไว้ไม่ต้องวาดซ้ำ */
+  function sampleScene(code) {
+    const key = `${code}|${state.lang}`;
+    if (sceneCache.has(key)) return sceneCache.get(key);
+
+    const scene = SCENES[code] ?? { kind: 'door', color: '#1f6f8b' };
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    drawRoom(ctx);
+    ({ counter: drawCounter, door: drawDoor, seats: drawSeats, lift: drawLift, ramp: drawRamp, bridge: drawBridge })
+      [scene.kind](ctx, scene);
+    if (scene.prop === 'water') drawWaterDispenser(ctx);
+    if (scene.prop === 'plant') drawPlant(ctx);
+    drawSign(ctx, scene, code);
+    drawDisclaimer(ctx);
+
+    const url = canvas.toDataURL('image/jpeg', 0.82);
+    sceneCache.set(key, url);
+    return url;
+  }
+
+  function drawRoom(ctx) {
+    ctx.fillStyle = '#f4f7f8';                       // เพดาน
+    ctx.fillRect(0, 0, W, 96);
+    ctx.fillStyle = '#e8edef';                       // ผนังด้านหลัง
+    ctx.fillRect(0, 96, W, HORIZON - 96);
+    ctx.fillStyle = '#d9d3c9';                       // พื้น
+    ctx.fillRect(0, HORIZON, W, H - HORIZON);
+
+    ctx.fillStyle = '#dfe5e8';                       // ผนังข้าง
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(120, 96); ctx.lineTo(120, HORIZON); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(W, 0); ctx.lineTo(W - 120, 96); ctx.lineTo(W - 120, HORIZON); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+
+    ctx.strokeStyle = '#cfc8bd';                     // เส้นพื้นเข้าหาจุดรวมสายตา
+    ctx.lineWidth = 2;
+    for (let i = -3; i <= 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(400 + i * 60, HORIZON);
+      ctx.lineTo(400 + i * 300, H);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#c9d4d8';
+    ctx.beginPath(); ctx.moveTo(0, HORIZON); ctx.lineTo(W, HORIZON); ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,255,255,.5)';          // แสงไฟเพดาน
+    ctx.fillRect(330, 20, 140, 14);
+    ctx.fillRect(355, 60, 90, 10);
+  }
+
+  function drawCounter(ctx, scene) {
+    ctx.fillStyle = '#c9d2d6';
+    roundRect(ctx, 150, 300, 500, 26, 6); ctx.fill();       // หน้าเคาน์เตอร์
+    ctx.fillStyle = scene.color;
+    roundRect(ctx, 160, 326, 480, 120, 8); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.14)';
+    for (let i = 0; i < 4; i += 1) ctx.fillRect(160 + i * 120 + 56, 326, 3, 120);
+    ctx.fillStyle = '#eef2f3';                              // จอคอมบนเคาน์เตอร์
+    roundRect(ctx, 250, 248, 74, 52, 5); ctx.fill();
+    roundRect(ctx, 480, 248, 74, 52, 5); ctx.fill();
+  }
+
+  function drawDoor(ctx, scene) {
+    ctx.fillStyle = scene.color;
+    roundRect(ctx, 296, 132, 208, 198, 6); ctx.fill();      // กรอบประตู
+    ctx.fillStyle = '#f7fafb';
+    roundRect(ctx, 308, 144, 184, 186, 4); ctx.fill();
+    ctx.fillStyle = '#cfe0e6';                              // ช่องกระจก
+    roundRect(ctx, 330, 166, 140, 74, 4); ctx.fill();
+    ctx.fillStyle = '#9fb0b7';                              // มือจับ
+    roundRect(ctx, 466, 246, 10, 34, 5); ctx.fill();
+    ctx.fillStyle = scene.color;                            // ป้ายเลขห้องข้างประตู
+    roundRect(ctx, 516, 176, 60, 42, 5); ctx.fill();
+  }
+
+  function drawSeats(ctx, scene) {
+    for (let i = 0; i < 4; i += 1) {
+      const x = 176 + i * 122;
+      ctx.fillStyle = scene.color;
+      roundRect(ctx, x, 286, 92, 56, 8); ctx.fill();        // พนักพิง
+      ctx.fillStyle = '#b9c4c9';
+      roundRect(ctx, x - 4, 342, 100, 20, 6); ctx.fill();   // ที่นั่ง
+      ctx.fillStyle = '#9aa8ae';
+      ctx.fillRect(x + 8, 362, 8, 40);
+      ctx.fillRect(x + 68, 362, 8, 40);
+    }
+  }
+
+  function drawLift(ctx, scene) {
+    ctx.fillStyle = '#b6c2c7';
+    roundRect(ctx, 276, 124, 248, 206, 4); ctx.fill();      // กรอบลิฟต์
+    ctx.fillStyle = '#d7dfe2';
+    ctx.fillRect(288, 136, 110, 194);
+    ctx.fillRect(402, 136, 110, 194);
+    ctx.fillStyle = '#8d9ba1';
+    ctx.fillRect(398, 136, 4, 194);
+    ctx.fillStyle = scene.color;                            // แผงกดชั้น
+    roundRect(ctx, 540, 190, 40, 72, 6); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(560, 210, 8, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(560, 240, 8, 0, 7); ctx.fill();
+  }
+
+  function drawRamp(ctx, scene) {
+    ctx.fillStyle = '#cdc6bb';
+    ctx.beginPath();                                        // พื้นลาด
+    ctx.moveTo(120, H); ctx.lineTo(430, 322); ctx.lineTo(650, 322); ctx.lineTo(560, H);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = scene.color;                          // ราวจับ
+    ctx.lineWidth = 9;
+    ctx.beginPath(); ctx.moveTo(150, 520); ctx.lineTo(432, 268); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(600, 470); ctx.lineTo(648, 268); ctx.stroke();
+    ctx.lineWidth = 5;
+    for (let i = 0; i <= 5; i += 1) {
+      const t = i / 5;
+      ctx.beginPath();
+      ctx.moveTo(150 + t * 282, 520 - t * 252);
+      ctx.lineTo(150 + t * 282, 520 - t * 252 + 80);
+      ctx.stroke();
+    }
+  }
+
+  function drawBridge(ctx, scene) {
+    ctx.fillStyle = '#dceaf0';                              // ผนังกระจกสองข้าง
+    ctx.beginPath(); ctx.moveTo(0, 40); ctx.lineTo(160, 120); ctx.lineTo(160, HORIZON); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(W, 40); ctx.lineTo(W - 160, 120); ctx.lineTo(W - 160, HORIZON); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = scene.color;
+    ctx.lineWidth = 6;
+    for (let i = 0; i < 4; i += 1) {
+      const x = 40 + i * 40;
+      ctx.beginPath(); ctx.moveTo(x, 60 + i * 16); ctx.lineTo(x, H - i * 30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W - x, 60 + i * 16); ctx.lineTo(W - x, H - i * 30); ctx.stroke();
+    }
+    ctx.fillStyle = '#eef4f6';                              // ปลายทางเชื่อม
+    roundRect(ctx, 330, 168, 140, 162, 5); ctx.fill();
+  }
+
+  function drawWaterDispenser(ctx) {
+    ctx.fillStyle = '#e7ebed';
+    roundRect(ctx, 664, 250, 62, 130, 7); ctx.fill();
+    ctx.fillStyle = '#9fd0e4';
+    roundRect(ctx, 672, 198, 46, 56, 8); ctx.fill();
+    ctx.fillStyle = '#7d8e96';
+    ctx.fillRect(686, 296, 18, 9);
+  }
+
+  function drawPlant(ctx) {
+    ctx.fillStyle = '#b08968';
+    roundRect(ctx, 96, 336, 62, 54, 7); ctx.fill();
+    ctx.fillStyle = '#4a7c59';
+    for (let i = -2; i <= 2; i += 1) {
+      ctx.beginPath();
+      ctx.ellipse(127 + i * 17, 306 - Math.abs(i) * 10, 13, 34, i * 0.32, 0, 7);
+      ctx.fill();
+    }
+  }
+
+  /** ป้ายแขวนเหนือจุด — สีเดียวกับป้ายจริงในโรงพยาบาล */
+  function drawSign(ctx, scene, code) {
+    const label = `${PLACES[code]?.icon ?? ''} ${placeName(code)}`;
+    ctx.font = '700 30px Sarabun, "Noto Sans", "Noto Sans SC", "Noto Sans Myanmar", sans-serif';
+    const width = Math.min(620, ctx.measureText(label).width + 56);
+
+    ctx.fillStyle = 'rgba(16,34,42,.16)';
+    roundRect(ctx, 400 - width / 2, 26, width, 58, 10); ctx.fill();
+    ctx.fillStyle = scene.color;
+    roundRect(ctx, 400 - width / 2, 20, width, 58, 10); ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, 400, 51, width - 32);
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawDisclaimer(ctx) {
+    const text = 'ภาพจำลอง · illustration';
+    ctx.font = '600 19px Sarabun, sans-serif';
+    const width = ctx.measureText(text).width + 26;
+    ctx.fillStyle = 'rgba(16,34,42,.62)';
+    roundRect(ctx, W - width - 16, H - 46, width, 30, 15); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(text, W - width - 3, H - 25);
+  }
+
+  /* ---------- รูปถ่ายจริงที่ผู้ใช้ถ่ายเอง ---------- */
+
+  let userPhotos = {};
+
+  const photoOf = (code) =>
+    userPhotos[code]
+      ? { src: userPhotos[code], real: true }
+      : { src: sampleScene(code), real: false };
+
+  /** ย่อภาพก่อนเก็บ เพราะพื้นที่ในเครื่องมีจำกัด */
+  function shrink(file, maxSide = 1000) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const image = new Image();
+        image.onerror = reject;
+        image.onload = () => {
+          const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(image.width * scale);
+          canvas.height = Math.round(image.height * scale);
+          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        image.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   /* ==========================================================================
      สถานะและตัวช่วย
      ========================================================================== */
@@ -925,7 +1269,7 @@
   let state = initialState();
 
   const el = Object.fromEntries(
-    ['view', 'actions', 'sheet', 'sheetBody', 'toast', 'who', 'langBtn', 'langCode', 'largeBtn', 'demoBtn', 'demoLabel']
+    ['view', 'actions', 'sheet', 'sheetBody', 'toast', 'who', 'langBtn', 'langCode', 'largeBtn', 'demoBtn', 'demoLabel', 'photoFile']
       .map((id) => [id, document.getElementById(id)]),
   );
 
@@ -1051,6 +1395,7 @@
           <span class="metric"><b>${totals.min}</b><span>${esc(t('minutes'))}</span></span>
           <span class="metric"><b>${route.length}</b><span>${esc(t('turns'))}</span></span>
         </div>
+        ${photoRowHtml(target.point)}
       </section>
 
       <section class="card">
@@ -1153,6 +1498,7 @@
           <span class="leg__text">${icon ? icon + ' ' : ''}${esc(legText(leg))}</span>
           ${legHint(leg) ? `<span class="leg__sub">${esc(legHint(leg))}</span>` : ''}
           ${leg.m ? `<span class="leg__dist">${leg.m} ${esc(t('meters'))}</span>` : ''}
+          ${photoChipHtml(leg.arrive ?? leg.to ?? leg.name)}
         </span>
       </li>`;
   }
@@ -1164,6 +1510,7 @@
       <p class="leg__text">${legIcon(leg) ? legIcon(leg) + ' ' : ''}${esc(legText(leg))}</p>
       ${legHint(leg) ? `<p class="leg__sub">${esc(legHint(leg))}</p>` : ''}
       ${leg.m ? `<p class="leg__dist">${leg.m} ${esc(t('meters'))}</p>` : ''}
+      ${photoChipHtml(leg.arrive ?? leg.to ?? leg.name)}
     </li>`;
 
   const alertHtml = (kind, icon, title, body) => `
@@ -1190,6 +1537,49 @@
   /* ==========================================================================
      แผ่นเลื่อนขึ้นและการกระทำ
      ========================================================================== */
+
+  /* ---------- ส่วนแสดงรูปของจุด ---------- */
+
+  function photoRowHtml(code) {
+    if (!code) return '';
+    const photo = photoOf(code);
+    return `
+      <button class="photo-row" data-act="photo" data-code="${code}">
+        <img src="${photo.src}" alt="">
+        <span style="flex:1">
+          <b>📷 ${esc(t('photoView'))}</b>
+          <small>${esc(photo.real ? t('photoTitle') : 'ภาพจำลอง · illustration')}</small>
+        </span>
+        <span aria-hidden="true">›</span>
+      </button>`;
+  }
+
+  function photoChipHtml(code) {
+    if (!code || !PLACES[code]) return '';
+    return `
+      <button class="photo-leg" data-act="photo" data-code="${code}">
+        <img src="${photoOf(code).src}" alt="">${esc(t('photoView'))}
+      </button>`;
+  }
+
+  function photoSheet(code) {
+    const photo = photoOf(code);
+    openSheet(`
+      <h2>${esc(placeName(code))}</h2>
+      <p class="demo-note">${esc(placeAt(code))}</p>
+      <img class="photo" src="${photo.src}" alt="${esc(t('photoTitle'))} — ${esc(placeName(code))}">
+      <p><span class="badge ${photo.real ? 'badge--real' : 'badge--sample'}">
+        ${photo.real ? '📷 ' + esc(t('photoTitle')) : '✏️ ภาพจำลอง · illustration'}
+      </span></p>
+      <p class="demo-note">${esc(t('photoHint'))}<br>${esc(t('photoStored'))}</p>
+      <button class="pick" data-act="shoot" data-code="${code}">
+        <span class="pick__icon">📷</span>
+        <span><b>${esc(photo.real ? t('photoRetake') : t('photoAdd'))}</b></span>
+      </button>
+      ${photo.real ? `<button class="pick" data-act="dropphoto" data-code="${code}">
+        <span class="pick__icon">🗑</span><span><b>${esc(t('photoRemove'))}</b></span></button>` : ''}
+      <button class="btn" data-act="closesheet">${esc(t('close'))}</button>`);
+  }
 
   function openSheet(html) {
     el.sheetBody.innerHTML = `<div class="sheet__grip"></div>${html}`;
@@ -1261,6 +1651,21 @@
     prevleg: () => { state.leg = Math.max(0, state.leg - 1); },
     where: whereSheet,
     closesheet: () => el.sheet.close(),
+
+    photo: (button) => photoSheet(button.dataset.code),
+
+    shoot: (button) => {
+      pendingPhotoCode = button.dataset.code;
+      el.photoFile.click();
+    },
+
+    dropphoto: (button) => {
+      const code = button.dataset.code;
+      delete userPhotos[code];
+      savePhotos();
+      photoSheet(code);
+      toast(t('photoRemoved', { p: placeName(code) }));
+    },
 
     setlang: (button) => {
       state.lang = button.dataset.code;
@@ -1335,6 +1740,29 @@
     render();
   });
 
+  let pendingPhotoCode = null;
+
+  el.photoFile.addEventListener('change', async (event) => {
+    const [file] = event.target.files;
+    event.target.value = '';                 // เลือกไฟล์เดิมซ้ำได้
+    if (!file || !pendingPhotoCode) return;
+
+    const code = pendingPhotoCode;
+    pendingPhotoCode = null;
+    try {
+      userPhotos[code] = await shrink(file);
+      if (!savePhotos()) {
+        delete userPhotos[code];
+        return toast(t('photoFull'));
+      }
+      photoSheet(code);
+      render();
+      toast(t('photoSaved', { p: placeName(code) }));
+    } catch {
+      toast(t('photoFull'));
+    }
+  });
+
   el.langBtn.addEventListener('click', langSheet);
   el.demoBtn.addEventListener('click', demoSheet);
   el.sheet.addEventListener('click', (event) => {
@@ -1358,6 +1786,24 @@
   function load(key) {
     try { return localStorage.getItem(key); } catch { return null; }
   }
+
+  function savePhotos() {
+    try {
+      localStorage.setItem('carepath.photos', JSON.stringify(userPhotos));
+      return true;
+    } catch {
+      return false;      // พื้นที่เต็มหรือโหมดส่วนตัว
+    }
+  }
+
+  try {
+    userPhotos = JSON.parse(load('carepath.photos') ?? '{}');
+  } catch {
+    userPhotos = {};
+  }
+
+  // ฟอนต์มาช้ากว่าการวาดครั้งแรก · วาดป้ายใหม่เมื่อฟอนต์พร้อม
+  document.fonts?.ready.then(() => { sceneCache.clear(); render(); });
 
   const savedLang = load('carepath.lang');
   if (LANGS.some((lang) => lang.code === savedLang)) state.lang = savedLang;

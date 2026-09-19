@@ -18,6 +18,7 @@ export async function importAll(client, files) {
   const templates = await importPathways(client, files.templates, files.pathways, nodes);
   const users = await importUsers(client, files.users, departments);
   const patients = await importPatients(client, files.patients);
+  const photos = await importNodePhotos(client, files['node-photos'] ?? [], nodes);
 
   return {
     floors: floors.size,
@@ -27,6 +28,7 @@ export async function importAll(client, files) {
     templates,
     users,
     patients,
+    photos,
   };
 }
 
@@ -257,6 +259,22 @@ async function importPatients(client, rows) {
       `INSERT INTO patients (hn, display_name, preferred_lang) VALUES ($1, $2, $3)
        ON CONFLICT (hn) DO UPDATE SET display_name = EXCLUDED.display_name`,
       [row.hn, row.display_name, row.preferred_lang || 'th'],
+    );
+  }
+  return rows.length;
+}
+
+/**
+ * รูปถ่ายจริงของแต่ละจุด — ถ่ายจากมุมที่ผู้ป่วยเดินเข้ามา
+ * ไฟล์ว่างได้ ระหว่างที่ยังไม่ได้ออกไปถ่ายสถานที่จริง
+ */
+async function importNodePhotos(client, rows, nodes) {
+  for (const row of rows) {
+    const nodeId = nodes.get(row.node);
+    if (!nodeId) continue;
+    await client.query(
+      `INSERT INTO node_photos (node_id, url, caption_th, caption_en) VALUES ($1, $2, $3, $4)`,
+      [nodeId, row.url, csvOrNull(row.caption_th), csvOrNull(row.caption_en)],
     );
   }
   return rows.length;

@@ -14,9 +14,17 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const schemaFile = path.join(here, '..', 'sql', 'schema.sql');
 const dataDir = process.env.DATA_DIR ?? path.join(here, '..', '..', 'data');
 
-const FILES = ['nodes', 'edges', 'departments', 'templates', 'pathways', 'users', 'patients'];
+const FILES = ['nodes', 'edges', 'departments', 'templates', 'pathways', 'users', 'patients', 'node-photos'];
 
-const readCsv = async (name) => parseCsv(await fs.readFile(path.join(dataDir, `${name}.csv`), 'utf8'));
+/** ไฟล์ที่ยังไม่มี ถือว่าไม่มีแถว — node-photos.csv เริ่มต้นว่างได้ */
+async function readCsv(name) {
+  try {
+    return parseCsv(await fs.readFile(path.join(dataDir, `${name}.csv`), 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
 
 async function main() {
   const schema = await fs.readFile(schemaFile, 'utf8');
