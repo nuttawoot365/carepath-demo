@@ -304,6 +304,22 @@
   .tag--success { background: var(--success-soft); color: var(--success); }
   .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
 
+  /* ---------- ภาพรวมเส้นทางทั้งวัน ---------- */
+
+  .overview { display: flex; flex-direction: column; gap: 10px; }
+  .overview svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .overview__facts { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82em; color: var(--ink-2); }
+  .ov-floor { stroke: var(--line); stroke-width: 1; }
+  .ov-floor-label { fill: var(--ink-3); font-size: 9px; font-weight: 700; }
+  .ov-building { fill: var(--ink-3); font-size: 9px; font-weight: 700; letter-spacing: .08em; }
+  .ov-split { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+  .ov-line { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .ov-line--done { stroke: var(--success); }
+  .ov-node { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
+  .ov-node--done { fill: var(--success); stroke: var(--success); }
+  .ov-node--now { fill: var(--primary); stroke: var(--primary); }
+  .ov-icon { font-size: 11px; }
+
   /* ---------- รายการขั้นตอน ---------- */
 
   .progress { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
@@ -639,6 +655,8 @@
       allDone: 'เสร็จครบทุกขั้นแล้ว',
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
+      overviewTitle: 'ภาพรวมเส้นทางวันนี้', overviewFloors: 'ขึ้นลง {n} รอบ', overviewCross: 'ข้ามอาคาร {n} ครั้ง',
+      mapFull: 'ดูผังเต็ม', floorShort: 'ชั้น {n}', buildingShort: 'อาคาร {b}',
       mapOpen: 'ผังเส้นทางทั้งโรงพยาบาล',
       backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด — เดโมนี้มีคิว A-017 ใบเดียว',
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
@@ -700,6 +718,8 @@
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
+      overviewTitle: "Today's journey at a glance", overviewFloors: '{n} floor changes', overviewCross: '{n} building crossings',
+      mapFull: 'Full map', floorShort: 'Floor {n}', buildingShort: 'Building {b}',
       mapOpen: 'Map of the whole hospital',
       backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket — this demo has only queue A-017',
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
@@ -760,6 +780,8 @@
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
+      overviewTitle: '今日路线总览', overviewFloors: '上下楼 {n} 次', overviewCross: '跨楼 {n} 次',
+      mapFull: '查看完整地图', floorShort: '{n} 层', buildingShort: '{b} 座',
       mapOpen: '全院路线图',
       backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 — 本演示只有 A-017 一张',
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
@@ -820,6 +842,8 @@
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
+      overviewTitle: 'ယနေ့ ခရီးစဉ် အကျဉ်းချုပ်', overviewFloors: 'အထပ် {n} ကြိမ် ပြောင်းရမည်', overviewCross: 'အဆောက်အအုံ {n} ကြိမ် ကူးရမည်',
+      mapFull: 'မြေပုံအပြည့် ကြည့်ရန်', floorShort: '{n} လွှာ', buildingShort: '{b} အဆောက်အအုံ',
       mapOpen: 'ဆေးရုံတစ်ခုလုံး၏ လမ်းကြောင်းမြေပုံ',
       backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ — ဤသရုပ်ပြတွင် A-017 တစ်ခုသာ ရှိသည်',
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
@@ -880,6 +904,8 @@
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
+      overviewTitle: 'Весь маршрут на сегодня', overviewFloors: 'смен этажа: {n}', overviewCross: 'переходов между корпусами: {n}',
+      mapFull: 'Полная карта', floorShort: 'Этаж {n}', buildingShort: 'Корпус {b}',
       mapOpen: 'Карта всей больницы',
       backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону — в демо есть только очередь A-017',
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
@@ -1602,6 +1628,18 @@
       </section>
 
       <section class="card">
+        <div class="progress"><b>${esc(t('overviewTitle'))}</b></div>
+        <div class="overview">
+          ${journeyChart()}
+          <div class="overview__facts">
+            <span>🛗 ${esc(t('overviewFloors', { n: journeyCounts().floors }))}</span>
+            <span>🌉 ${esc(t('overviewCross', { n: journeyCounts().buildings }))}</span>
+          </div>
+          <a class="btn" href="map.html">🗺 ${esc(t('mapFull'))}</a>
+        </div>
+      </section>
+
+      <section class="card">
         <p class="eyebrow">${esc(t('position'))}</p>
         <p style="margin-top:5px">📍 ${esc(placeName(state.at))}
           <span class="tag tag--muted">${esc(state.atSource === 'station' ? t('confirmedBy') : t('youSet'))}</span>
@@ -1617,6 +1655,71 @@
 
     el.actions.innerHTML =
       `<button class="btn btn--primary btn--lg btn--grow" data-act="route">${esc(t('viewRoute'))} ➡</button>`;
+  }
+
+  /**
+   * ภาพรวมทั้งวันแบบย่อ: แกนตั้งคือชั้น แกนนอนคือลำดับขั้น
+   * ตอบคำถามที่ผู้ป่วยถามจริง — วันนี้ต้องขึ้นลงกี่รอบ ข้ามตึกกี่ครั้ง
+   */
+  function journeyChart() {
+    const steps = state.steps;
+    const target = nextStep();
+    const floors = [...new Set(steps.map((step) => PLACES[step.point].floor))].sort((a, b) => b - a);
+
+    const W = 320;
+    const H = 34 + floors.length * 26;
+    const left = 30;
+    const gap = steps.length > 1 ? (W - left - 16) / (steps.length - 1) : 0;
+
+    const at = (step, index) => ({
+      x: left + index * gap,
+      y: 16 + floors.indexOf(PLACES[step.point].floor) * 26,
+    });
+
+    const points = steps.map(at);
+    const doneCount = steps.filter((step) => step.status === 'done').length;
+
+    const rows = floors.map((floor, i) => `
+      <line class="ov-floor" x1="${left - 8}" y1="${16 + i * 26}" x2="${W}" y2="${16 + i * 26}"/>
+      <text class="ov-floor-label" x="0" y="${19 + i * 26}">${esc(t('floorShort', { n: floor }))}</text>`).join('');
+
+    const splits = steps.slice(1).map((step, i) =>
+      PLACES[step.point].building === PLACES[steps[i].point].building ? '' : `
+        <line class="ov-split" x1="${(points[i].x + points[i + 1].x) / 2}" y1="4"
+              x2="${(points[i].x + points[i + 1].x) / 2}" y2="${H - 16}"/>
+        <text class="ov-building" x="${(points[i].x + points[i + 1].x) / 2 + 3}" y="${H - 4}">${esc(PLACES[step.point].building)}</text>`).join('');
+
+    const line = (from, to, cls) => {
+      const slice = points.slice(from, to);
+      return slice.length < 2 ? '' :
+        `<polyline class="ov-line ${cls}" points="${slice.map((p) => `${p.x},${p.y}`).join(' ')}"/>`;
+    };
+
+    const dots = steps.map((step, i) => {
+      const cls = step.status === 'done' ? 'ov-node--done' : step === target ? 'ov-node--now' : '';
+      return `<circle class="ov-node ${cls}" cx="${points[i].x}" cy="${points[i].y}" r="${step === target ? 7 : 5}"/>
+              <text class="ov-icon" x="${points[i].x}" y="${points[i].y - 11}" text-anchor="middle">${PLACES[step.point].icon}</text>`;
+    }).join('');
+
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('overviewTitle'))}">
+      ${rows}${splits}
+      ${line(0, Math.max(doneCount, 1), 'ov-line--done')}
+      ${line(Math.max(doneCount - 1, 0), steps.length, '')}
+      ${dots}
+    </svg>`;
+  }
+
+  /** จำนวนครั้งที่ต้องเปลี่ยนชั้นและข้ามอาคารตลอดทั้งวัน */
+  function journeyCounts() {
+    let floors = 0;
+    let buildings = 0;
+    state.steps.slice(1).forEach((step, i) => {
+      const from = PLACES[state.steps[i].point];
+      const to = PLACES[step.point];
+      if (from.floor !== to.floor) floors += 1;
+      if (from.building !== to.building) buildings += 1;
+    });
+    return { floors, buildings };
   }
 
   const railMark = (step, target) =>
