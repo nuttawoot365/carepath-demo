@@ -1,11 +1,20 @@
 #!/usr/bin/env sh
-# เปิดดูแบบหน้าจอบนเครื่องตัวเอง โดยไม่ต้องติดตั้งอะไรเพิ่ม
-#   ./serve.sh            → http://localhost:5173  (mockups)
-#   ./serve.sh frontend/public 8080
+# เปิดดูหน้าจอบนเครื่องตัวเองและบนมือถือในวงแลนเดียวกัน โดยไม่ต้องติดตั้งอะไรเพิ่ม
+#   ./serve.sh                     → mockups ที่พอร์ต 5173
+#   ./serve.sh prototype 5174      → ต้นแบบที่กดได้ ที่พอร์ต 5174
+#   HOST=127.0.0.1 ./serve.sh      → จำกัดให้เปิดได้เฉพาะเครื่องนี้
 set -eu
 
 dir="${1:-mockups}"
 port="${2:-5173}"
+host="${HOST:-0.0.0.0}"
 
-echo "CarePath · เสิร์ฟ $dir ที่ http://localhost:$port  (Ctrl+C เพื่อหยุด)"
-exec python3 -m http.server "$port" --directory "$dir" --bind 127.0.0.1
+lan=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo '')
+
+echo "CarePath · เสิร์ฟ $dir"
+echo "  เครื่องนี้   http://localhost:$port"
+[ -n "$lan" ] && [ "$host" = "0.0.0.0" ] && echo "  มือถือ      http://$lan:$port   (ต้องอยู่ไวไฟวงเดียวกัน)"
+echo "  Ctrl+C เพื่อหยุด"
+echo
+
+exec python3 -m http.server "$port" --directory "$dir" --bind "$host"
