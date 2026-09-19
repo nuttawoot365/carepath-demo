@@ -1,0 +1,568 @@
+<title>CarePath จุดบริการ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 52px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, select { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px; background: var(--primary); color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar a, .topbar .chip {
+    padding: 4px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    font-size: .82em; color: inherit; text-decoration: none; background: none; cursor: pointer;
+  }
+  .topbar .chip[aria-pressed="true"] { background: #fff; color: var(--primary-ink); border-color: #fff; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow-1); overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--raised);
+  }
+  .card__head b { font-size: 1.02em; }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 16px; }
+
+  /* ---------- คิว ---------- */
+
+  .queue { display: flex; flex-direction: column; gap: 10px; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    align-items: center; gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--raised);
+  }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+  .row--now { border: 3px solid var(--primary); background: var(--surface); }
+  .row--waiting { opacity: .96; }
+
+  .ticket { font-family: 'IBM Plex Mono', monospace; font-size: 1.7em; font-weight: 800; line-height: 1.1; }
+  .name { font-weight: 700; }
+  .meta { display: block; font-size: .8em; color: var(--ink-3); margin-top: 2px; }
+
+  .acts { display: flex; gap: 9px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--tap); padding: 12px 20px;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--surface); font-weight: 700; cursor: pointer;
+    transition: transform .08s ease;
+  }
+  .btn:active { transform: scale(.985); }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--success { background: var(--success); border-color: var(--success); color: #fff; }
+  .btn--sm { min-height: 42px; padding: 8px 14px; font-size: .88em; }
+  :root[data-theme="dark"] .btn--primary,
+  :root[data-theme="dark"] .btn--success { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .btn--primary,
+    :root:not([data-theme="light"]) .btn--success { color: #08171d; }
+  }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px;
+    font-size: .76em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+  .tag--ok { background: var(--success-soft); color: var(--success); }
+  .tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+  .empty { padding: 34px 20px; text-align: center; color: var(--ink-3); }
+  .empty span { font-size: 2.4em; display: block; margin-bottom: 8px; }
+
+  .note { font-size: .82em; color: var(--ink-3); line-height: 1.65; }
+
+  .live {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: .8em; color: var(--ink-3);
+  }
+  .live i {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--success);
+    display: inline-block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live i { animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+  }
+
+  .toast {
+    position: fixed; inset-block-start: 68px; inset-inline: 0; z-index: 40;
+    display: flex; justify-content: center; pointer-events: none;
+  }
+  .toast div {
+    max-width: 92%; padding: 11px 20px; border-radius: 999px;
+    background: var(--ink); color: var(--ground); font-size: .9em; font-weight: 600;
+    box-shadow: var(--shadow-2);
+  }
+
+  dialog {
+    width: min(460px, 92vw); padding: 0; border: none; border-radius: var(--r);
+    background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2);
+  }
+  dialog::backdrop { background: rgba(6, 18, 23, .55); }
+  .sheet { padding: 18px; display: flex; flex-direction: column; gap: 11px; }
+  .pick {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    min-height: var(--tap); padding: 11px 13px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--raised); text-align: start; font-weight: 600; cursor: pointer;
+  }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🩺</span>
+  <b id="deptName">จุดบริการ</b>
+  <span style="opacity:.85;font-size:.88em" id="staff"></span>
+  <span class="spacer"></span>
+  <span id="deptChips" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+  <a href="login.html">ออกจากระบบ</a>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <div class="card__head">
+      <b>คิวของแผนกนี้</b>
+      <span class="spacer"></span>
+      <span class="live"><i aria-hidden="true"></i><span id="liveText">เชื่อมกับหน้าผู้ป่วยอยู่</span></span>
+    </div>
+    <div class="card__body"><div class="queue" id="queue"></div></div>
+  </section>
+
+  <section class="card">
+    <div class="card__head"><b>ลำดับขั้นทั้งหมดของคิวที่เลือก</b><span class="spacer"></span>
+      <span id="selectedTag"></span></div>
+    <div class="card__body" id="plan"></div>
+  </section>
+
+  <section class="card">
+    <div class="card__head"><b>หน้านี้ทำงานยังไง</b></div>
+    <div class="card__body" style="display:flex;flex-direction:column;gap:9px">
+      <p class="note">เจ้าหน้าที่กดปุ่มเดียว — <b>มาถึง → เรียก → เสร็จ</b> ระบบบันทึกเวลาให้เองทุกครั้ง
+        ไม่ต้องกรอกอะไร งานเพิ่มไม่เกิน 2 วินาทีต่อคน</p>
+      <p class="note">พอกด "เสร็จ" <b>หน้าจอมือถือของผู้ป่วยจะเปลี่ยนเป็นขั้นถัดไปเอง</b>
+        ลองเปิด <a href="patient-mobile.html" target="_blank" rel="noopener">หน้าผู้ป่วย</a> ไว้อีกแท็บแล้วกดดู</p>
+      <p class="note">ระบบจริงหน้าผู้ป่วยถาม API ทุก 5 วินาที ต้นแบบนี้ใช้ที่เก็บข้อมูลในเบราว์เซอร์แทน
+        จึงสาธิตได้โดยไม่ต้องมีเซิร์ฟเวอร์ แต่พฤติกรรมที่เห็นเหมือนกัน</p>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+<dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = {"nodes":[{"code":"A1-ENT","b":"A","f":1,"d":null,"kind":"entrance","th":"ทางเข้าหลัก","en":"Main entrance","lm":"ประตูกระจกหน้าอาคาร A","icon":"🚪","x":280,"y":540},{"code":"A1-INFO","b":"A","f":1,"d":null,"kind":"poi","th":"ประชาสัมพันธ์","en":"Information","lm":"ตรงข้ามประตูทางเข้า","icon":"ℹ️","x":280,"y":470},{"code":"A1-REG","b":"A","f":1,"d":"A1-OPD","kind":"counter","th":"เวชระเบียน","en":"Registration","lm":"ตรงข้ามประชาสัมพันธ์","icon":"🪪","x":280,"y":400},{"code":"A1-J1","b":"A","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"ทางแยกหน้าลิฟต์ A","icon":null,"x":370,"y":400},{"code":"A1-PAY","b":"A","f":1,"d":"A1-FIN","kind":"cashier","th":"การเงิน","en":"Cashier","lm":"ช่อง 1-4 ข้างเวชระเบียน","icon":"💳","x":370,"y":330},{"code":"A1-PHA","b":"A","f":1,"d":"A1-PHA","kind":"pharmacy","th":"ห้องยา","en":"Pharmacy","lm":"ข้างประตูทางออก","icon":"💊","x":430,"y":400},{"code":"A1-APT","b":"A","f":1,"d":"A1-OPD","kind":"appointment","th":"จุดนัดหมาย","en":"Appointment desk","lm":"หน้าห้องยา","icon":"📅","x":430,"y":355},{"code":"A1-LIFT","b":"A","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A1-STAIR","b":"A","f":1,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A1-WC","b":"A","f":1,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 1","en":"Toilet 1F","lm":"ข้างบันได A","icon":"🚻","x":325,"y":455},{"code":"A1-CAFE","b":"A","f":1,"d":null,"kind":"poi","th":"ร้านกาแฟ","en":"Café","lm":"โถงทางเข้า","icon":"☕","x":170,"y":470},{"code":"A1-ATM","b":"A","f":1,"d":null,"kind":"poi","th":"ตู้เอทีเอ็ม","en":"ATM","lm":"ข้างร้านกาแฟ โถงทางเข้า","icon":"🏧","x":140,"y":430},{"code":"A2-LIFT","b":"A","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A2-STAIR","b":"A","f":2,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A2-J1","b":"A","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ A ชั้น 2","icon":null,"x":370,"y":400},{"code":"A2-SCR","b":"A","f":2,"d":"A2-SCR","kind":"screening","th":"จุดคัดกรอง","en":"Screening","lm":"ข้างตู้น้ำดื่ม","icon":"🩺","x":280,"y":400},{"code":"A2-GP","b":"A","f":2,"d":"A2-GP","kind":"exam_room","th":"ห้องตรวจทั่วไป","en":"General clinic","lm":"ห้อง 201-204","icon":"👨‍⚕️","x":280,"y":330},{"code":"A2-WC","b":"A","f":2,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 2","en":"Toilet 2F","lm":null,"icon":"🚻","x":248,"y":455},{"code":"A2-BR","b":"A","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม A→B","en":"Bridge A→B","lm":"ปลายทางเดินชั้น 2","icon":"🌉","x":440,"y":400},{"code":"B2-BR","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง A)","en":"Bridge B (A side)","lm":null,"icon":"🌉","x":560,"y":400},{"code":"B2-J1","b":"B","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ B","icon":null,"x":650,"y":400},{"code":"B2-LIFT","b":"B","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B2-STAIR","b":"B","f":2,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B2-FIRE","b":"B","f":2,"d":null,"kind":"stairs","th":"บันไดหนีไฟ B","en":"Fire stairs B","lm":null,"icon":"🪜","x":702,"y":460},{"code":"B2-BRC","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B→C","en":"Bridge B→C","lm":null,"icon":"🌉","x":880,"y":400},{"code":"B1-LIFT","b":"B","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B1-J1","b":"B","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 1","icon":null,"x":650,"y":400},{"code":"B1-XR","b":"B","f":1,"d":"B1-XR","kind":"xray","th":"ห้องเอกซเรย์","en":"X-ray","lm":"สุดทางเดิน","icon":"📷","x":800,"y":400},{"code":"B3-LIFT","b":"B","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B3-STAIR","b":"B","f":3,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B3-J1","b":"B","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 3","icon":null,"x":650,"y":400},{"code":"B3-LAB","b":"B","f":3,"d":"B3-LAB","kind":"lab","th":"ห้องเจาะเลือด","en":"Blood test","lm":"ขวามือ ข้างตู้น้ำดื่ม","icon":"🩸","x":780,"y":400},{"code":"B3-WAIT","b":"B","f":3,"d":"B3-LAB","kind":"waiting_area","th":"จุดพักคอยรอผล","en":"Lab waiting area","lm":"หน้าห้องเจาะเลือด","icon":"🪑","x":780,"y":462},{"code":"B3-WC","b":"B","f":3,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 3","en":"Toilet 3F","lm":null,"icon":"🚻","x":832,"y":455},{"code":"C2-BR","b":"C","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม C (ฝั่ง B)","en":"Bridge C (B side)","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"C2-J1","b":"C","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ C","icon":null,"x":1080,"y":400},{"code":"C2-LIFT","b":"C","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C2-RAMP","b":"C","f":2,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-LIFT","b":"C","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C3-RAMP","b":"C","f":3,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-J1","b":"C","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 3","icon":null,"x":1080,"y":400},{"code":"C3-BRB","b":"C","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม C→B ชั้น 3","en":"Bridge C→B 3F","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"B3-BRC","b":"B","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง C) ชั้น 3","en":"Bridge B (C side) 3F","lm":null,"icon":"🌉","x":880,"y":400},{"code":"C4-LIFT","b":"C","f":4,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C4-J1","b":"C","f":4,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 4","icon":null,"x":1080,"y":400},{"code":"C4-MED-CTR","b":"C","f":4,"d":"C4-MED","kind":"counter","th":"ยื่นบัตรอายุรกรรม","en":"Med. clinic counter","lm":"ประตูทางเข้าคลินิก ป้ายสีเขียว","icon":"🪪","x":1180,"y":400},{"code":"C4-MED-WAIT","b":"C","f":4,"d":"C4-MED","kind":"waiting_area","th":"ที่นั่งรออายุรกรรม","en":"Waiting area","lm":null,"icon":"🪑","x":1242,"y":400},{"code":"C4-MED-401","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 401","en":"Room 401","lm":"ห้องแรกซ้ายมือ","icon":"👨‍⚕️","x":1242,"y":338},{"code":"C4-MED-403","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 403","en":"Room 403","lm":"ห้องที่ 3 ซ้ายมือ","icon":"👨‍⚕️","x":1302,"y":338},{"code":"C4-WC","b":"C","f":4,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 4","en":"Toilet 4F","lm":null,"icon":"🚻","x":1180,"y":460}],"edges":[{"f":"A1-ENT","t":"A1-INFO","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-ENT","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-REG","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-REG","t":"A1-INFO","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-REG","t":"A1-J1","k":"corridor","m":25,"s":25,"turn":"right","a":true},{"f":"A1-J1","t":"A1-REG","k":"corridor","m":25,"s":25,"turn":"left","a":true},{"f":"A1-J1","t":"A1-PAY","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-PAY","t":"A1-J1","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-J1","t":"A1-PHA","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-J1","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-APT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-APT","t":"A1-PHA","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-J1","t":"A1-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"A1-LIFT","t":"A1-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"A1-J1","t":"A1-STAIR","k":"door","m":6,"s":6,"turn":"right","a":false},{"f":"A1-STAIR","t":"A1-J1","k":"door","m":6,"s":6,"turn":"left","a":false},{"f":"A1-J1","t":"A1-WC","k":"corridor","m":9,"s":9,"turn":"left","a":true},{"f":"A1-WC","t":"A1-J1","k":"corridor","m":9,"s":9,"turn":"right","a":true},{"f":"A1-INFO","t":"A1-CAFE","k":"corridor","m":12,"s":12,"turn":"right","a":true},{"f":"A1-CAFE","t":"A1-INFO","k":"corridor","m":12,"s":12,"turn":"left","a":true},{"f":"A1-CAFE","t":"A1-ATM","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"A1-ATM","t":"A1-CAFE","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"A1-LIFT","t":"A2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A2-LIFT","t":"A1-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A1-STAIR","t":"A2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-STAIR","t":"A1-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-LIFT","t":"A2-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-STAIR","t":"A2-J1","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"A2-J1","t":"A2-STAIR","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"A2-J1","t":"A2-SCR","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"A2-J1","t":"A2-GP","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"A2-GP","t":"A2-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-WC","t":"A2-SCR","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-BR","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"A2-J1","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"B2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"A2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"B2-J1","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-BR","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"B2-LIFT","t":"B2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"B2-J1","t":"B2-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B2-STAIR","t":"B2-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B2-J1","t":"B2-FIRE","k":"door","m":5,"s":5,"turn":"left","a":false},{"f":"B2-J1","t":"B2-BRC","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-BRC","t":"B2-J1","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-LIFT","t":"B3-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B3-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B2-LIFT","t":"B1-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B1-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B2-STAIR","t":"B3-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B3-STAIR","t":"B2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B1-LIFT","t":"B1-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-XR","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B1-XR","t":"B1-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-LIFT","t":"B3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-STAIR","t":"B3-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B3-J1","t":"B3-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B3-J1","t":"B3-LAB","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"B3-LAB","t":"B3-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"B3-LAB","t":"B3-WAIT","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-WAIT","t":"B3-LAB","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-LAB","t":"B3-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-WC","t":"B3-LAB","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-BRC","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B3-BRC","t":"B3-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-BRC","t":"C3-BRB","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"B3-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"C3-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-BRB","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"B2-BRC","t":"C2-BR","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"B2-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"C2-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-BR","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"C2-LIFT","t":"C2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"C2-J1","t":"C2-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C2-RAMP","t":"C2-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C2-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C3-LIFT","t":"C2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C2-RAMP","t":"C3-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-RAMP","t":"C2-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-LIFT","t":"C3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-RAMP","t":"C3-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C3-J1","t":"C3-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C3-LIFT","t":"C4-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C4-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-MED-CTR","k":"corridor","m":15,"s":15,"turn":"left","a":true},{"f":"C4-MED-CTR","t":"C4-J1","k":"corridor","m":15,"s":15,"turn":"right","a":true},{"f":"C4-MED-CTR","t":"C4-MED-WAIT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-CTR","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-401","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"C4-MED-401","t":"C4-MED-WAIT","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-403","k":"corridor","m":14,"s":14,"turn":"left","a":true},{"f":"C4-MED-403","t":"C4-MED-WAIT","k":"corridor","m":14,"s":14,"turn":"right","a":true},{"f":"C4-J1","t":"C4-WC","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"C4-WC","t":"C4-J1","k":"corridor","m":10,"s":10,"turn":"left","a":true}]};
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+
+  /* ==========================================================================
+     สถานะของ visit ที่ใช้ร่วมกับหน้าผู้ป่วย
+     ต้นแบบเก็บในเบราว์เซอร์ ระบบจริงคือ visit_steps ในฐานข้อมูล
+     และหน้าผู้ป่วยถาม GET /api/p/:token ทุก 5 วินาที
+     ========================================================================== */
+
+  const STORE_KEY = 'carepath.visit';
+
+  /** แผนเริ่มต้นของคิว A-017 · ตรงกับแม่แบบ DM-FU ที่จัดลำดับให้เจาะเลือดก่อนแล้ว */
+  const BASE = {
+    ticket: 'A-017',
+    name: 'สมชาย',
+    wheelchair: true,
+    elderly: true,
+    hasPhone: true,
+    at: 'A2-SCR',
+    steps: [
+      { id: 1, point: 'A1-REG', name: 'ยื่นบัตรและยืนยันการนัด', status: 'done', at: '09:52' },
+      { id: 3, point: 'B3-LAB', name: 'เจาะเลือด', status: 'pending', deadline: '11:00' },
+      { id: 2, point: 'A2-SCR', name: 'ชั่งน้ำหนัก วัดความดัน', status: 'pending' },
+      { id: 4, point: 'B3-WAIT', name: 'รอผลตรวจ', status: 'pending' },
+      { id: 5, point: 'C4-MED-CTR', name: 'พบแพทย์', status: 'pending' },
+      { id: 6, point: 'A1-PAY', name: 'ชำระเงิน', status: 'pending' },
+      { id: 7, point: 'A1-PHA', name: 'รับยา', status: 'pending' },
+    ],
+  };
+
+  const XRAY = { id: 8, point: 'B1-XR', name: 'เอกซเรย์ปอด', status: 'pending', added: true };
+
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+
+  function loadVisit() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null');
+      if (saved?.steps?.length) return saved;
+    } catch { /* โหมดส่วนตัวอ่านไม่ได้ */ }
+    return clone(BASE);
+  }
+
+  function saveVisit(visit) {
+    visit.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(visit)); }
+    catch { /* โหมดส่วนตัวเขียนไม่ได้ */ }
+    // แท็บเดียวกันไม่ได้รับ storage event จึงต้องบอกตัวเองด้วย
+    window.dispatchEvent(new CustomEvent('carepath:visit'));
+  }
+
+  /* ---------- แผนกของจุดบริการ ---------- */
+
+  const STATIONS = [
+    { code: 'A1-OPD', name: 'เวชระเบียน', staff: 'ปราณี', points: ['A1-REG'] },
+    { code: 'B3-LAB', name: 'ห้องเจาะเลือด', staff: 'นิภา', points: ['B3-LAB', 'B3-WAIT'] },
+    { code: 'A2-SCR', name: 'จุดคัดกรอง', staff: 'มานพ', points: ['A2-SCR'] },
+    { code: 'C4-MED', name: 'คลินิกอายุรกรรม', staff: 'วิรัช', points: ['C4-MED-CTR'] },
+    { code: 'A1-PHA', name: 'ห้องยา', staff: 'สุดา', points: ['A1-PHA'] },
+    { code: 'A1-FIN', name: 'การเงิน', staff: 'กานดา', points: ['A1-PAY'] },
+    { code: 'B1-XR', name: 'ห้องเอกซเรย์', staff: 'ชูเกียรติ', points: ['B1-XR'] },
+  ];
+
+  const state = {
+    station: STATIONS[0],
+    visit: loadVisit(),
+    selected: null,
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const nameOf = (code) => NODES.get(code)?.th ?? code;
+
+  const nowTime = () => new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+  /* ---------- เวลาเดินจากตำแหน่งปัจจุบันของผู้ป่วย ---------- */
+
+  function walkSeconds(from, to, wheelchair) {
+    if (from === to) return 0;
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) adj.get(edge.f)?.push(edge);
+
+    const dist = new Map([[from, 0]]);
+    const seen = new Set();
+    const queue = [[0, from]];
+
+    while (queue.length > 0) {
+      queue.sort((a, b) => a[0] - b[0]);
+      const [d, at] = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+      if (at === to) return d;
+
+      for (const edge of adj.get(at) ?? []) {
+        if (wheelchair && !edge.a) continue;
+        const weight = edge.s * (wheelchair ? 1.5 : 1);
+        if (d + weight < (dist.get(edge.t) ?? Infinity)) {
+          dist.set(edge.t, d + weight);
+          queue.push([d + weight, edge.t]);
+        }
+      }
+    }
+    return null;
+  }
+
+  /* ---------- ขั้นที่ทำได้ตอนนี้ ---------- */
+
+  const PREREQ = { 1: [], 2: [1], 3: [1], 4: [3], 5: [3, 4], 6: [5], 7: [6], 8: [5] };
+
+  function isReady(step, steps) {
+    const status = new Map(steps.map((item) => [item.id, item.status]));
+    return (PREREQ[step.id] ?? []).every((id) => ['done', 'skipped'].includes(status.get(id)));
+  }
+
+  /** คิวของแผนกนี้ = ขั้นที่ยังไม่เสร็จและอยู่ที่จุดบริการของแผนก */
+  function queueOf() {
+    return state.visit.steps.filter((step) =>
+      state.station.points.includes(step.point) && !['done', 'skipped'].includes(step.status));
+  }
+
+  /* ==========================================================================
+     แสดงผล
+     ========================================================================== */
+
+  function render() {
+    $('deptName').textContent = `จุดบริการ · ${state.station.name}`;
+    $('staff').textContent = `${state.station.staff} · ${nowTime()}`;
+
+    $('deptChips').innerHTML = STATIONS.map((station) => `
+      <button class="chip" type="button" data-station="${station.code}"
+              aria-pressed="${station.code === state.station.code}">${esc(station.name)}</button>`).join('');
+
+    renderQueue();
+    renderPlan();
+  }
+
+  function renderQueue() {
+    const queue = queueOf();
+
+    if (queue.length === 0) {
+      $('queue').innerHTML = `
+        <div class="empty">
+          <span aria-hidden="true">☕</span>
+          <b>ยังไม่มีคิวที่แผนกนี้</b>
+          <p class="note" style="margin-top:6px">สลับแผนกที่แถบบน หรือกดขั้นตอนของผู้ป่วยให้เดินมาถึงแผนกนี้ก่อน</p>
+        </div>`;
+      return;
+    }
+
+    $('queue').innerHTML = queue.map((step) => {
+      const ready = isReady(step, state.visit.steps);
+      const seconds = ready ? walkSeconds(state.visit.at, step.point, state.visit.wheelchair) : null;
+
+      const status = step.status === 'in_progress'
+        ? '<span class="tag">กำลังให้บริการ</span>'
+        : step.status === 'arrived'
+          ? `<span class="tag tag--ok">มาถึงแล้ว ${esc(step.arrivedAt ?? '')}</span>`
+          : ready
+            ? seconds === null
+              ? '<span class="tag tag--warn">ไม่มีเส้นทางมาถึง</span>'
+              : `<span class="tag tag--muted">กำลังเดินมา · อีกราว ${Math.max(1, Math.round(seconds / 60))} นาที</span>`
+            : '<span class="tag tag--muted">ยังทำขั้นก่อนหน้าไม่เสร็จ</span>';
+
+      return `
+        <div class="row ${step.status === 'in_progress' ? 'row--now' : 'row--waiting'}">
+          <span class="ticket">${esc(state.visit.ticket)}</span>
+          <span>
+            <span class="name">${esc(state.visit.name)}
+              ${state.visit.wheelchair ? '<span class="tag">♿</span>' : ''}
+              ${state.visit.elderly ? '<span class="tag">🧓</span>' : ''}
+              ${step.deadline ? `<span class="tag tag--amber">⏰ ก่อน ${esc(step.deadline)}</span>` : ''}
+              ${step.added ? '<span class="tag">แทรกเพิ่ม</span>' : ''}</span>
+            <span class="meta">${esc(step.name)} · ${esc(nameOf(step.point))} · ${status}</span>
+          </span>
+          <span class="acts">${actionsFor(step, ready)}</span>
+        </div>`;
+    }).join('');
+  }
+
+  function actionsFor(step, ready) {
+    if (step.status === 'pending') {
+      return `
+        <button class="btn btn--sm" data-act="arrive" data-id="${step.id}" ${ready ? '' : 'disabled'}>✋ มาถึง</button>
+        <button class="btn btn--sm" data-act="skip" data-id="${step.id}">⏭ ข้าม</button>`;
+    }
+    if (step.status === 'arrived') {
+      return `
+        <button class="btn btn--primary btn--sm" data-act="call" data-id="${step.id}">📣 เรียก</button>
+        <button class="btn btn--sm" data-act="skip" data-id="${step.id}">⏭ ข้าม</button>`;
+    }
+    return `
+      <button class="btn btn--success" data-act="done" data-id="${step.id}">✔ เสร็จ</button>
+      <button class="btn btn--sm" data-act="insert" data-id="${step.id}">➕ ส่งตรวจเพิ่ม</button>`;
+  }
+
+  function renderPlan() {
+    const steps = state.visit.steps;
+    const left = steps.filter((step) => !['done', 'skipped'].includes(step.status)).length;
+    $('selectedTag').innerHTML = `<span class="tag">${esc(state.visit.ticket)} · เหลือ ${left} ขั้น</span>`;
+
+    $('plan').innerHTML = `
+      <ol class="queue">
+        ${steps.map((step, index) => {
+          const tag = step.status === 'done' ? `<span class="tag tag--ok">เสร็จ ${esc(step.at ?? '')}</span>`
+            : step.status === 'skipped' ? '<span class="tag tag--muted">ข้าม</span>'
+            : step.status === 'in_progress' ? '<span class="tag">กำลังทำ</span>'
+            : step.status === 'arrived' ? '<span class="tag tag--ok">มาถึงแล้ว</span>'
+            : step.deadline ? `<span class="tag tag--amber">⏰ ก่อน ${esc(step.deadline)}</span>` : '';
+          return `
+            <li class="row" style="grid-template-columns:44px minmax(0,1fr) auto;padding:10px 14px">
+              <span class="mono" style="font-weight:700">${index + 1}</span>
+              <span><span class="name">${esc(step.name)}</span>
+                <span class="meta">${esc(nameOf(step.point))}</span></span>
+              <span>${tag}</span>
+            </li>`;
+        }).join('')}
+      </ol>`;
+  }
+
+  /* ==========================================================================
+     การกระทำของเจ้าหน้าที่ — บังคับลำดับสถานะเหมือนที่ API ทำ
+     ========================================================================== */
+
+  const ALLOWED = {
+    arrive: { from: ['pending'], to: 'arrived' },
+    call: { from: ['arrived'], to: 'in_progress' },
+    done: { from: ['in_progress'], to: 'done' },
+    skip: { from: ['pending', 'arrived'], to: 'skipped' },
+  };
+
+  function apply(action, id) {
+    const step = state.visit.steps.find((item) => item.id === id);
+    const rule = ALLOWED[action];
+    if (!step || !rule || !rule.from.includes(step.status)) {
+      return toast('สถานะเปลี่ยนไปแล้ว กรุณาดูคิวอีกครั้ง');
+    }
+
+    step.status = rule.to;
+    if (rule.to === 'arrived') step.arrivedAt = nowTime();
+    if (rule.to === 'done') {
+      step.at = nowTime();
+      state.visit.at = step.point;          // เจ้าหน้าที่ยืนยันตำแหน่งให้โดยอัตโนมัติ
+      state.visit.atSource = 'station';
+    }
+
+    saveVisit(state.visit);
+    render();
+
+    const messages = {
+      arrive: `บันทึกว่า ${state.visit.ticket} มาถึงแล้ว`,
+      call: `เรียก ${state.visit.ticket} เข้ารับบริการ`,
+      done: `${step.name} เสร็จ — ขั้นถัดไปขึ้นหน้าจอผู้ป่วยแล้ว`,
+      skip: `ข้ามขั้น ${step.name}`,
+    };
+    toast(messages[action]);
+  }
+
+  function insertSheet(afterId) {
+    $('sheetBody').innerHTML = `
+      <h2 style="font-size:1.1em">ส่งตรวจเพิ่ม</h2>
+      <p class="note">ขั้นที่แทรกจะไปอยู่ก่อน "ชำระเงิน" และแจ้งผู้ป่วยทันที</p>
+      <button class="pick" data-insert="xray"><span aria-hidden="true">📷</span>เอกซเรย์ปอด · ห้องเอกซเรย์ อาคาร B ชั้น 1</button>
+      <button class="btn" data-close="1">ปิด</button>`;
+    $('sheet').showModal();
+
+    $('sheetBody').onclick = (event) => {
+      if (event.target.closest('[data-close]')) return $('sheet').close();
+      if (!event.target.closest('[data-insert]')) return;
+
+      if (state.visit.steps.some((step) => step.id === XRAY.id)) {
+        $('sheet').close();
+        return toast('มีขั้นเอกซเรย์อยู่แล้ว');
+      }
+      const payIndex = state.visit.steps.findIndex((step) => step.point === 'A1-PAY');
+      state.visit.steps.splice(payIndex === -1 ? state.visit.steps.length : payIndex, 0, { ...XRAY });
+      saveVisit(state.visit);
+      $('sheet').close();
+      render();
+      toast('แทรกขั้นเอกซเรย์ก่อนชำระเงินแล้ว — แจ้งผู้ป่วยเรียบร้อย');
+    };
+  }
+
+  function toast(message) {
+    $('toast').innerHTML = `<div>${esc(message)}</div>`;
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => { $('toast').innerHTML = ''; }, 3200);
+  }
+
+  /* ---------- เหตุการณ์ ---------- */
+
+  document.addEventListener('click', (event) => {
+    const station = event.target.closest('[data-station]');
+    if (station) {
+      state.station = STATIONS.find((item) => item.code === station.dataset.station);
+      render();
+      return;
+    }
+
+    const button = event.target.closest('[data-act]');
+    if (!button || button.disabled) return;
+    const id = Number(button.dataset.id);
+    if (button.dataset.act === 'insert') return insertSheet(id);
+    apply(button.dataset.act, id);
+  });
+
+  $('sheet').addEventListener('click', (event) => {
+    if (event.target === $('sheet')) $('sheet').close();
+  });
+
+  // ผู้ป่วยกดยืนยันตำแหน่งหรือเปิดหน้าใหม่จากอีกแท็บ คิวต้องอัปเดตตาม
+  const refresh = () => { state.visit = loadVisit(); render(); };
+  window.addEventListener('storage', (event) => { if (event.key === STORE_KEY) refresh(); });
+  window.addEventListener('carepath:visit', () => {});
+  setInterval(refresh, 4000);
+
+  const params = new URLSearchParams(location.search);
+  const wanted = STATIONS.find((station) => station.code === params.get('dept'));
+  if (wanted) state.station = wanted;
+
+  render();
+})();
+</script>

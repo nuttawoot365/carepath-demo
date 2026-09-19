@@ -101,6 +101,10 @@ const visits = (await read('active-visits')).map((row) => ({
 await build('impact', { nodes, edges, pathway, visits });
 console.log(`สร้าง app/impact.html แล้ว · ผู้ป่วยที่กำลังเดินอยู่ ${visits.length} ราย`);
 
+// ---- จอจุดบริการ: ต้องคำนวณเวลาเดินของผู้ป่วยที่กำลังมา ----
+await build('station', { nodes, edges });
+console.log('สร้าง app/station.html แล้ว');
+
 // ---- หน้าจัดการระบบ: ตรวจผังเองทุกครั้งที่เปิด จึงต้องมีผังเต็ม ----
 await build('admin', {
   nodes,

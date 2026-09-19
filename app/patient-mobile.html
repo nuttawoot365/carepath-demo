@@ -659,6 +659,7 @@
       mapFull: 'ดูผังเต็ม', floorShort: 'ชั้น {n}', buildingShort: 'อาคาร {b}',
       openedByStaff: 'เจ้าหน้าที่เปิดหน้านี้ให้ · การเปิดถูกบันทึกไว้',
       mapOpen: 'ผังเส้นทางทั้งโรงพยาบาล',
+      updatedByStaff: 'เจ้าหน้าที่อัปเดตขั้นตอนให้แล้ว',
       backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด — เดโมนี้มีคิว A-017 ใบเดียว',
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
@@ -723,6 +724,7 @@
       mapFull: 'Full map', floorShort: 'Floor {n}', buildingShort: 'Building {b}',
       openedByStaff: 'Opened for you by staff · this access is logged',
       mapOpen: 'Map of the whole hospital',
+      updatedByStaff: 'Staff have updated your steps',
       backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket — this demo has only queue A-017',
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
@@ -786,6 +788,7 @@
       mapFull: '查看完整地图', floorShort: '{n} 层', buildingShort: '{b} 座',
       openedByStaff: '由工作人员为您打开 · 此次访问已记录',
       mapOpen: '全院路线图',
+      updatedByStaff: '工作人员已更新您的流程',
       backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 — 本演示只有 A-017 一张',
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
@@ -849,6 +852,7 @@
       mapFull: 'မြေပုံအပြည့် ကြည့်ရန်', floorShort: '{n} လွှာ', buildingShort: '{b} အဆောက်အအုံ',
       openedByStaff: 'ဝန်ထမ်းက သင့်အတွက် ဖွင့်ပေးထားသည် · ဤဝင်ရောက်မှုကို မှတ်တမ်းတင်ထားသည်',
       mapOpen: 'ဆေးရုံတစ်ခုလုံး၏ လမ်းကြောင်းမြေပုံ',
+      updatedByStaff: 'ဝန်ထမ်းက သင့်အဆင့်များကို ပြင်ဆင်ပြီးပါပြီ',
       backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ — ဤသရုပ်ပြတွင် A-017 တစ်ခုသာ ရှိသည်',
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
@@ -912,6 +916,7 @@
       mapFull: 'Полная карта', floorShort: 'Этаж {n}', buildingShort: 'Корпус {b}',
       openedByStaff: 'Открыто для вас сотрудником · доступ зафиксирован',
       mapOpen: 'Карта всей больницы',
+      updatedByStaff: 'Персонал обновил ваши этапы',
       backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону — в демо есть только очередь A-017',
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
@@ -1477,6 +1482,77 @@
   /* ==========================================================================
      สถานะและตัวช่วย
      ========================================================================== */
+
+
+  /* ==========================================================================
+     สถานะที่ใช้ร่วมกับหน้าจุดบริการ
+     เจ้าหน้าที่กดที่แท็บเล็ต หน้านี้เปลี่ยนตามเอง
+     ต้นแบบใช้ที่เก็บข้อมูลในเบราว์เซอร์ ระบบจริงคือ GET /api/p/:token ทุก 5 วินาที
+     ========================================================================== */
+
+  const STORE_KEY = 'carepath.visit';
+
+  const readShared = () => {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null'); }
+    catch { return null; }
+  };
+
+  /** เขียนสถานะปัจจุบันลงที่เก็บกลาง เพื่อให้จอจุดบริการเห็นตรงกัน */
+  function writeShared() {
+    const payload = {
+      ticket: 'A-017',
+      name: 'สมชาย',
+      wheelchair: Boolean(state.profile.wheelchair),
+      elderly: Boolean(state.profile.elderly),
+      hasPhone: true,
+      at: state.at,
+      atSource: state.atSource,
+      liftClosed: state.liftClosed,
+      updatedAt: new Date().toISOString(),
+      steps: state.steps.map((step) => ({
+        id: step.id,
+        point: step.point,
+        name: step.th,
+        status: step.status,
+        at: step.at ?? null,
+        arrivedAt: step.arrivedAt ?? null,
+        deadline: step.deadline ? '11:00' : null,
+        added: Boolean(step.added),
+      })),
+    };
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
+    catch { /* โหมดส่วนตัวเขียนไม่ได้ */ }
+  }
+
+  /** รับสถานะจากจอจุดบริการ · คืน true เมื่อมีอะไรเปลี่ยนจริง */
+  function applyShared(shared) {
+    if (!shared?.steps?.length) return false;
+    let changed = false;
+
+    for (const incoming of shared.steps) {
+      let step = state.steps.find((item) => item.id === incoming.id);
+
+      if (!step && incoming.id === XRAY_STEP.id) {
+        const payIndex = state.steps.findIndex((item) => item.point === 'A1-PAY');
+        step = { ...XRAY_STEP };
+        state.steps.splice(payIndex === -1 ? state.steps.length : payIndex, 0, step);
+        changed = true;
+      }
+      if (!step) continue;
+
+      if (step.status !== incoming.status) { step.status = incoming.status; changed = true; }
+      if (incoming.at && step.at !== incoming.at) { step.at = incoming.at; changed = true; }
+    }
+
+    if (shared.at && shared.at !== state.at) {
+      state.at = shared.at;
+      state.atSource = shared.atSource ?? 'station';
+      state.leg = 0;
+      changed = true;
+    }
+    if (changed) state.deadlineOpen = false;
+    return changed;
+  }
 
   const initialState = () => ({
     lang: 'th',
@@ -2105,10 +2181,14 @@
     },
   };
 
+  /** การกระทำที่เปลี่ยนแผนหรือตำแหน่ง ต้องบอกจอจุดบริการด้วย */
+  const SHARED_ACTIONS = new Set(['arrive', 'pickplace', 'finish', 'lift', 'xray', 'reset']);
+
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-act]');
     if (!button) return;
     ACTIONS[button.dataset.act]?.(button);
+    if (SHARED_ACTIONS.has(button.dataset.act)) writeShared();
     render();
   });
 
@@ -2177,6 +2257,18 @@
   // ฟอนต์มาช้ากว่าการวาดครั้งแรก · วาดป้ายใหม่เมื่อฟอนต์พร้อม
   document.fonts?.ready.then(() => { sceneCache.clear(); render(); });
 
+  /** เจ้าหน้าที่กด "เสร็จ" ที่จอจุดบริการแล้วหน้านี้ต้องเปลี่ยนเอง */
+  function pull() {
+    if (applyShared(readShared())) {
+      render();
+      buzz([18, 60, 18]);
+      toast(t('updatedByStaff'));
+    }
+  }
+
+  window.addEventListener('storage', (event) => { if (event.key === STORE_KEY) pull(); });
+  setInterval(pull, 4000);
+
   const savedLang = load('carepath.lang');
   if (LANGS.some((lang) => lang.code === savedLang)) state.lang = savedLang;
   else {
@@ -2199,6 +2291,8 @@
     setTimeout(() => toast(t('openedByStaff')), 400);
   }
 
+  applyShared(readShared());
+  writeShared();
   render();
 })();
 </script>
