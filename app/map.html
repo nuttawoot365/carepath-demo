@@ -1,0 +1,640 @@
+<title>CarePath ผังเส้นทาง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #1f6f8b;
+    --primary-ink: #14556d;
+    --primary-soft: #e4f0f4;
+    --warn: #c8552f;
+    --warn-soft: #fbeae3;
+    --amber: #b8791a;
+    --amber-soft: #fbf1df;
+    --success: #2e8b57;
+    --success-soft: #e4f2ea;
+
+    --ground: #f6f9fa;
+    --surface: #ffffff;
+    --raised: #fbfdfd;
+    --ink: #10222a;
+    --ink-2: #4c626c;
+    --ink-3: #7c9099;
+    --line: #dbe5e9;
+    --line-strong: #c3d2d8;
+
+    --plate: #eef3f4;
+    --plate-edge: #cfdade;
+    --corridor: #c8d4d8;
+
+    --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+    --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+    --r-sm: 10px;
+    --r: 14px;
+    --tap: 44px;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+      --warn: #ef8e6b; --warn-soft: #3a1f16;
+      --amber: #e0a84a; --amber-soft: #382a12;
+      --success: #62bf8d; --success-soft: #16311f;
+      --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+      --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+      --line: #273b44; --line-strong: #375059;
+      --plate: #1b2d35; --plate-edge: #2e444d; --corridor: #3b565f;
+      --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --plate: #1b2d35; --plate-edge: #2e444d; --corridor: #3b565f;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 14px 32px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Sarabun, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, p, ul, ol { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, select { font: inherit; color: inherit; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 20px;
+    background: var(--primary);
+    color: #fff;
+  }
+  .topbar b { font-size: 1.05em; }
+  .topbar .spacer { margin-inline-start: auto; }
+  .topbar a, .topbar .chip {
+    padding: 4px 13px;
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 999px;
+    font-size: .85em;
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    cursor: pointer;
+  }
+  .topbar .chip[aria-pressed="true"] { background: #fff; color: var(--primary-ink); border-color: #fff; }
+
+  .wrap {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 1000px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  .card__head {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--raised);
+  }
+  .card__head b { font-size: 1.02em; }
+  .card__head .spacer { margin-inline-start: auto; }
+  .card__body { padding: 14px 16px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab {
+    min-height: 36px;
+    padding: 5px 13px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: .86em;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tab[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  :root[data-theme="dark"] .tab[aria-pressed="true"] { color: #08171d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .tab[aria-pressed="true"] { color: #08171d; }
+  }
+
+  .mapbox { overflow-x: auto; background: var(--raised); }
+  svg { display: block; width: 100%; height: auto; }
+
+  .legend { display: flex; flex-direction: column; gap: 5px; }
+  .legend__item {
+    display: grid;
+    grid-template-columns: 26px auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 7px 9px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    text-align: start;
+    cursor: pointer;
+    font-size: .9em;
+  }
+  .legend__item:hover { border-color: var(--line-strong); }
+  .legend__item[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); }
+  .legend__no {
+    width: 24px; height: 24px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--primary); color: #fff;
+    font-family: 'IBM Plex Mono', monospace; font-size: .76em; font-weight: 700;
+  }
+  .legend__name { font-weight: 600; line-height: 1.3; }
+  .legend__at { display: block; font-size: .76em; color: var(--ink-3); }
+  .legend__min { font-family: 'IBM Plex Mono', monospace; font-size: .78em; color: var(--ink-3); }
+
+  .stats { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; line-height: 1.15; }
+  .stat b { font-family: 'IBM Plex Mono', monospace; font-size: 1.4em; }
+  .stat span { font-size: .76em; color: var(--ink-3); }
+
+  .note { font-size: .82em; color: var(--ink-3); line-height: 1.6; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 999px;
+    font-size: .76em; font-weight: 700; white-space: nowrap;
+    background: var(--primary-soft); color: var(--primary-ink);
+  }
+  .tag--amber { background: var(--amber-soft); color: var(--amber); }
+  .tag--warn { background: var(--warn-soft); color: var(--warn); }
+
+  .toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 38px;
+    padding: 6px 13px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: .86em; font-weight: 700;
+    cursor: pointer;
+  }
+  .toggle[aria-pressed="true"] { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-ink); }
+
+  /* ---------- ชิ้นส่วนของแผนที่ ---------- */
+
+  .plate { fill: var(--plate); stroke: var(--plate-edge); stroke-width: 1.5; }
+  .plate-label { fill: var(--ink-3); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+  .corridor { stroke: var(--corridor); stroke-width: 5; stroke-linecap: round; fill: none; }
+  .corridor--vertical { stroke-dasharray: 3 7; stroke-width: 3; }
+  .corridor--closed { stroke: var(--warn); stroke-dasharray: 5 5; opacity: .8; }
+
+  .route { fill: none; stroke: var(--primary); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; opacity: .95; }
+  .route--dim { stroke: var(--line-strong); stroke-width: 5; opacity: .6; }
+  .route--walk { stroke-dasharray: none; }
+
+  .dot { fill: var(--ink-3); opacity: .5; }
+  .pin__ring { fill: var(--surface); stroke: var(--primary); stroke-width: 2.5; }
+  .pin__no { fill: var(--primary-ink); font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700; }
+  .pin__label { fill: var(--ink); font-size: 12px; font-weight: 600; }
+  .pin__label--muted { fill: var(--ink-3); font-size: 11px; font-weight: 400; }
+  .pin--active .pin__ring { fill: var(--primary); }
+  .pin--active .pin__no { fill: #fff; }
+
+  :where(button, a, [tabindex]):focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .route { stroke-dasharray: 14 10; animation: flow 1.1s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -24; } }
+  }
+</style>
+
+<header class="topbar">
+  <span aria-hidden="true">🗺</span>
+  <b>ผังเส้นทาง</b>
+  <span style="opacity:.8;font-size:.9em">โรงพยาบาลวชิระภูเก็ต · ผังสาธิต</span>
+  <span class="spacer"></span>
+  <button class="chip" id="wheelchairBtn" aria-pressed="true">♿ รถเข็น</button>
+  <button class="chip" id="liftBtn" aria-pressed="false">🛗 ปิดลิฟต์ B</button>
+  <a href="login.html">ออกจากระบบ</a>
+</header>
+
+<div class="wrap">
+  <main class="card">
+    <div class="card__head">
+      <b id="viewTitle">ผังรวมเส้นทางทั้งวัน</b>
+      <span class="spacer"></span>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="mapbox" id="mapbox"></div>
+    <div class="card__body" style="display:flex;flex-direction:column;gap:10px">
+      <div class="stats" id="stats"></div>
+      <p class="note" id="mapNote"></p>
+    </div>
+  </main>
+
+  <aside style="display:flex;flex-direction:column;gap:18px">
+    <section class="card">
+      <div class="card__head"><b>ขั้นตอนของคิว A-017</b></div>
+      <div class="card__body">
+        <div class="legend" id="legend"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card__head"><b>สัญลักษณ์</b></div>
+      <div class="card__body" style="display:flex;flex-direction:column;gap:7px">
+        <p class="note">━━ เส้นทางที่ระบบคำนวณให้ · ┈┈ ลิฟต์ บันได ทางลาด · ━ ทางเดินอื่นในผัง</p>
+        <p class="note">ผังนี้วาดจาก <code>data/nodes.csv</code> และ <code>data/edges.csv</code> โดยตรง
+          ไม่ใช่รูปภาพ — แก้ผังแล้วแผนที่เปลี่ยนตามเองทันที</p>
+        <p class="note">เส้นทางคำนวณด้วย Dijkstra ในหน้านี้จริง ๆ ตามน้ำหนักเวลาเดินและความต้องการพิเศษ
+          ไม่ได้วาดเส้นทิ้งไว้ล่วงหน้า</p>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DATA = {"nodes":[{"code":"A1-ENT","b":"A","f":1,"d":null,"kind":"entrance","th":"ทางเข้าหลัก","en":"Main entrance","lm":"ประตูกระจกหน้าอาคาร A","icon":"🚪","x":280,"y":540},{"code":"A1-INFO","b":"A","f":1,"d":null,"kind":"poi","th":"ประชาสัมพันธ์","en":"Information","lm":"ตรงข้ามประตูทางเข้า","icon":"ℹ️","x":280,"y":470},{"code":"A1-REG","b":"A","f":1,"d":"A1-OPD","kind":"counter","th":"เวชระเบียน","en":"Registration","lm":"ตรงข้ามประชาสัมพันธ์","icon":"🪪","x":280,"y":400},{"code":"A1-J1","b":"A","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"ทางแยกหน้าลิฟต์ A","icon":null,"x":370,"y":400},{"code":"A1-PAY","b":"A","f":1,"d":"A1-FIN","kind":"cashier","th":"การเงิน","en":"Cashier","lm":"ช่อง 1-4 ข้างเวชระเบียน","icon":"💳","x":370,"y":330},{"code":"A1-PHA","b":"A","f":1,"d":"A1-PHA","kind":"pharmacy","th":"ห้องยา","en":"Pharmacy","lm":"ข้างประตูทางออก","icon":"💊","x":430,"y":400},{"code":"A1-APT","b":"A","f":1,"d":"A1-OPD","kind":"appointment","th":"จุดนัดหมาย","en":"Appointment desk","lm":"หน้าห้องยา","icon":"📅","x":430,"y":355},{"code":"A1-LIFT","b":"A","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A1-STAIR","b":"A","f":1,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A1-WC","b":"A","f":1,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 1","en":"Toilet 1F","lm":"ข้างบันได A","icon":"🚻","x":325,"y":455},{"code":"A1-CAFE","b":"A","f":1,"d":null,"kind":"poi","th":"ร้านกาแฟ","en":"Café","lm":"โถงทางเข้า","icon":"☕","x":170,"y":470},{"code":"A1-ATM","b":"A","f":1,"d":null,"kind":"poi","th":"ตู้เอทีเอ็ม","en":"ATM","lm":"ข้างร้านกาแฟ โถงทางเข้า","icon":"🏧","x":140,"y":430},{"code":"A2-LIFT","b":"A","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ A","en":"Lift A","lm":null,"icon":"🛗","x":370,"y":450},{"code":"A2-STAIR","b":"A","f":2,"d":null,"kind":"stairs","th":"บันได A","en":"Stairs A","lm":null,"icon":"🪜","x":415,"y":462},{"code":"A2-J1","b":"A","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ A ชั้น 2","icon":null,"x":370,"y":400},{"code":"A2-SCR","b":"A","f":2,"d":"A2-SCR","kind":"screening","th":"จุดคัดกรอง","en":"Screening","lm":"ข้างตู้น้ำดื่ม","icon":"🩺","x":280,"y":400},{"code":"A2-GP","b":"A","f":2,"d":"A2-GP","kind":"exam_room","th":"ห้องตรวจทั่วไป","en":"General clinic","lm":"ห้อง 201-204","icon":"👨‍⚕️","x":280,"y":330},{"code":"A2-WC","b":"A","f":2,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 2","en":"Toilet 2F","lm":null,"icon":"🚻","x":248,"y":455},{"code":"A2-BR","b":"A","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม A→B","en":"Bridge A→B","lm":"ปลายทางเดินชั้น 2","icon":"🌉","x":440,"y":400},{"code":"B2-BR","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง A)","en":"Bridge B (A side)","lm":null,"icon":"🌉","x":560,"y":400},{"code":"B2-J1","b":"B","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ B","icon":null,"x":650,"y":400},{"code":"B2-LIFT","b":"B","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B2-STAIR","b":"B","f":2,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B2-FIRE","b":"B","f":2,"d":null,"kind":"stairs","th":"บันไดหนีไฟ B","en":"Fire stairs B","lm":null,"icon":"🪜","x":702,"y":460},{"code":"B2-BRC","b":"B","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม B→C","en":"Bridge B→C","lm":null,"icon":"🌉","x":880,"y":400},{"code":"B1-LIFT","b":"B","f":1,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B1-J1","b":"B","f":1,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 1","icon":null,"x":650,"y":400},{"code":"B1-XR","b":"B","f":1,"d":"B1-XR","kind":"xray","th":"ห้องเอกซเรย์","en":"X-ray","lm":"สุดทางเดิน","icon":"📷","x":800,"y":400},{"code":"B3-LIFT","b":"B","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ B","en":"Lift B","lm":null,"icon":"🛗","x":650,"y":340},{"code":"B3-STAIR","b":"B","f":3,"d":null,"kind":"stairs","th":"บันได B","en":"Stairs B","lm":null,"icon":"🪜","x":600,"y":455},{"code":"B3-J1","b":"B","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ B ชั้น 3","icon":null,"x":650,"y":400},{"code":"B3-LAB","b":"B","f":3,"d":"B3-LAB","kind":"lab","th":"ห้องเจาะเลือด","en":"Blood test","lm":"ขวามือ ข้างตู้น้ำดื่ม","icon":"🩸","x":780,"y":400},{"code":"B3-WAIT","b":"B","f":3,"d":"B3-LAB","kind":"waiting_area","th":"จุดพักคอยรอผล","en":"Lab waiting area","lm":"หน้าห้องเจาะเลือด","icon":"🪑","x":780,"y":462},{"code":"B3-WC","b":"B","f":3,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 3","en":"Toilet 3F","lm":null,"icon":"🚻","x":832,"y":455},{"code":"C2-BR","b":"C","f":2,"d":null,"kind":"bridge","th":"ทางเชื่อม C (ฝั่ง B)","en":"Bridge C (B side)","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"C2-J1","b":"C","f":2,"d":null,"kind":"junction","th":"","en":"","lm":"โถงลิฟต์ C","icon":null,"x":1080,"y":400},{"code":"C2-LIFT","b":"C","f":2,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C2-RAMP","b":"C","f":2,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-LIFT","b":"C","f":3,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C3-RAMP","b":"C","f":3,"d":null,"kind":"ramp","th":"ทางลาด C","en":"Ramp C","lm":null,"icon":"♿","x":1080,"y":460},{"code":"C3-J1","b":"C","f":3,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 3","icon":null,"x":1080,"y":400},{"code":"C3-BRB","b":"C","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม C→B ชั้น 3","en":"Bridge C→B 3F","lm":null,"icon":"🌉","x":1000,"y":400},{"code":"B3-BRC","b":"B","f":3,"d":null,"kind":"bridge","th":"ทางเชื่อม B (ฝั่ง C) ชั้น 3","en":"Bridge B (C side) 3F","lm":null,"icon":"🌉","x":880,"y":400},{"code":"C4-LIFT","b":"C","f":4,"d":null,"kind":"elevator","th":"ลิฟต์ C","en":"Lift C","lm":null,"icon":"🛗","x":1080,"y":340},{"code":"C4-J1","b":"C","f":4,"d":null,"kind":"junction","th":"","en":"","lm":"หน้าลิฟต์ C ชั้น 4","icon":null,"x":1080,"y":400},{"code":"C4-MED-CTR","b":"C","f":4,"d":"C4-MED","kind":"counter","th":"ยื่นบัตรอายุรกรรม","en":"Med. clinic counter","lm":"ประตูทางเข้าคลินิก ป้ายสีเขียว","icon":"🪪","x":1180,"y":400},{"code":"C4-MED-WAIT","b":"C","f":4,"d":"C4-MED","kind":"waiting_area","th":"ที่นั่งรออายุรกรรม","en":"Waiting area","lm":null,"icon":"🪑","x":1242,"y":400},{"code":"C4-MED-401","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 401","en":"Room 401","lm":"ห้องแรกซ้ายมือ","icon":"👨‍⚕️","x":1242,"y":338},{"code":"C4-MED-403","b":"C","f":4,"d":"C4-MED","kind":"exam_room","th":"ห้องตรวจ 403","en":"Room 403","lm":"ห้องที่ 3 ซ้ายมือ","icon":"👨‍⚕️","x":1302,"y":338},{"code":"C4-WC","b":"C","f":4,"d":null,"kind":"toilet","th":"ห้องน้ำชั้น 4","en":"Toilet 4F","lm":null,"icon":"🚻","x":1180,"y":460}],"edges":[{"f":"A1-ENT","t":"A1-INFO","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-ENT","k":"corridor","m":8,"s":8,"turn":"straight","a":true},{"f":"A1-INFO","t":"A1-REG","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-REG","t":"A1-INFO","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-REG","t":"A1-J1","k":"corridor","m":25,"s":25,"turn":"right","a":true},{"f":"A1-J1","t":"A1-REG","k":"corridor","m":25,"s":25,"turn":"left","a":true},{"f":"A1-J1","t":"A1-PAY","k":"corridor","m":10,"s":10,"turn":"left","a":true},{"f":"A1-PAY","t":"A1-J1","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"A1-J1","t":"A1-PHA","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-J1","k":"corridor","m":20,"s":20,"turn":"straight","a":true},{"f":"A1-PHA","t":"A1-APT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-APT","t":"A1-PHA","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"A1-J1","t":"A1-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"A1-LIFT","t":"A1-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"A1-J1","t":"A1-STAIR","k":"door","m":6,"s":6,"turn":"right","a":false},{"f":"A1-STAIR","t":"A1-J1","k":"door","m":6,"s":6,"turn":"left","a":false},{"f":"A1-J1","t":"A1-WC","k":"corridor","m":9,"s":9,"turn":"left","a":true},{"f":"A1-WC","t":"A1-J1","k":"corridor","m":9,"s":9,"turn":"right","a":true},{"f":"A1-INFO","t":"A1-CAFE","k":"corridor","m":12,"s":12,"turn":"right","a":true},{"f":"A1-CAFE","t":"A1-INFO","k":"corridor","m":12,"s":12,"turn":"left","a":true},{"f":"A1-CAFE","t":"A1-ATM","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"A1-ATM","t":"A1-CAFE","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"A1-LIFT","t":"A2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A2-LIFT","t":"A1-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"A1-STAIR","t":"A2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-STAIR","t":"A1-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"A2-LIFT","t":"A2-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"A2-STAIR","t":"A2-J1","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"A2-J1","t":"A2-STAIR","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"A2-J1","t":"A2-SCR","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"A2-J1","t":"A2-GP","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"A2-GP","t":"A2-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"A2-SCR","t":"A2-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-WC","t":"A2-SCR","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"A2-J1","t":"A2-BR","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"A2-J1","k":"corridor","m":25,"s":25,"turn":"straight","a":true},{"f":"A2-BR","t":"B2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"A2-BR","k":"bridge","m":40,"s":40,"turn":"straight","a":true},{"f":"B2-BR","t":"B2-J1","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-BR","k":"corridor","m":15,"s":15,"turn":"straight","a":true},{"f":"B2-J1","t":"B2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"B2-LIFT","t":"B2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"B2-J1","t":"B2-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B2-STAIR","t":"B2-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B2-J1","t":"B2-FIRE","k":"door","m":5,"s":5,"turn":"left","a":false},{"f":"B2-J1","t":"B2-BRC","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-BRC","t":"B2-J1","k":"corridor","m":35,"s":35,"turn":"straight","a":true},{"f":"B2-LIFT","t":"B3-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B3-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":50,"turn":null,"a":true},{"f":"B2-LIFT","t":"B1-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B1-LIFT","t":"B2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"B2-STAIR","t":"B3-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B3-STAIR","t":"B2-STAIR","k":"stairs","m":0,"s":75,"turn":null,"a":false},{"f":"B1-LIFT","t":"B1-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B1-J1","t":"B1-XR","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B1-XR","t":"B1-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-LIFT","t":"B3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"B3-STAIR","t":"B3-J1","k":"door","m":8,"s":8,"turn":"right","a":false},{"f":"B3-J1","t":"B3-STAIR","k":"door","m":8,"s":8,"turn":"left","a":false},{"f":"B3-J1","t":"B3-LAB","k":"corridor","m":20,"s":20,"turn":"left","a":true},{"f":"B3-LAB","t":"B3-J1","k":"corridor","m":20,"s":20,"turn":"right","a":true},{"f":"B3-LAB","t":"B3-WAIT","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-WAIT","t":"B3-LAB","k":"corridor","m":6,"s":6,"turn":"straight","a":true},{"f":"B3-LAB","t":"B3-WC","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-WC","t":"B3-LAB","k":"corridor","m":10,"s":10,"turn":"straight","a":true},{"f":"B3-J1","t":"B3-BRC","k":"corridor","m":30,"s":30,"turn":"right","a":true},{"f":"B3-BRC","t":"B3-J1","k":"corridor","m":30,"s":30,"turn":"left","a":true},{"f":"B3-BRC","t":"C3-BRB","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"B3-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C3-BRB","t":"C3-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-BRB","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"B2-BRC","t":"C2-BR","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"B2-BRC","k":"bridge","m":35,"s":35,"turn":"straight","a":true},{"f":"C2-BR","t":"C2-J1","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-BR","k":"corridor","m":12,"s":12,"turn":"straight","a":true},{"f":"C2-J1","t":"C2-LIFT","k":"door","m":4,"s":4,"turn":"right","a":true},{"f":"C2-LIFT","t":"C2-J1","k":"door","m":4,"s":4,"turn":"left","a":true},{"f":"C2-J1","t":"C2-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C2-RAMP","t":"C2-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C2-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C3-LIFT","t":"C2-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C2-RAMP","t":"C3-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-RAMP","t":"C2-RAMP","k":"ramp","m":40,"s":40,"turn":null,"a":true},{"f":"C3-LIFT","t":"C3-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-J1","t":"C3-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C3-RAMP","t":"C3-J1","k":"door","m":6,"s":6,"turn":"right","a":true},{"f":"C3-J1","t":"C3-RAMP","k":"door","m":6,"s":6,"turn":"left","a":true},{"f":"C3-LIFT","t":"C4-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C3-LIFT","k":"elevator","m":0,"s":60,"turn":null,"a":true},{"f":"C4-LIFT","t":"C4-J1","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-LIFT","k":"door","m":4,"s":4,"turn":"straight","a":true},{"f":"C4-J1","t":"C4-MED-CTR","k":"corridor","m":15,"s":15,"turn":"left","a":true},{"f":"C4-MED-CTR","t":"C4-J1","k":"corridor","m":15,"s":15,"turn":"right","a":true},{"f":"C4-MED-CTR","t":"C4-MED-WAIT","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-CTR","k":"corridor","m":5,"s":5,"turn":"straight","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-401","k":"corridor","m":6,"s":6,"turn":"left","a":true},{"f":"C4-MED-401","t":"C4-MED-WAIT","k":"corridor","m":6,"s":6,"turn":"right","a":true},{"f":"C4-MED-WAIT","t":"C4-MED-403","k":"corridor","m":14,"s":14,"turn":"left","a":true},{"f":"C4-MED-403","t":"C4-MED-WAIT","k":"corridor","m":14,"s":14,"turn":"right","a":true},{"f":"C4-J1","t":"C4-WC","k":"corridor","m":10,"s":10,"turn":"right","a":true},{"f":"C4-WC","t":"C4-J1","k":"corridor","m":10,"s":10,"turn":"left","a":true}],"pathway":[{"seq":1,"th":"ยื่นบัตรและยืนยันการนัด","en":"Check-in & confirm appointment","point":"A1-REG","deadline":null,"min":5},{"seq":2,"th":"ชั่งน้ำหนัก วัดความดัน","en":"Weight & blood pressure","point":"A2-SCR","deadline":null,"min":10},{"seq":3,"th":"เจาะเลือด","en":"Blood test","point":"B3-LAB","deadline":"11:00","min":10},{"seq":4,"th":"รอผลตรวจ","en":"Wait for lab results","point":"B3-WAIT","deadline":null,"min":75},{"seq":5,"th":"พบแพทย์","en":"See doctor","point":"C4-MED-CTR","deadline":null,"min":15},{"seq":6,"th":"ชำระเงิน","en":"Payment","point":"A1-PAY","deadline":null,"min":5},{"seq":7,"th":"รับยา","en":"Pharmacy","point":"A1-PHA","deadline":null,"min":15}],"deptColor":{"A1-OPD":"#0F766E","A1-FIN":"#B45309","A1-PHA":"#7C3AED","A2-SCR":"#0369A1","A2-GP":"#15803D","B1-XR":"#475569","B3-LAB":"#BE123C","C4-MED":"#166534"}};
+
+  const NODES = new Map(DATA.nodes.map((node) => [node.code, node]));
+  const PATHWAY = DATA.pathway;
+
+  /* ==========================================================================
+     กราฟและการคำนวณเส้นทาง — กติกาเดียวกับ backend/src/domain/graph.js
+     ========================================================================== */
+
+  const state = {
+    view: 'all',            // 'all' = ผังรวม · ที่เหลือเป็นรหัสชั้น เช่น 'B3'
+    wheelchair: true,
+    liftBClosed: false,
+    focusStep: null,        // ขั้นที่เลือกดูเฉพาะ
+  };
+
+  const CLOSED_WHEN_LIFT_B_SHUT = new Set([
+    'B2-LIFT>B3-LIFT', 'B3-LIFT>B2-LIFT', 'B2-LIFT>B1-LIFT', 'B1-LIFT>B2-LIFT',
+  ]);
+
+  const isClosed = (edge) =>
+    state.liftBClosed && CLOSED_WHEN_LIFT_B_SHUT.has(`${edge.f}>${edge.t}`);
+
+  function adjacency() {
+    const adj = new Map(DATA.nodes.map((node) => [node.code, []]));
+    for (const edge of DATA.edges) {
+      if (!isClosed(edge)) adj.get(edge.f)?.push(edge);
+    }
+    return adj;
+  }
+
+  /** ต้นทุนเป็นวินาที · Infinity = ผ่านไม่ได้ */
+  const cost = (edge) => {
+    if (state.wheelchair && !edge.a) return Infinity;
+    return edge.s * (state.wheelchair ? 1.5 : 1);
+  };
+
+  /** เส้นทางสั้นที่สุด คืนลำดับรหัสจุด หรือ null เมื่อไปไม่ถึง */
+  function shortestPath(adj, from, to) {
+    const dist = new Map([[from, 0]]);
+    const prev = new Map();
+    const seen = new Set();
+    const queue = [[0, from]];
+
+    while (queue.length > 0) {
+      queue.sort((a, b) => a[0] - b[0]);
+      const [d, at] = queue.shift();
+      if (seen.has(at)) continue;
+      seen.add(at);
+      if (at === to) break;
+
+      for (const edge of adj.get(at) ?? []) {
+        const weight = cost(edge);
+        if (weight === Infinity) continue;
+        if (d + weight < (dist.get(edge.t) ?? Infinity)) {
+          dist.set(edge.t, d + weight);
+          prev.set(edge.t, edge);
+          queue.push([d + weight, edge.t]);
+        }
+      }
+    }
+    if (!dist.has(to)) return null;
+
+    const codes = [to];
+    for (let at = to; prev.has(at); at = prev.get(at).f) codes.unshift(prev.get(at).f);
+    return { codes, seconds: dist.get(to) };
+  }
+
+  /** เส้นทางทั้งวัน = ต่อเส้นทางระหว่างจุดบริการของแต่ละขั้นเข้าด้วยกัน */
+  function fullJourney() {
+    const adj = adjacency();
+    const legs = [];
+    let from = 'A1-ENT';
+
+    for (const step of PATHWAY) {
+      const leg = shortestPath(adj, from, step.point);
+      legs.push({ step, path: leg?.codes ?? null, seconds: leg?.seconds ?? null });
+      if (leg) from = step.point;
+    }
+    return legs;
+  }
+
+  /* ==========================================================================
+     การวางตำแหน่งบนภาพ
+     ผังรวม = ตัดขวาง ชั้นล่างอยู่ล่าง ชั้นบนอยู่บน · รายชั้น = ผังพื้นเต็มความสูง
+     ========================================================================== */
+
+  const VIEW_W = 1420;
+  const PAD = 26;
+
+  const floorsPresent = [...new Set(DATA.nodes.map((node) => `${node.b}${node.f}`))]
+    .sort((a, b) => (a[0] === b[0] ? Number(a.slice(1)) - Number(b.slice(1)) : a.localeCompare(b)));
+
+  const maxFloor = Math.max(...DATA.nodes.map((node) => node.f));
+  const PLATE_H = 92;
+  const PLATE_GAP = 34;
+  const OVERVIEW_H = maxFloor * (PLATE_H + PLATE_GAP) + 70;
+
+  const yRange = [
+    Math.min(...DATA.nodes.map((node) => node.y)),
+    Math.max(...DATA.nodes.map((node) => node.y)),
+  ];
+
+  /** ตำแหน่งบนภาพของจุดหนึ่ง ตามมุมมองที่เลือกอยู่ */
+  function place(node) {
+    if (state.view !== 'all') {
+      return { x: node.x, y: 90 + (node.y - yRange[0]) * 1.15 };
+    }
+    const top = OVERVIEW_H - node.f * (PLATE_H + PLATE_GAP);
+    const within = (node.y - yRange[0]) / (yRange[1] - yRange[0] || 1);
+    return { x: node.x, y: top + 20 + within * (PLATE_H - 38) };
+  }
+
+  const visible = (node) =>
+    state.view === 'all' || `${node.b}${node.f}` === state.view;
+
+  /* ==========================================================================
+     วาดภาพ
+     ========================================================================== */
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const make = (name, attrs = {}) => {
+    const element = document.createElementNS(svgNS, name);
+    for (const [key, value] of Object.entries(attrs)) element.setAttribute(key, value);
+    return element;
+  };
+  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function render() {
+    const legs = fullJourney();
+    const shown = state.focusStep === null ? legs : legs.filter((leg) => leg.step.seq === state.focusStep);
+    const onRoute = new Set(shown.flatMap((leg) => leg.path ?? []));
+
+    drawMap(legs, shown, onRoute);
+    drawLegend(legs);
+    drawStats(legs);
+    drawTabs();
+
+    document.getElementById('viewTitle').textContent =
+      state.view === 'all' ? 'ผังรวมเส้นทางทั้งวัน' : `ผังพื้น อาคาร ${state.view[0]} ชั้น ${state.view.slice(1)}`;
+
+    const blocked = legs.filter((leg) => !leg.path);
+    document.getElementById('mapNote').innerHTML = blocked.length > 0
+      ? `<b style="color:var(--warn)">ไม่มีเส้นทางไป ${blocked.map((leg) => esc(leg.step.th)).join(', ')}</b>
+         — ลองปิดโหมดรถเข็นหรือเปิดลิฟต์ B คืน`
+      : state.view === 'all'
+        ? 'ภาพตัดขวาง: ชั้นล่างอยู่ล่าง ชั้นบนอยู่บน · เส้นแนวตั้งคือลิฟต์ บันได และทางลาด · เส้นแนวนอนระหว่างอาคารคือทางเชื่อม'
+        : 'ผังพื้นของชั้นนี้ · จุดที่เชื่อมไปชั้นอื่นแสดงเป็นเส้นประออกนอกผัง';
+  }
+
+  function drawMap(legs, shown, onRoute) {
+    const height = state.view === 'all' ? OVERVIEW_H + 40 : 520;
+    const svg = make('svg', {
+      viewBox: `0 0 ${VIEW_W} ${height}`,
+      role: 'img',
+      'aria-label': 'ผังเส้นทางในโรงพยาบาล',
+    });
+
+    drawPlates(svg);
+    drawEdges(svg, onRoute);
+    for (const leg of shown) drawRoute(svg, leg);
+    drawNodes(svg, legs, onRoute);
+
+    const box = document.getElementById('mapbox');
+    box.replaceChildren(svg);
+    svg.style.minWidth = state.view === 'all' ? '900px' : '760px';
+  }
+
+  /** แผ่นพื้นของแต่ละชั้น วาดจากกรอบของจุดที่อยู่บนชั้นนั้น */
+  function drawPlates(svg) {
+    for (const key of floorsPresent) {
+      const nodes = DATA.nodes.filter((node) => `${node.b}${node.f}` === key);
+      if (!visible(nodes[0])) continue;
+
+      const points = nodes.map(place);
+      const x1 = Math.min(...points.map((p) => p.x)) - PAD;
+      const x2 = Math.max(...points.map((p) => p.x)) + PAD;
+      const y1 = Math.min(...points.map((p) => p.y)) - PAD;
+      const y2 = Math.max(...points.map((p) => p.y)) + PAD;
+
+      svg.append(make('rect', {
+        class: 'plate', x: x1, y: y1, width: x2 - x1, height: y2 - y1, rx: 12,
+      }));
+      const label = make('text', { class: 'plate-label', x: x1 + 12, y: y1 + 20 });
+      label.textContent = `อาคาร ${key[0]} · ชั้น ${key.slice(1)}`;
+      svg.append(label);
+    }
+  }
+
+  function drawEdges(svg, onRoute) {
+    for (const edge of DATA.edges) {
+      const from = NODES.get(edge.f);
+      const to = NODES.get(edge.t);
+      if (!visible(from) && !visible(to)) continue;
+      if (edge.f > edge.t) continue;                       // วาดทิศเดียวพอ
+
+      const a = place(from);
+      const b = place(to);
+      const vertical = from.f !== to.f;
+      const classes = ['corridor'];
+      if (vertical) classes.push('corridor--vertical');
+      if (isClosed(edge)) classes.push('corridor--closed');
+
+      svg.append(make('line', {
+        class: classes.join(' '), x1: a.x, y1: a.y, x2: b.x, y2: b.y,
+      }));
+    }
+  }
+
+  function drawRoute(svg, leg) {
+    if (!leg.path) return;
+    const points = leg.path
+      .map((code) => NODES.get(code))
+      .filter((node) => visible(node))
+      .map(place);
+    if (points.length < 2) return;
+
+    svg.append(make('polyline', {
+      class: 'route',
+      points: points.map((p) => `${p.x},${p.y}`).join(' '),
+    }));
+  }
+
+  function drawNodes(svg, legs, onRoute) {
+    const stepOf = new Map(legs.map((leg) => [leg.step.point, leg.step.seq]));
+
+    for (const node of DATA.nodes) {
+      if (!visible(node)) continue;
+      const { x, y } = place(node);
+      const seq = stepOf.get(node.code);
+      const isStep = seq !== undefined;
+
+      if (!isStep) {
+        svg.append(make('circle', {
+          class: 'dot', cx: x, cy: y, r: onRoute.has(node.code) ? 5 : 3.2,
+        }));
+        if (state.view !== 'all' && node.th) {
+          const label = make('text', { class: 'pin__label--muted', x: x + 9, y: y + 4 });
+          label.textContent = node.th;
+          svg.append(label);
+        }
+        continue;
+      }
+
+      const group = make('g', {
+        class: state.focusStep === seq ? 'pin pin--active' : 'pin',
+        tabindex: '0', role: 'button',
+        'aria-label': `ขั้นที่ ${seq} ${node.th}`,
+      });
+      group.append(make('circle', { class: 'pin__ring', cx: x, cy: y, r: 14 }));
+      const number = make('text', { class: 'pin__no', x, y: y + 4, 'text-anchor': 'middle' });
+      number.textContent = seq;
+      group.append(number);
+
+      const label = make('text', { class: 'pin__label', x: x + 19, y: y + 5 });
+      label.textContent = node.th;
+      group.append(label);
+
+      group.addEventListener('click', () => {
+        state.focusStep = state.focusStep === seq ? null : seq;
+        render();
+      });
+      group.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); group.click(); }
+      });
+      svg.append(group);
+    }
+  }
+
+  /* ---------- แผงด้านข้าง ---------- */
+
+  function drawLegend(legs) {
+    const legend = document.getElementById('legend');
+    legend.replaceChildren();
+
+    for (const leg of legs) {
+      const node = NODES.get(leg.step.point);
+      const button = document.createElement('button');
+      button.className = 'legend__item';
+      button.type = 'button';
+      button.setAttribute('aria-pressed', String(state.focusStep === leg.step.seq));
+      button.innerHTML = `
+        <span class="legend__no">${leg.step.seq}</span>
+        <span aria-hidden="true">${node.icon ?? ''}</span>
+        <span>
+          <span class="legend__name">${esc(leg.step.th)}</span>
+          <span class="legend__at">${esc(node.th)} · อาคาร ${node.b} ชั้น ${node.f}</span>
+        </span>
+        <span class="legend__min">${leg.path
+          ? Math.round(leg.seconds / 60) + ' น.'
+          : '<span class="tag tag--warn">ไปไม่ถึง</span>'}</span>`;
+      button.addEventListener('click', () => {
+        state.focusStep = state.focusStep === leg.step.seq ? null : leg.step.seq;
+        if (state.focusStep !== null) state.view = `${node.b}${node.f}`;
+        render();
+      });
+      legend.append(button);
+    }
+  }
+
+  function drawStats(legs) {
+    const reachable = legs.filter((leg) => leg.path);
+    const walkSeconds = reachable.reduce((sum, leg) => sum + leg.seconds, 0);
+    const metres = reachable.reduce((sum, leg) => sum + pathMetres(leg.path), 0);
+    const inService = PATHWAY.reduce((sum, step) => sum + step.min, 0);
+
+    document.getElementById('stats').innerHTML = `
+      <span class="stat"><b>${Math.round(metres)}</b><span>เมตรที่ต้องเดินทั้งวัน</span></span>
+      <span class="stat"><b>${Math.round(walkSeconds / 60)}</b><span>นาทีที่ใช้เดิน</span></span>
+      <span class="stat"><b>${inService}</b><span>นาทีที่อยู่ในจุดบริการ</span></span>
+      <span class="stat"><b>${new Set(legs.flatMap((leg) => leg.path ?? []).map((code) => NODES.get(code).b)).size}</b><span>อาคารที่ผ่าน</span></span>`;
+  }
+
+  const metreOf = new Map(DATA.edges.map((edge) => [`${edge.f}>${edge.t}`, edge.m]));
+  const pathMetres = (codes) =>
+    codes.slice(1).reduce((sum, code, i) => sum + (metreOf.get(`${codes[i]}>${code}`) ?? 0), 0);
+
+  function drawTabs() {
+    const tabs = document.getElementById('tabs');
+    tabs.replaceChildren();
+
+    for (const key of ['all', ...floorsPresent]) {
+      const button = document.createElement('button');
+      button.className = 'tab';
+      button.type = 'button';
+      button.textContent = key === 'all' ? 'ผังรวม' : `${key[0]} ชั้น ${key.slice(1)}`;
+      button.setAttribute('aria-pressed', String(state.view === key));
+      button.addEventListener('click', () => { state.view = key; render(); });
+      tabs.append(button);
+    }
+  }
+
+  /* ---------- ปุ่มควบคุม ---------- */
+
+  const wheelchairBtn = document.getElementById('wheelchairBtn');
+  wheelchairBtn.addEventListener('click', () => {
+    state.wheelchair = !state.wheelchair;
+    wheelchairBtn.setAttribute('aria-pressed', String(state.wheelchair));
+    render();
+  });
+
+  const liftBtn = document.getElementById('liftBtn');
+  liftBtn.addEventListener('click', () => {
+    state.liftBClosed = !state.liftBClosed;
+    liftBtn.setAttribute('aria-pressed', String(state.liftBClosed));
+    liftBtn.textContent = state.liftBClosed ? '🛗 เปิดลิฟต์ B คืน' : '🛗 ปิดลิฟต์ B';
+    render();
+  });
+
+  render();
+})();
+</script>

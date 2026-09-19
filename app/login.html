@@ -90,6 +90,8 @@
   @media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); } }
 
   .brand {
+    position: relative;
+    overflow: hidden;
     padding: 48px 44px;
     background: var(--primary);
     color: #fff;
@@ -99,6 +101,29 @@
     justify-content: center;
   }
   @media (max-width: 900px) { .brand { padding: 28px 22px; gap: 16px; } }
+
+  .brand > * { position: relative; z-index: 1; }
+
+  /* ภาพประกอบ: ผู้ป่วยรถเข็นกับญาติที่เดินถึงจุดหมายแล้ว
+     วาดเป็นโทนเดียวกับพื้นหลัง ให้เป็นบรรยากาศ ไม่แย่งความสนใจจากหัวเรื่อง */
+  .brand__art {
+    position: absolute;
+    z-index: 0;
+    inset-block-end: -8px;
+    inset-inline-end: -16px;
+    width: min(620px, 78%);
+    pointer-events: none;
+  }
+  @media (max-width: 900px) {
+    .brand__art { width: 300px; inset-inline-end: -28px; opacity: .8; }
+  }
+  @media (max-width: 560px) { .brand__art { display: none; } }
+
+  .brand__art .pop { animation: pop .9s cubic-bezier(.2, .9, .3, 1.4) both; }
+  .brand__art .pop--2 { animation-delay: .12s; }
+  .brand__art .pop--3 { animation-delay: .24s; }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.94); } }
+  @media (prefers-reduced-motion: reduce) { .brand__art .pop { animation: none; } }
 
   .brand__mark { display: flex; align-items: center; gap: 12px; font-size: 1.1em; font-weight: 700; }
   .brand__mark span { font-size: 1.6em; }
@@ -234,6 +259,56 @@
 
 <div class="page">
   <section class="brand">
+    <svg class="brand__art" viewBox="0 0 600 330" fill="none" aria-hidden="true"
+         style="transform-origin:70% 100%">
+      <!-- พื้นและผนังทางเดิน -->
+      <path d="M0 296 Q300 262 600 296 L600 330 L0 330 Z" fill="#fff" fill-opacity=".07"/>
+      <rect x="392" y="140" width="132" height="158" rx="10" fill="#fff" fill-opacity=".07"/>
+      <rect x="412" y="164" width="92" height="60" rx="6" fill="#fff" fill-opacity=".06"/>
+
+      <!-- หมุดปลายทางพร้อมเครื่องหมายถูก -->
+      <g class="pop pop--3">
+        <path d="M458 26c24 0 43 19 43 43 0 30-43 66-43 66s-43-36-43-66c0-24 19-43 43-43Z"
+              fill="#fff" fill-opacity=".22"/>
+        <circle cx="458" cy="69" r="26" fill="#fff" fill-opacity=".34"/>
+        <path d="m446 69 9 10 17-20" stroke="#fff" stroke-opacity=".92" stroke-width="7"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <!-- ประกายแสดงความยินดี -->
+      <g fill="#fff" fill-opacity=".28" class="pop">
+        <circle cx="352" cy="58" r="6"/><circle cx="386" cy="106" r="4"/>
+        <circle cx="528" cy="60" r="5"/><circle cx="548" cy="118" r="4"/>
+        <rect x="330" y="96" width="12" height="5" rx="2.5" transform="rotate(-24 330 96)"/>
+        <rect x="546" y="86" width="12" height="5" rx="2.5" transform="rotate(28 546 86)"/>
+      </g>
+
+      <!-- ญาติที่เดินมาด้วย ยกมือดีใจ -->
+      <g class="pop pop--2">
+        <path d="M300 198v62" stroke="#fff" stroke-opacity=".42" stroke-width="30" stroke-linecap="round"/>
+        <path d="M292 258 279 292M310 258l13 34" stroke="#fff" stroke-opacity=".38"
+              stroke-width="13" stroke-linecap="round"/>
+        <path d="M316 206q26-16 30-44" stroke="#fff" stroke-opacity=".46"
+              stroke-width="12" stroke-linecap="round"/>
+        <circle cx="300" cy="166" r="20" fill="#fff" fill-opacity=".55"/>
+      </g>
+
+      <!-- ผู้ป่วยบนรถเข็น ยกมือขึ้นเมื่อถึงที่หมาย -->
+      <g class="pop">
+        <circle cx="196" cy="256" r="44" stroke="#fff" stroke-opacity=".34" stroke-width="7"/>
+        <circle cx="196" cy="256" r="7" fill="#fff" fill-opacity=".34"/>
+        <path d="M196 212v88M152 256h88M165 225l62 62M227 225l-62 62"
+              stroke="#fff" stroke-opacity=".18" stroke-width="4"/>
+        <circle cx="256" cy="282" r="15" stroke="#fff" stroke-opacity=".3" stroke-width="6"/>
+        <path d="M180 196v56" stroke="#fff" stroke-opacity=".32" stroke-width="8" stroke-linecap="round"/>
+        <path d="M196 250h56" stroke="#fff" stroke-opacity=".34" stroke-width="9" stroke-linecap="round"/>
+        <rect x="186" y="192" width="36" height="60" rx="17" fill="#fff" fill-opacity=".5"/>
+        <path d="M222 206q26-12 32-42" stroke="#fff" stroke-opacity=".5"
+              stroke-width="12" stroke-linecap="round"/>
+        <circle cx="204" cy="172" r="19" fill="#fff" fill-opacity=".62"/>
+      </g>
+    </svg>
+
     <p class="brand__mark"><span aria-hidden="true">🧭</span> CarePath · โรงพยาบาลวชิระภูเก็ต</p>
     <h1>ระบบนำทางในโรงพยาบาลและติดตามขั้นตอนการรักษา</h1>
     <p>ผู้ป่วยรู้ตลอดเวลาว่าตอนนี้ต้องไปที่ไหนและไปยังไง เจ้าหน้าที่แต่ละจุดกดปุ่มเดียวแล้วขั้นถัดไปเด้งขึ้นมือถือผู้ป่วยเอง</p>
@@ -269,6 +344,13 @@
     <div class="divider">บัญชีสำหรับสาธิต — กดเพื่อกรอกให้อัตโนมัติ</div>
     <div class="accounts" id="accounts"></div>
     <p class="note">รหัสผ่านทุกบัญชีคือ <code>demo@1234</code> · ในระบบจริงเก็บเป็น bcrypt และตรวจที่ API เท่านั้น หน้าเว็บไม่เคยเห็นรหัสผ่านที่ถูกต้อง</p>
+
+    <a class="account" href="map.html" style="text-decoration:none">
+      <span class="account__icon" aria-hidden="true">🗺</span>
+      <span><span class="account__name">ผังเส้นทางทั้งโรงพยาบาล</span>
+        <span class="account__what">ภาพรวมทุกอาคารทุกชั้น พร้อมเส้นทางทั้งวันที่ระบบคำนวณให้</span></span>
+      <span class="account__user">แผนที่</span>
+    </a>
 
     <div class="divider">ผู้ป่วย</div>
     <form id="codeForm" autocomplete="off" novalidate style="display:flex;flex-direction:column;gap:10px">

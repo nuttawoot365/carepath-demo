@@ -639,6 +639,7 @@
       allDone: 'เสร็จครบทุกขั้นแล้ว',
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
       added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
+      mapOpen: 'ผังเส้นทางทั้งโรงพยาบาล',
       backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด — เดโมนี้มีคิว A-017 ใบเดียว',
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
@@ -699,6 +700,7 @@
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
       added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
+      mapOpen: 'Map of the whole hospital',
       backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket — this demo has only queue A-017',
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
@@ -758,6 +760,7 @@
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
       added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
+      mapOpen: '全院路线图',
       backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 — 本演示只有 A-017 一张',
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
@@ -817,6 +820,7 @@
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
       added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
+      mapOpen: 'ဆေးရုံတစ်ခုလုံး၏ လမ်းကြောင်းမြေပုံ',
       backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ — ဤသရုပ်ပြတွင် A-017 တစ်ခုသာ ရှိသည်',
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
@@ -876,6 +880,7 @@
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
       added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
+      mapOpen: 'Карта всей больницы',
       backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону — в демо есть только очередь A-017',
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
@@ -1861,6 +1866,8 @@
       <span><b>${esc(t('demoXray'))}</b><span>${esc(t('demoXrayHint'))}</span></span></button>
     <button class="pick" data-act="gallery"><span class="pick__icon">🏥</span>
       <span><b>${esc(t('galleryOpen'))}</b></span></button>
+    <a class="pick" href="map.html"><span class="pick__icon">🗺</span>
+      <span><b>${esc(t('mapOpen'))}</b></span></a>
     <a class="pick" href="login.html"><span class="pick__icon">🏠</span>
       <span><b>${esc(t('backHome'))}</b></span></a>
     <button class="pick" data-act="reset"><span class="pick__icon">↻</span>
