@@ -20,6 +20,16 @@
 | แผนภาพแม่แบบการมาหนึ่งครั้ง (`app/pathway.html`) | ✅ |
 | REST API และหน้าเว็บจริง | 🔜 ขั้นถัดไป |
 
+## เว็บที่เผยแพร่แล้ว
+
+https://carepath-vachira.nuttawoot-star.workers.dev — Cloudflare Worker เสิร์ฟหน้าเว็บทั้งชุดแบบ static
+ยังไม่มี API เบื้องหลัง (ดู **ข้อจำกัดเมื่อย้าย API ขึ้น Workers** ด้านล่าง)
+
+```bash
+node scripts/build-site.mjs     # รวมหน้าเว็บไว้ใน dist/
+npx wrangler deploy             # ขึ้น Cloudflare
+```
+
 ## เปิดดูแบบหน้าจอ (ไม่ต้องติดตั้งอะไร)
 
 ```bash
@@ -65,3 +75,20 @@ frontend/    หน้าเว็บจริง (static) + nginx reverse proxy
 - รหัสผ่านเก็บด้วย bcrypt · ตรวจสิทธิ์ที่ API ไม่ใช่ที่หน้าจอ
 - บันทึกการตรวจสอบย้อนหลังเขียนได้อย่างเดียว และใช้เวลาของเซิร์ฟเวอร์เสมอ
 - ข้อมูลสมมุติทั้งหมด · หน้าจอสาธารณะไม่แสดงชื่อหรือเลขประจำตัวผู้ป่วย
+
+
+## ข้อจำกัดเมื่อย้าย API ขึ้น Cloudflare Workers
+
+หน้าเว็บ static ขึ้น Workers ได้ทันที แต่ backend ที่เขียนไว้ยังย้ายตรง ๆ ไม่ได้ ต้องแก้ก่อน
+
+| จุด | ปัญหา | ทางแก้ |
+|---|---|---|
+| `lib/clock.js` | Workers รันบน UTC เสมอ `getHours()` จึงเพี้ยน 7 ชั่วโมง และ deadline 11:00 เทียบผิด | แปลงเวลาด้วย `Intl.DateTimeFormat` timeZone `Asia/Bangkok` |
+| `lib/auth.js` | bcrypt rounds 10 ใช้ CPU 60–100 ms เกินโควตา 10 ms ของแผนฟรี | ใช้ PBKDF2 ผ่าน WebCrypto หรือขึ้นแผนเสียเงิน |
+| `domain/graph.js` | แคชกราฟเป็นตัวแปรระดับโมดูล ซึ่งไม่แชร์ข้าม isolate และ `invalidateGraph()` ไม่มีผล | 48 โหนดเล็กมาก โหลดใหม่ทุก request หรือแคชใน KV พร้อมเลขเวอร์ชัน |
+| นาฬิกาจำลอง | เหตุผลเดียวกับข้างบน ตั้งแล้วเครื่องอื่นไม่เห็น | เก็บใน KV หรือตารางในฐานข้อมูล |
+| `db.js` | ไม่มี Postgres บน Workers และ `pg.Pool` ใช้ไม่ได้ | Postgres ภายนอก (Neon/Supabase) ต่อผ่าน Hyperdrive · `pg` ขั้นต่ำ 8.16.3 · เปิด `nodejs_compat` |
+| `config.js` | `process.env` ไม่มีบน Workers | อ่านจาก `env` binding ที่ส่งเข้ามาต่อ request |
+| `src/server.js` | Express รันบน Workers ไม่ได้ | เปลี่ยนเป็น Hono · `requireRole()` ย้ายเป็น middleware ได้ตรง ๆ |
+| `scripts/reset.js` | ใช้ `fs` อ่าน schema.sql และ CSV | รันจากเครื่องหรือ CI ยิงเข้า Postgres ตรง ๆ ไม่ผ่าน Worker |
+| `audit_logs` | `REVOKE UPDATE, DELETE` ต้องจัดการ role ที่ฐานข้อมูล | ทำได้บน Neon/Supabase · ทำไม่ได้ถ้าใช้ D1 ซึ่งเป็น SQLite และขัดข้อกำหนด PostgreSQL 3NF |

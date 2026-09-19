@@ -1,0 +1,17 @@
+{
+  // CarePath — ระบบสาธิตสำหรับโรงพยาบาลวชิระภูเก็ต
+  // ตอนนี้เสิร์ฟหน้าเว็บอย่างเดียว ยังไม่มี API (ดู README เรื่องข้อจำกัดของ Workers)
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "carepath-vachira",
+  "compatibility_date": "2026-09-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    // ค่าปริยาย auto-trailing-slash ทำให้ทั้ง / และ /login.html ใช้งานได้
+    // (/login.html จะถูกเปลี่ยนเส้นทางไป /login ซึ่งเบราว์เซอร์ตามให้เองพร้อม query string)
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
