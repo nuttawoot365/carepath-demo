@@ -328,6 +328,7 @@
       bridge: 'ข้ามทางเชื่อมไปอาคาร {b}',
       here: 'คุณอยู่ตรงนี้', dest: 'จุดหมาย',
       noRoute: 'ตอนนี้ไม่มีเส้นทางที่รถเข็นไปได้ กรุณาแจ้งเจ้าหน้าที่',
+      atDest: 'คุณอยู่ที่จุดหมายแล้ว ไม่ต้องเดินต่อ',
     },
     en: {
       report: 'Report a problem here', reportTitle: 'What is wrong here?',
@@ -347,6 +348,7 @@
       bridge: 'Cross the bridge to Building {b}',
       here: 'You are here', dest: 'Destination',
       noRoute: 'No wheelchair route right now. Please ask a staff member.',
+      atDest: 'You are already there. No need to walk.',
     },
     zh: {
       report: '报告此处有问题', reportTitle: '这里出了什么问题？',
@@ -366,6 +368,7 @@
       bridge: '通过连廊前往 {b} 座',
       here: '您在这里', dest: '目的地',
       noRoute: '目前没有轮椅可通行的路线，请告知工作人员。',
+      atDest: '您已在目的地，无需再走。',
     },
     my: {
       report: 'ဤနေရာ ပြဿနာကို အကြောင်းကြားရန်', reportTitle: 'ဤနေရာတွင် ဘာဖြစ်နေပါသလဲ',
@@ -385,6 +388,7 @@
       bridge: 'ချိတ်ဆက်လမ်းမှ {b} အဆောက်အအုံသို့ ကူးပါ',
       here: 'သင် ဤနေရာတွင် ရှိသည်', dest: 'ခရီးဆုံး',
       noRoute: 'ယခု ဘီးတပ်ကုလားထိုင် သွားနိုင်သော လမ်းမရှိပါ။ ဝန်ထမ်းကို အကြောင်းကြားပါ။',
+      atDest: 'သင် ရောက်နေပြီးဖြစ်သည်။ ဆက်လျှောက်ရန် မလိုပါ။',
     },
     ru: {
       report: 'Сообщить о проблеме', reportTitle: 'Что здесь не так?',
@@ -404,6 +408,7 @@
       bridge: 'Перейдите по переходу в корпус {b}',
       here: 'Вы здесь', dest: 'Пункт назначения',
       noRoute: 'Сейчас нет маршрута для коляски. Обратитесь к персоналу.',
+      atDest: 'Вы уже на месте. Идти никуда не нужно.',
     },
   };
 
@@ -473,7 +478,8 @@
    * รอยต่อระหว่างช่วงคือลิฟต์ บันได ทางลาด หรือทางเชื่อม ซึ่งกลายเป็นป้ายบอกด้านล่าง
    */
   function toLegs(edges) {
-    if (!edges) return [];
+    // ไม่มีเส้นทาง (null) และยืนอยู่ที่หมายแล้ว ([]) ต่างกัน แต่ทั้งคู่ไม่มีช่วงให้วาด
+    if (!edges || edges.length === 0) return [];
     const legs = [];
     let current = { nodes: [edges[0].f], edges: [], metres: 0, turns: 0 };
 
@@ -651,14 +657,16 @@
     const legs = toLegs(shortestPath(state.from, state.to));
 
     if (legs.length === 0) {
+      // ยืนอยู่ที่หมายแล้วกับไปไม่ถึง ต้องไม่ขึ้นข้อความเดียวกัน
+      const atDest = state.from === state.to;
       $('mapbox').textContent = '';
-      $('cueArrow').textContent = '⚠';
-      $('cueText').textContent = t('noRoute');
+      $('cueArrow').textContent = atDest ? '📍' : '⚠';
+      $('cueText').textContent = atDest ? t('atDest') : t('noRoute');
       $('cueSub').textContent = '';
       $('badge').textContent = '';
       $('progress').innerHTML = '';
       $('nextBtn').textContent = t('arrived');
-      $('nextBtn').disabled = true;
+      $('nextBtn').disabled = !atDest;
       renderLangs();
       return;
     }
