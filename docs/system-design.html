@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>CarePath — เอกสารออกแบบระบบและขั้นตอนการพัฒนา</title>
+<style>
+  @page { size: A4; margin: 17mm 15mm 15mm; }
+  body { font-family: 'Sarabun', 'Leelawadee UI', sans-serif; font-size: 10.5pt; line-height: 1.65; color: #10222a; }
+  h1 { font-size: 19pt; margin: 0 0 2mm; }
+  h2 { font-size: 13pt; margin: 7mm 0 2mm; border-bottom: 1.5pt solid #1f6f8b; padding-bottom: 1.5mm; color: #14556d;
+       break-after: avoid; }
+  h3 { font-size: 11pt; margin: 5mm 0 1.5mm; color: #14556d; break-after: avoid; }
+  h4 { font-size: 10.5pt; margin: 3mm 0 1mm; break-after: avoid; }
+  p { margin: 0 0 2mm; }
+  .sub { color: #4c626c; margin: 0 0 4mm; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9pt; break-inside: avoid; }
+  th { background: #e4f0f4; text-align: left; padding: 1.8mm; border: 0.5pt solid #c3d2d8; font-size: 8.5pt; }
+  td { padding: 1.8mm; border: 0.5pt solid #d7e3e7; vertical-align: top; }
+  td.n, th.n { width: 7mm; text-align: center; color: #7c9099; }
+  .ok { color: #2e8b57; font-weight: bold; }
+  .partial { color: #b8791a; font-weight: bold; }
+  .no { color: #c8552f; font-weight: bold; }
+  .note { color: #4c626c; font-size: 9.5pt; }
+  code { font-family: 'Courier New', monospace; font-size: 8.5pt; background: #f4f8f9; padding: 0 0.8mm; }
+  pre { font-family: 'Courier New', monospace; font-size: 8pt; line-height: 1.45; background: #f4f8f9;
+        border: 0.5pt solid #d7e3e7; padding: 2.5mm 3mm; margin: 2mm 0 4mm; white-space: pre; overflow: hidden;
+        break-inside: avoid; }
+  ul, ol { margin: 1mm 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 0.8mm; }
+  .box { border: 1pt solid #1f6f8b; background: #eef5f7; padding: 3mm 4mm; margin: 3mm 0; break-inside: avoid; }
+  .box--warn { border-color: #b8791a; background: #fbf1df; }
+  .box p:last-child { margin-bottom: 0; }
+  .page { break-before: page; }
+  .tag { display: inline-block; background: #e4f0f4; color: #14556d; border-radius: 2mm;
+         padding: 0.3mm 1.6mm; font-size: 8pt; font-weight: bold; }
+  .toc { columns: 2; column-gap: 8mm; font-size: 9.5pt; }
+  .toc li { margin-bottom: 1mm; }
+</style></head><body>
+
+<h1>CarePath — เอกสารออกแบบระบบและขั้นตอนการพัฒนา</h1>
+<p class="sub">
+Hackathon 977-121 Module: Website Design and Development · วิทยาลัยการคอมพิวเตอร์ มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตภูเก็ต<br>
+ระบบนำทางในโรงพยาบาลและติดตามขั้นตอนการรักษา · โจทย์ WIL โรงพยาบาลวชิระภูเก็ต<br>
+วันที่ 1: เสาร์ที่ 19 กันยายน 2569 · วันที่ 2: อาทิตย์ที่ 20 กันยายน 2569
+</p>
+
+<div class="box">
+<p><b>เอกสารฉบับนี้ครอบคลุมอะไร</b> — การออกแบบระบบทั้งหมด (สถาปัตยกรรม · ฐานข้อมูล · API · อัลกอริทึม · UX)
+และขั้นตอนการพัฒนาตามลำดับเวลาจริงทั้งสองวัน พร้อมเหตุผลของทุกการตัดสินใจ</p>
+<p class="note" style="margin-top:2mm">ผังอาคาร ชั้น แผนก เส้นทางเดิน และผู้ป่วยทั้งหมดเป็นชุดสมมุติที่สร้างขึ้นเพื่อสาธิตกลไก
+ยังไม่ใช่ผังจริงของโรงพยาบาล ไม่มีข้อมูลบุคคลจริงในระบบ</p>
+</div>
+
+<h3>สารบัญ</h3>
+<ol class="toc">
+<li>โจทย์และขอบเขต</li>
+<li>สถาปัตยกรรมระบบ</li>
+<li>การออกแบบฐานข้อมูล</li>
+<li>การนอร์มัลไลเซชัน</li>
+<li>API Contract</li>
+<li>อัลกอริทึมที่เป็นหัวใจ</li>
+<li>การออกแบบ UX/UI</li>
+<li>ความปลอดภัยและความเป็นส่วนตัว</li>
+<li>ขั้นตอนการพัฒนา วันที่ 1</li>
+<li>ขั้นตอนการพัฒนา วันที่ 2</li>
+<li>การทดสอบ</li>
+<li>ข้อจำกัดและงานต่อ</li>
+</ol>
+
+<h2>1. โจทย์และขอบเขต</h2>
+
+<h3>1.1 ปัญหาจากหน้างาน</h3>
+<p>ผู้ป่วยนอกของโรงพยาบาลขนาดใหญ่ต้องผ่านหลายจุดบริการในหนึ่งวัน — เวชระเบียน คัดกรอง เจาะเลือด
+รอผล พบแพทย์ ชำระเงิน รับยา — โดยแต่ละจุดอยู่คนละอาคารคนละชั้น ปัญหาที่เกิดซ้ำทุกวันคือ</p>
+<ul>
+<li>ผู้ป่วยไม่รู้ว่า <b>ตอนนี้ต้องไปที่ไหนต่อ</b> เพราะใบนัดบอกแค่รายการ ไม่ได้บอกลำดับหรือเส้นทาง</li>
+<li>ป้ายบอกทางออกแบบสำหรับคนที่รู้ผังอยู่แล้ว ผู้สูงอายุและผู้ใช้รถเข็นเดินผิดทางแล้วต้องย้อนกลับ</li>
+<li>เจ้าหน้าที่ต้องตอบคำถามเดิมซ้ำทั้งวัน แทนที่จะได้ทำงานของตัวเอง</li>
+<li>แรงงานต่างชาติและนักท่องเที่ยวอ่านป้ายภาษาไทยไม่ออก</li>
+</ul>
+
+<h3>1.2 สิ่งที่ระบบต้องทำ (Functional)</h3>
+<table>
+<tr><th class="n">#</th><th>ความต้องการ</th><th style="width:30mm">ผู้ใช้</th></tr>
+<tr><td class="n">F1</td><td>เปิดการมาโรงพยาบาลหนึ่งครั้ง (visit) จากแม่แบบขั้นตอน พร้อมออกบัตรคิวที่มี QR</td><td>เวชระเบียน</td></tr>
+<tr><td class="n">F2</td><td>บอกผู้ป่วยว่าขั้นถัดไปคืออะไร อยู่ที่ไหน และเดินไปยังไงทีละข้อ</td><td>ผู้ป่วย</td></tr>
+<tr><td class="n">F3</td><td>คิดเส้นทางตามความต้องการพิเศษ — รถเข็นต้องไม่เจอบันได</td><td>ผู้ป่วย</td></tr>
+<tr><td class="n">F4</td><td>เจ้าหน้าที่จุดบริการเปลี่ยนสถานะขั้นตอนด้วยปุ่มเดียว แล้วหน้าผู้ป่วยเปลี่ยนตามเอง</td><td>จุดบริการ</td></tr>
+<tr><td class="n">F5</td><td>แทรกขั้นตอนระหว่างวันได้ (แพทย์สั่งตรวจเพิ่ม) แล้วจัดลำดับใหม่ให้ถูกต้อง</td><td>จุดบริการ</td></tr>
+<tr><td class="n">F6</td><td>ปิดเส้นทางได้ (ลิฟต์ซ่อม) แล้วคำนวณทางใหม่และแจ้งผู้ป่วยที่กระทบ</td><td>ผู้ดูแลระบบ</td></tr>
+<tr><td class="n">F7</td><td>ดูผลกระทบก่อนตัดสินใจปิดเส้นทาง — ใครเดินเพิ่มเท่าไร ใครไปไม่ถึง</td><td>ผู้ดูแลระบบ</td></tr>
+<tr><td class="n">F8</td><td>ค้นผู้ป่วยด้วยเลขคิวเมื่อเดินหลงมาถาม แล้วยืนยันตำแหน่งให้</td><td>ประชาสัมพันธ์</td></tr>
+</table>
+
+<h3>1.3 สิ่งที่ระบบต้องเป็น (Non-functional)</h3>
+<table>
+<tr><th class="n">#</th><th>ข้อกำหนด</th><th>วิธีที่ทำให้เป็นจริง</th></tr>
+<tr><td class="n">N1</td><td>ผู้ป่วยไม่ต้องติดตั้งแอปและไม่ต้องสมัครสมาชิก</td><td>เว็บล้วน · เข้าด้วย token ในลิงก์ของบัตรคิว</td></tr>
+<tr><td class="n">N2</td><td>เจ้าหน้าที่ต้องเสียเวลาเพิ่มไม่เกิน 2 วินาทีต่อผู้ป่วยหนึ่งคน</td><td>ปุ่มเดียวต่อหนึ่งสถานะ ไม่มีฟอร์มให้กรอก</td></tr>
+<tr><td class="n">N3</td><td>รองรับผู้ที่อ่านไทยไม่ออก</td><td>5 ภาษา — ไทย อังกฤษ จีน เมียนมา รัสเซีย</td></tr>
+<tr><td class="n">N4</td><td>รองรับผู้ที่ไม่มีมือถือ</td><td>บัตรกระดาษพิมพ์คำสั่งเดินละเอียดขึ้น · เจ้าหน้าที่ยืนยันตำแหน่งแทน</td></tr>
+<tr><td class="n">N5</td><td>ผังจริงของโรงพยาบาลต้องนำเข้าได้โดยไม่ต้องแก้โค้ด</td><td>ผังทั้งหมดอยู่ใน CSV และฐานข้อมูล ไม่มีที่ไหน hard-code</td></tr>
+<tr><td class="n">N6</td><td>ข้อมูลผู้ป่วยต้องตรวจสอบย้อนหลังได้และแก้ไม่ได้</td><td>ตาราง audit append-only · <code>REVOKE UPDATE, DELETE</code></td></tr>
+<tr><td class="n">N7</td><td>ฐานข้อมูลต้องเป็น PostgreSQL และอยู่ในรูป 3NF</td><td>17 ตาราง · ทุก query เป็น parameterized</td></tr>
+</table>
+
+<h3>1.4 ขอบเขต MVP</h3>
+<p><b>อยู่ในขอบเขต</b> — การมาโรงพยาบาลของผู้ป่วยนอกหนึ่งวัน ตั้งแต่ยื่นบัตรถึงรับยา ·
+บทบาทผู้ใช้ 4 แบบ (เวชระเบียน จุดบริการ ผู้ดูแลระบบ ผู้บริหาร) · ผังสมมุติ 3 อาคาร 50 จุด</p>
+<p><b>นอกขอบเขต</b> — ผู้ป่วยใน · การนัดหมายล่วงหน้า · การเชื่อมกับ HIS ของโรงพยาบาล ·
+การชำระเงินจริง · แอปมือถือ</p>
+
+<h2 class="page">2. สถาปัตยกรรมระบบ</h2>
+
+<h3>2.1 ภาพรวมสามชั้น</h3>
+<pre>
+                    ┌──────────────────────────────────────────┐
+  เบราว์เซอร์  ────▶ │  Next.js 15 (App Router)      พอร์ต 5173 │
+  / มือถือ          │  ─────────────────────────────────────── │
+                    │  หน้า React 4 หน้า  +  HTML นิ่ง 7 หน้า   │
+                    │  proxy /api/* ต่อให้ฝั่งหลัง               │
+                    └───────────────────┬──────────────────────┘
+                                        │  REST /api  (JSON)
+                                        ▼
+                    ┌──────────────────────────────────────────┐
+                    │  NestJS 11 + TypeScript       พอร์ต 3000 │
+                    │  ─────────────────────────────────────── │
+                    │  controller 7 · AuthGuard + @Roles()     │
+                    │  domain: กราฟ · ลำดับขั้น · ประโยคนำทาง   │
+                    └───────────────────┬──────────────────────┘
+                                        │  pg (parameterized เท่านั้น)
+                                        ▼
+                    ┌──────────────────────────────────────────┐
+                    │  PostgreSQL 16                พอร์ต 5432 │
+                    │  17 ตาราง 3NF · audit append-only        │
+                    └──────────────────────────────────────────┘
+</pre>
+
+<p>ทั้งสามชั้นเป็นคนละ container ใน <code>docker-compose.yml</code> เบราว์เซอร์เห็นพอร์ตเดียวคือ 5173
+Next.js เป็นคน proxy <code>/api/</code> ต่อให้ <b>ไม่มีหน้าไหนต่อฐานข้อมูลเอง</b> และไม่มีรหัสผ่านหรือ
+สิทธิ์ผู้ใช้อยู่ในโค้ดฝั่งหน้าเว็บเลย</p>
+
+<h3>2.2 เหตุผลของการแยกชั้น</h3>
+<table>
+<tr><th style="width:38mm">การตัดสินใจ</th><th>เหตุผล</th></tr>
+<tr><td>Frontend กับ Backend แยกกันจริง คุยผ่าน REST เท่านั้น</td>
+    <td>เป็นข้อกำหนดของโจทย์ และทำให้เปลี่ยนฝั่งใดฝั่งหนึ่งได้โดยไม่กระทบอีกฝั่ง — พิสูจน์แล้ววันที่ 2 ตอนเปลี่ยนทั้งสองฝั่งคนละรอบ</td></tr>
+<tr><td>Next.js เป็นคน proxy <code>/api</code> แทนที่จะให้เบราว์เซอร์ยิงตรง</td>
+    <td>เบราว์เซอร์เห็น origin เดียว จึงไม่ต้องตั้ง CORS และไม่ต้องเปิดพอร์ต API ออกสู่ภายนอก</td></tr>
+<tr><td>ตรรกะโดเมนเป็นฟังก์ชันล้วน แยกจาก controller และฐานข้อมูล</td>
+    <td>ทดสอบอัลกอริทึมได้โดยไม่ต้องมีฐานข้อมูล — เทสต์ 24 กรณีรันเสร็จใน 9 วินาที</td></tr>
+<tr><td>สถานะทั้งหมดอยู่ในฐานข้อมูล ไม่มีใน session ของเซิร์ฟเวอร์</td>
+    <td>จอจุดบริการกับหน้าผู้ป่วยอ่านความจริงชุดเดียวกัน จึงไม่มีทางเห็นไม่ตรงกัน</td></tr>
+</table>
+
+<h3>2.3 การซิงก์ระหว่างสองหน้าจอ</h3>
+<p>หัวใจของระบบคือ <b>เจ้าหน้าที่กดปุ่มแล้วหน้าผู้ป่วยเปลี่ยนเอง</b> ทำด้วยวิธีที่ง่ายที่สุดที่ยังตอบโจทย์</p>
+<pre>
+จอจุดบริการ                         ฐานข้อมูล                      หน้าผู้ป่วย
+     │                                  │                             │
+     │ POST /steps/12/status            │                             │
+     │   {"status":"done"}              │                             │
+     ├─────────────────────────────────▶│ UPDATE visit_steps          │
+     │                                  │ INSERT notifications        │
+     │◀─── สถานะใหม่ทั้งชุด ──────────────┤                             │
+     │                                  │                             │
+     │                                  │◀── GET /p/:token (ทุก 5 วิ) ─┤
+     │                                  ├─── ขั้นถัดไป + เส้นทางใหม่ ──▶│ สั่น + แจ้งเตือน
+</pre>
+<p class="note">เลือก polling แทน WebSocket เพราะ 5 วินาทีเพียงพอสำหรับงานที่คนเดินเป็นนาที
+และไม่ต้องดูแล connection state ซึ่งเป็นความซับซ้อนที่ไม่คุ้มในขอบเขตนี้</p>
+
+<h2 class="page">3. การออกแบบฐานข้อมูล</h2>
+
+<h3>3.1 แนวคิดหลัก — ผังโรงพยาบาลคือกราฟ</h3>
+<p>การตัดสินใจที่สำคัญที่สุดของโครงการคือ <b>เก็บผังเป็นกราฟ ไม่ใช่รูปภาพ</b>
+ทุกจุดในโรงพยาบาลเป็นโหนด (<code>nodes</code>) ทุกทางเดิน ลิฟต์ บันได ทางลาด ทางเชื่อม
+เป็นเส้นเชื่อมมีทิศทาง (<code>edges</code>) พร้อมระยะทาง เวลาเดิน ทิศเลี้ยว และ
+ธงว่ารถเข็นผ่านได้หรือไม่</p>
+<p>ผลคือการหาเส้นทางกลายเป็นปัญหา shortest path ธรรมดา และการรองรับรถเข็น
+กลายเป็นแค่การตัด edge ที่ <code>is_accessible = false</code> ออกจากกราฟ
+โดยไม่ต้องเขียนตรรกะพิเศษแยก</p>
+
+<h3>3.2 แผนภาพความสัมพันธ์ (ER)</h3>
+<pre>
+┌─ ผัง (คงที่ระหว่างวัน) ────────────────────────────────────────────────┐
+│                                                                       │
+│  buildings ──1:N──▶ floors ──1:N──▶ departments ──1:N──▶ nodes        │
+│                        │                  ▲                 │  ▲      │
+│                        └────1:N───────────┼─────────────────┘  │      │
+│                                           └─ entrance_node_id ─┘      │
+│                                                                       │
+│  nodes ──1:N──▶ edges ◀──N:1── nodes      (from_node_id, to_node_id)  │
+│  nodes ──1:N──▶ node_photos                                           │
+│  departments/nodes ──1:N──▶ service_hours                             │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌─ แม่แบบขั้นตอน (คงที่) ────────────────────────────────────────────────┐
+│  pathway_templates ──1:N──▶ template_steps ──▶ nodes (service_point)   │
+│                                   │                                    │
+│                                   └──▶ template_step_prereqs (self N:N)│
+└───────────────────────────────────────────────────────────────────────┘
+
+┌─ การมาหนึ่งครั้ง (เกิดใหม่ทุกวัน) ──────────────────────────────────────┐
+│  patients ──1:N──▶ visits ◀──N:1── pathway_templates                  │
+│                       │  └──▶ nodes (current_node_id)                 │
+│                       ├──1:N──▶ visit_steps ──▶ nodes (service_point)  │
+│                       │             │                                  │
+│                       │             └──▶ visit_step_prereqs (self N:N) │
+│                       └──1:N──▶ notifications                          │
+└───────────────────────────────────────────────────────────────────────┘
+
+┌─ ผู้ใช้และการตรวจสอบ ──────────────────────────────────────────────────┐
+│  users ──N:1──▶ departments          (station เห็นเฉพาะแผนกตัวเอง)     │
+│  users ──1:N──▶ audit_logs           (append-only · REVOKE UPDATE)     │
+└───────────────────────────────────────────────────────────────────────┘
+</pre>
+
+<h3>3.3 ตารางทั้ง 17 ตาราง</h3>
+<table>
+<tr><th class="n">#</th><th style="width:40mm">ตาราง</th><th>หน้าที่</th><th style="width:34mm">คีย์สำคัญ</th></tr>
+<tr><td class="n">1</td><td><code>buildings</code></td><td>อาคาร</td><td><code>code</code> UNIQUE</td></tr>
+<tr><td class="n">2</td><td><code>floors</code></td><td>ชั้นในอาคาร</td><td>UNIQUE (building_id, level)</td></tr>
+<tr><td class="n">3</td><td><code>departments</code></td><td>แผนก · สีประจำแผนก · จุดทางเข้า</td><td><code>code</code> UNIQUE</td></tr>
+<tr><td class="n">4</td><td><code>nodes</code></td><td>ทุกจุดในผัง — ห้อง ลิฟต์ ทางแยก ประตู</td><td><code>code</code>, <code>qr_token</code> UNIQUE</td></tr>
+<tr><td class="n">5</td><td><code>edges</code></td><td>เส้นเชื่อมระหว่างจุด มีทิศทาง</td><td>UNIQUE (from, to)</td></tr>
+<tr><td class="n">6</td><td><code>node_photos</code></td><td>รูปถ่ายจริงของแต่ละจุด</td><td>FK → nodes</td></tr>
+<tr><td class="n">7</td><td><code>service_hours</code></td><td>เวลาทำการของแผนกหรือจุด</td><td>FK → departments/nodes</td></tr>
+<tr><td class="n">8</td><td><code>pathway_templates</code></td><td>แม่แบบการมา เช่น เบาหวานตามนัด</td><td><code>code</code> UNIQUE</td></tr>
+<tr><td class="n">9</td><td><code>template_steps</code></td><td>ขั้นตอนในแม่แบบ พร้อมกำหนดเวลา</td><td>UNIQUE (template_id, sequence)</td></tr>
+<tr><td class="n">10</td><td><code>template_step_prereqs</code></td><td>ขั้นไหนต้องทำหลังขั้นไหน (N:N วนตัวเอง)</td><td>PK คู่</td></tr>
+<tr><td class="n">11</td><td><code>users</code></td><td>เจ้าหน้าที่ · bcrypt · บทบาท · แผนกที่ดูแล</td><td><code>username</code> UNIQUE</td></tr>
+<tr><td class="n">12</td><td><code>patients</code></td><td>ผู้ป่วย — เก็บแค่ HN ชื่อเรียก ภาษา</td><td><code>hn</code> UNIQUE</td></tr>
+<tr><td class="n">13</td><td><code>visits</code></td><td>การมาหนึ่งครั้ง · token · ตำแหน่งล่าสุด</td><td><code>token</code>, <code>short_code</code> UNIQUE</td></tr>
+<tr><td class="n">14</td><td><code>visit_steps</code></td><td>ขั้นตอนจริงของ visit นั้น · สถานะ · เวลา</td><td>FK → visits ON DELETE CASCADE</td></tr>
+<tr><td class="n">15</td><td><code>visit_step_prereqs</code></td><td>เงื่อนไขลำดับของ visit นั้น</td><td>PK คู่</td></tr>
+<tr><td class="n">16</td><td><code>notifications</code></td><td>ข้อความแจ้งผู้ป่วย สองภาษา</td><td>FK → visits</td></tr>
+<tr><td class="n">17</td><td><code>audit_logs</code></td><td>ใครทำอะไรกับอะไรเมื่อไร · แก้ไม่ได้</td><td>append-only</td></tr>
+</table>
+
+<h3>3.4 การตัดสินใจที่ควรอธิบาย</h3>
+<table>
+<tr><th style="width:44mm">เรื่อง</th><th>ทำไมออกแบบแบบนี้</th></tr>
+<tr><td><b>แยก template_steps ออกจาก visit_steps</b></td>
+    <td>ตอนเปิด visit ระบบ <b>คัดลอก</b> ขั้นตอนจากแม่แบบมาเป็นของ visit นั้น
+    ถ้าผู้ดูแลแก้แม่แบบตอนบ่าย ผู้ป่วยที่เปิดบัตรตอนเช้าต้องไม่ถูกเปลี่ยนแผนกลางคัน</td></tr>
+<tr><td><b>prereqs เป็น N:N วนตัวเอง ไม่ใช่คอลัมน์ <code>after_step</code></b></td>
+    <td>ขั้นหนึ่งอาจต้องรอหลายขั้น เช่น "พบแพทย์" ต้องรอทั้งเจาะเลือดและเอกซเรย์
+    ตารางเชื่อมจึงเป็นรูปเดียวที่ไม่บังคับให้ลำดับเป็นเส้นตรง</td></tr>
+<tr><td><b><code>visit_steps.service_point_id</code> ชี้ไป <code>nodes</code> ไม่ snapshot ชื่อห้อง</b></td>
+    <td>ถ้าห้องย้าย ผู้ป่วยที่ยังเดินอยู่ต้องถูกพาไปห้องใหม่ ไม่ใช่ห้องเก่าที่จดไว้</td></tr>
+<tr><td><b><code>edges</code> มีทิศทาง</b></td>
+    <td>บันไดหนีไฟเดินลงได้อย่างเดียว · ทางเดินที่เลี้ยวซ้ายขามา ต้องเลี้ยวขวาขากลับ
+    ตอนนำเข้า CSV ที่มี <code>bidirectional=1</code> ระบบสร้างสองแถวและสลับซ้ายขวาให้เอง</td></tr>
+<tr><td><b><code>visits.token</code> 32 ตัวอักษร + <code>short_code</code> 8 ตัว</b></td>
+    <td>token อยู่ใน QR สำหรับสแกน · short_code พิมพ์ใต้ QR สำหรับคนที่กล้องเสียหรือบัตรเปียก
+    ใช้ตัวอักษรที่อ่านไม่สับสน (ตัด I O 0 1 ออก)</td></tr>
+<tr><td><b>ไม่เก็บเลขบัตรประชาชน</b></td>
+    <td>ระบบไม่ต้องใช้ จึงไม่เก็บ — ลดความเสียหายถ้าข้อมูลรั่ว</td></tr>
+</table>
+
+<h2>4. การนอร์มัลไลเซชัน</h2>
+
+<p>ฐานข้อมูลอยู่ในรูป <b>3NF</b> ทั้งหมด ตรวจทีละระดับ</p>
+
+<h3>4.1 1NF — ทุกช่องเก็บค่าเดียว</h3>
+<p>ไม่มีคอลัมน์ไหนเก็บรายการคั่นด้วยจุลภาค ตัวอย่างที่ล่อใจที่สุดคือ "ขั้นนี้ต้องรอขั้นไหนบ้าง"
+ซึ่งถ้าทำง่าย ๆ จะกลายเป็น <code>prereq = "1;3;4"</code> — เราแยกเป็นตาราง
+<code>visit_step_prereqs</code> หนึ่งแถวต่อหนึ่งเงื่อนไขแทน</p>
+<p class="note">หมายเหตุ: <code>visits.profile</code> เป็น JSONB เก็บธงความต้องการพิเศษ
+ซึ่งเป็นการยกเว้นที่ตั้งใจ — ธงเหล่านี้ไม่มีความสัมพันธ์กับตารางอื่นและไม่เคยถูก query แยกรายธง
+ระบบตรวจค่าที่รับเข้าให้เหลือเฉพาะธงที่รู้จัก 4 ตัวก่อนบันทึกเสมอ</p>
+
+<h3>4.2 2NF — ไม่มีคอลัมน์ที่ขึ้นกับคีย์แค่บางส่วน</h3>
+<p>ตารางที่มีคีย์ประกอบคือตาราง prereqs ทั้งสองตัว ซึ่งมีแค่สองคอลัมน์ที่เป็นคีย์ทั้งคู่
+จึงไม่มีคอลัมน์อื่นให้ขึ้นกับคีย์บางส่วนได้</p>
+
+<h3>4.3 3NF — ไม่มีคอลัมน์ที่ขึ้นกับคอลัมน์ที่ไม่ใช่คีย์</h3>
+<p>จุดที่ต้องระวังคือโซ่ <b>อาคาร → ชั้น → แผนก → จุด</b> ถ้าออกแบบแบบง่าย ตาราง
+<code>nodes</code> จะมีคอลัมน์ <code>building</code> และ <code>floor</code> อยู่ในตัวเอง
+ซึ่งทำให้ชื่ออาคารถูกเก็บซ้ำ 50 ครั้ง และถ้าเปลี่ยนชื่ออาคารต้องไล่แก้ทุกแถว</p>
+<p>เราแยกเป็นสามตารางแทน <code>nodes</code> เก็บแค่ <code>floor_id</code>
+ส่วนชั้นรู้ว่าตัวเองอยู่อาคารไหน ผลคือ</p>
+<ul>
+<li>เปลี่ยนชื่ออาคารแก้แถวเดียว มีผลทุกหน้าจอทันที</li>
+<li>ไม่มีทางเกิดสภาพที่จุดสองจุดบอกว่าอยู่ชั้น 3 อาคาร B แต่คนละแผนกกันแบบขัดแย้ง</li>
+</ul>
+
+<h4>ตัวอย่างการสืบย้อนในของจริง</h4>
+<pre>
+SELECT n.code, n.name_th, d.code AS dept, f.level AS floor, b.code AS building
+  FROM nodes n
+  JOIN floors f     ON f.id = n.floor_id
+  JOIN buildings b  ON b.id = f.building_id
+  LEFT JOIN departments d ON d.id = n.department_id
+ WHERE n.is_active;
+</pre>
+<p class="note">ทุกหน้าจอที่ต้องแสดง "อาคาร B ชั้น 3" ใช้ join ชุดนี้ ไม่มีที่ไหนเก็บสตริงสำเร็จรูปไว้</p>
+
+<h3>4.4 ที่ตั้งใจไม่ normalize</h3>
+<table>
+<tr><th style="width:40mm">จุด</th><th>เหตุผล</th></tr>
+<tr><td><code>visit_steps</code> คัดลอก <code>name_th</code>, <code>deadline_time</code>, <code>est_minutes</code> จากแม่แบบ</td>
+    <td>เป็น snapshot ที่ตั้งใจ ไม่ใช่ข้อมูลซ้ำซ้อน — บัตรคิวที่ออกไปแล้วต้องไม่เปลี่ยนเนื้อหาเมื่อแม่แบบถูกแก้</td></tr>
+<tr><td><code>audit_logs.detail</code> เป็น JSONB</td>
+    <td>แต่ละเหตุการณ์มีรายละเอียดคนละรูป การบังคับให้เป็นคอลัมน์ตายตัวจะได้ตารางที่มีคอลัมน์ว่างเป็นส่วนใหญ่</td></tr>
+</table>
+
+<h2 class="page">5. API Contract</h2>
+
+<p>ทุกปลายทางอยู่ใต้ <code>/api</code> · เจ้าหน้าที่ใช้ JWT ใน <code>Authorization: Bearer</code> ·
+ผู้ป่วยใช้ token ที่อยู่ในลิงก์ของบัตรคิว ไม่ต้องเข้าสู่ระบบ</p>
+
+<h3>5.1 รายการทั้งหมด 28 ปลายทาง</h3>
+<table>
+<tr><th style="width:14mm">เมธอด</th><th style="width:58mm">ปลายทาง</th><th>ใครเรียกได้</th></tr>
+<tr><td>GET</td><td><code>/api/health</code></td><td>เปิด</td></tr>
+<tr><td>POST</td><td><code>/api/auth/login</code></td><td>เปิด</td></tr>
+<tr><td>GET</td><td><code>/api/auth/me</code></td><td>ต้องเข้าสู่ระบบ</td></tr>
+<tr><td>GET</td><td><code>/api/map</code></td><td>เปิด</td></tr>
+<tr><td>GET</td><td><code>/api/nodes</code></td><td>เปิด</td></tr>
+<tr><td>GET</td><td><code>/api/nodes/by-qr/:token</code></td><td>เปิด</td></tr>
+<tr><td>GET</td><td><code>/api/templates</code></td><td>เปิด</td></tr>
+<tr><td>GET</td><td><code>/api/patients</code></td><td>registrar · admin</td></tr>
+<tr><td>POST</td><td><code>/api/patients</code></td><td>registrar · admin</td></tr>
+<tr><td>POST</td><td><code>/api/visits</code></td><td>registrar · admin</td></tr>
+<tr><td>GET</td><td><code>/api/visits</code></td><td>registrar · admin · station · executive</td></tr>
+<tr><td>GET</td><td><code>/api/visits/:id</code></td><td>registrar · admin · station</td></tr>
+<tr><td>POST</td><td><code>/api/visits/:id/steps</code></td><td>station · admin</td></tr>
+<tr><td>GET</td><td><code>/api/stations</code></td><td>station · admin · registrar · executive</td></tr>
+<tr><td>GET</td><td><code>/api/stations/:code/queue</code></td><td>station · admin</td></tr>
+<tr><td>POST</td><td><code>/api/steps/:id/status</code></td><td>station · admin · registrar</td></tr>
+<tr><td>GET</td><td><code>/api/p/code/:code</code></td><td>เปิด (แลกรหัส 7 ตัวเป็น token)</td></tr>
+<tr><td>GET</td><td><code>/api/p/:token</code></td><td>เปิด (token คือสิทธิ์)</td></tr>
+<tr><td>POST</td><td><code>/api/p/:token/position</code></td><td>เปิด</td></tr>
+<tr><td>POST</td><td><code>/api/p/:token/arrive</code></td><td>เปิด</td></tr>
+<tr><td>POST</td><td><code>/api/p/:token/notifications/read</code></td><td>เปิด</td></tr>
+<tr><td>POST</td><td><code>/api/p/:token/demo/:action</code></td><td>เปิด (เฉพาะโหมดเดโม)</td></tr>
+<tr><td>PATCH</td><td><code>/api/edges/:id</code></td><td>admin</td></tr>
+<tr><td>GET</td><td><code>/api/edges/:id/impact</code></td><td>admin</td></tr>
+<tr><td>GET</td><td><code>/api/audit</code></td><td>admin</td></tr>
+<tr><td>GET</td><td><code>/api/demo/clock</code></td><td>เปิด</td></tr>
+<tr><td>POST</td><td><code>/api/demo/clock</code></td><td>เปิด (เฉพาะโหมดเดโม)</td></tr>
+<tr><td>POST</td><td><code>/api/demo/reset</code></td><td>เปิด (เฉพาะโหมดเดโม)</td></tr>
+</table>
+
+<h3>5.2 รูปแบบคำตอบที่ตกลงกันไว้</h3>
+<p>ทุกปลายทางที่เปลี่ยนสถานะของ visit คืน <b>สถานะเต็มชุดเดียวกันเสมอ</b>
+หน้าจอจึงไม่ต้องเดาผลลัพธ์เองและไม่ต้องยิงซ้ำเพื่อ refresh</p>
+<pre>
+{
+  "visit":  { ticket_no, short_code, token, status, lang, profile, patient_name,
+              template: { code, name_th, name_en },
+              at: { code, name_th, building, floor, source, confirmed_at } },
+  "steps":  [ { id, sequence, name_th, status, point: {...},
+                deadline_time, requires: [id], arrived_at, called_at, finished_at } ],
+  "next_step_id":   12,
+  "ready_step_ids": [12, 15],
+  "route":  { to, seconds, distance_m,
+              legs:         [ { act, turn, m, to, arrive, side, building, floor } ],
+              instructions: [ { n, arrow, icon, distance_m, text_th, text_en } ] },
+  "warnings":      [ { code: "deadline_soon", step_id, minutes_left } ],
+  "notifications": [ { id, message_th, message_en, created_at, read_at } ],
+  "server_time":   "2569-09-20T10:40:00.000Z"
+}
+</pre>
+
+<h3>5.3 รูปแบบข้อผิดพลาด</h3>
+<pre>
+{ "error": { "code": "CONFLICT",
+             "message_th": "ขั้นนี้อยู่สถานะ \"pending\" เปลี่ยนเป็น \"done\" ไม่ได้",
+             "message_en": "Cannot change a step from \"pending\" to \"done\"" } }
+</pre>
+<p>ข้อความมาสองภาษาเสมอ หน้าจอเลือกใช้ตามภาษาที่ผู้ใช้เลือก ไม่ต้องแปลเอง
+รหัสที่ใช้จริง — <code>BAD_REQUEST</code> 400 · <code>UNAUTHORIZED</code> 401 ·
+<code>FORBIDDEN</code> 403 · <code>NOT_FOUND</code> 404 · <code>CONFLICT</code> 409 ·
+<code>EXPIRED</code> 410 · <code>PREREQ_CYCLE</code> 422 · <code>INTERNAL</code> 500</p>
+
+<div class="box">
+<p><b>บทเรียนจากวันที่ 2</b> — ตอนย้ายไป NestJS ทุก <code>@Post</code> เริ่มตอบ <b>201</b> แทน <b>200</b>
+เพราะเป็นค่าปริยายของเฟรมเวิร์ก ซึ่งทำให้ contract ที่ตกลงไว้เปลี่ยนโดยไม่ได้ตั้งใจ
+ต้องใส่ <code>@HttpCode(200)</code> กำกับ 8 จุด ยกเว้น <code>POST /patients</code> และ
+<code>POST /visits</code> ที่สร้างทรัพยากรใหม่จริงจึงคง 201 ไว้</p>
+</div>
+
+<h2 class="page">6. อัลกอริทึมที่เป็นหัวใจ</h2>
+
+<h3>6.1 หาเส้นทาง — Dijkstra ที่รู้จักความต้องการพิเศษ</h3>
+<p>ต้นทุนของแต่ละ edge ไม่ใช่ระยะทางคงที่ แต่คิดจากโปรไฟล์ผู้ป่วย</p>
+<pre>
+function costFor(profile) {
+  const slower = (profile.elderly || profile.wheelchair) ? 1.5 : 1;
+
+  return (edge) => {
+    if (profile.wheelchair && !edge.is_accessible) return Infinity;   // ตัดออกจากกราฟ
+
+    let seconds = edge.walk_seconds * slower;
+    if (profile.elderly && edge.kind === 'stairs') seconds += 60;     // บันไดคือภาระจริง
+    if (profile.has_phone === false && edge.turn && edge.turn !== 'straight') seconds += 5;
+    return seconds;                                   // ไม่มีมือถือ = ทุกทางเลี้ยวเสี่ยงหลง
+  };
+}
+</pre>
+<p>คืนค่า <code>Infinity</code> แทนการลบ edge ออกจริง ทำให้ใช้กราฟชุดเดียวกับทุกคนได้
+โดยไม่ต้องสร้างกราฟใหม่ต่อผู้ป่วยหนึ่งราย</p>
+
+<h4>ผลที่พิสูจน์ด้วยเทสต์</h4>
+<table>
+<tr><th>สถานการณ์</th><th>ผลที่ระบบเลือก</th></tr>
+<tr><td>คนเดินปกติ จากทางเข้าไปห้องแล็บ</td><td>เลือกบันได 44 วินาที เพราะเร็วกว่าลิฟต์</td></tr>
+<tr><td>ผู้ใช้รถเข็น เส้นทางเดียวกัน</td><td>เลี่ยงบันได ไปทางลิฟต์ ใช้เวลามากกว่า</td></tr>
+<tr><td>ผู้สูงอายุ เส้นทางเดียวกัน</td><td>เส้นทางเดิมแต่เวลามากขึ้นตามตัวคูณ</td></tr>
+<tr><td>ปิดลิฟต์แล้วผู้ใช้รถเข็นไปไม่ถึง</td><td>คืน <code>null</code> และขึ้นคำเตือน ไม่ใช่เส้นทางที่เดินไม่ได้</td></tr>
+</table>
+
+<h3>6.2 เลือกขั้นถัดไป — ไม่ใช่แค่เรียงตามลำดับ</h3>
+<p>ขั้นถัดไปไม่ได้เลือกจากเลขลำดับอย่างเดียว แต่จากสามเงื่อนไขซ้อนกัน</p>
+<ol>
+<li><b>ทำได้ตอนนี้ไหม</b> — ขั้นที่ต้องทำก่อนต้องเสร็จหรือถูกข้ามหมดแล้ว</li>
+<li><b>มีกำหนดเวลาที่กำลังจะไม่ทัน</b> — ถ้าเดินไปถึงแล้วทำเสร็จเกิน (กำหนด − 20 นาที)
+ระบบยกขั้นนั้นขึ้นมาก่อนแม้จะเดินไกลกว่า</li>
+<li><b>ถ้าไม่มีอะไรเร่ง ก็เลือกที่เดินใกล้ที่สุด</b> — ลำดับเดิมเป็นตัวตัดสินเมื่อเสมอกัน</li>
+</ol>
+<p class="note">ตัวอย่างจริง: ผู้ป่วยเบาหวานต้องเจาะเลือดก่อน 11:00 น. ถ้าเปิดบัตร 10:40 น.
+ระบบจะพาไปเจาะเลือดก่อน แม้ว่าจุดคัดกรองจะอยู่ใกล้กว่า และแสดงเหตุผลให้ผู้ป่วยเห็นบนหน้าจอ</p>
+
+<h3>6.3 แทรกขั้นกลางวัน — Topological Sort (Kahn)</h3>
+<p>เมื่อแพทย์สั่งตรวจเพิ่ม ขั้นใหม่ต้องไปอยู่ตำแหน่งที่ถูกต้องโดยไม่มีใครระบุเอง</p>
+<pre>
+1. แทรกขั้นใหม่ด้วยลำดับกึ่งกลาง  (ก่อน "ชำระเงิน" ลำดับ 6 → ได้ 5.5)
+2. บันทึกเงื่อนไข: เอกซเรย์ต้องทำหลัง "พบแพทย์"
+3. เรียงใหม่ทั้งแผนด้วย Kahn's algorithm  (ลำดับเดิมเป็นตัวตัดสินเมื่อเลือกได้หลายขั้น)
+4. ถ้าเรียงไม่ครบ = เงื่อนไขวนกลับมาหากันเอง → ปฏิเสธด้วย 422 PREREQ_CYCLE
+5. เขียนลำดับ 1..n กลับลงฐานข้อมูลในทรานแซกชันเดียวกัน
+</pre>
+<p>ผลจริงที่รันวันนี้ — เอกซเรย์ถูกวางเป็นลำดับที่ 6 <b>หลัง</b> พบแพทย์ (ลำดับ 5)
+และ <b>ก่อน</b> ชำระเงิน (ลำดับ 7) โดยไม่มีใครบอกตำแหน่ง</p>
+
+<h3>6.4 ประโยคนำทาง — ข้อมูลล้วน ไม่ใช่ข้อความสำเร็จรูป</h3>
+<p>ระบบไม่เก็บประโยค "เลี้ยวขวาแล้วเดิน 24 เมตร" ไว้ในฐานข้อมูล แต่เก็บเป็นข้อมูล
+<code>{ turn: 'right', m: 24, to: 'LIFT-B' }</code> แล้วประกอบเป็นประโยคตอนแสดงผลตามภาษาที่เลือก
+การเพิ่มภาษาที่ 6 จึงเป็นการเพิ่มชุดคำแปล ไม่ต้องแตะข้อมูลเส้นทางเลย</p>
+<p>ทางเดินตรงที่ต่อเนื่องกันถูกยุบเป็นข้อเดียวและรวมระยะทาง เพื่อไม่ให้ผู้ป่วยต้องอ่าน 12 ข้อ
+สำหรับทางเดินเส้นเดียว</p>
+
+<h3>6.5 ผลกระทบก่อนปิดเส้นทาง</h3>
+<p>ก่อนผู้ดูแลระบบกดปิดลิฟต์ ระบบคำนวณให้ดูก่อนว่ากระทบใครบ้าง โดย
+<b>จำลองการปิดบนกราฟสำเนา ไม่แตะฐานข้อมูล</b> แล้วเทียบจำนวนจุดที่ไปถึงได้
+และเวลารวมที่ต้องใช้ ระหว่างคนเดินปกติกับผู้ใช้รถเข็น</p>
+
+<h2 class="page">7. การออกแบบ UX/UI</h2>
+
+<h3>7.1 หลักที่ยึด</h3>
+<table>
+<tr><th style="width:44mm">หลัก</th><th>ทำอย่างไร</th></tr>
+<tr><td>ผู้ป่วยเห็นคำตอบเดียวต่อหนึ่งครั้ง</td>
+    <td>หน้าแรกคือ "ตอนนี้ไปที่ไหน" ตัวใหญ่ ไม่ใช่รายการทั้งวัน — รายการอยู่ถัดลงไป</td></tr>
+<tr><td>เจ้าหน้าที่กดปุ่มเดียว</td>
+    <td>มาถึง → เรียก → เสร็จ ระบบบันทึกเวลาให้เอง ไม่มีฟอร์ม</td></tr>
+<tr><td>คนที่อ่านไม่ออกต้องยังใช้ได้</td>
+    <td>ลูกศร ไอคอน และตัวเลขเหมือนกันทุกภาษา เปลี่ยนภาษาแล้วเดินต่อได้ทันที</td></tr>
+<tr><td>คนหลงต้องเลือกจากสิ่งที่ "มองเห็น"</td>
+    <td>หน้า "ฉันอยู่ที่ไหน" เป็นตารางรูปของแต่ละจุด ไม่ใช่รายชื่อห้อง</td></tr>
+<tr><td>สายตาเลือนรางต้องอ่านได้</td>
+    <td>ปุ่ม ก+ ขยายทั้งหน้าด้วยตัวคูณเดียว ปุ่มโตตามไม่เสียพื้นที่กด</td></tr>
+</table>
+
+<h3>7.2 หน้าจอทั้งหมด</h3>
+<table>
+<tr><th style="width:34mm">หน้า</th><th style="width:18mm">ชนิด</th><th style="width:26mm">ผู้ใช้</th><th>หน้าที่</th></tr>
+<tr><td><code>/login</code></td><td>React</td><td>ทุกคน</td><td>เข้าสู่ระบบ · ทางเข้าผู้ป่วยด้วยรหัสใต้ QR</td></tr>
+<tr><td><code>/registrar</code></td><td>React</td><td>เวชระเบียน</td><td>สามขั้น: ค้นผู้ป่วย → เลือกแม่แบบ → ติ๊กความต้องการพิเศษ แล้วพิมพ์บัตร A5</td></tr>
+<tr><td><code>/station</code></td><td>React</td><td>จุดบริการ</td><td>คิวของแผนก · ปุ่มเปลี่ยนสถานะ · ส่งตรวจเพิ่ม</td></tr>
+<tr><td><code>/patient</code></td><td>React</td><td>ผู้ป่วย</td><td>ขั้นถัดไป · เส้นทางทีละข้อ · ภาพรวมทั้งวัน · 5 ภาษา</td></tr>
+<tr><td><code>/patient-map.html</code></td><td>นิ่ง</td><td>ผู้ป่วย</td><td>แผนที่ทีละชั้น ซูมตามช่วงเดิน</td></tr>
+<tr><td><code>/privacy.html</code></td><td>นิ่ง</td><td>ผู้ป่วย</td><td>ประกาศความเป็นส่วนตัว 5 ภาษา</td></tr>
+<tr><td><code>/helpdesk.html</code></td><td>นิ่ง</td><td>ประชาสัมพันธ์</td><td>ค้นด้วยเลขคิว · พิมพ์ใบเส้นทางให้</td></tr>
+<tr><td><code>/admin.html</code></td><td>นิ่ง</td><td>ผู้ดูแลระบบ</td><td>หน้าแรกระบบ · ตรวจผังอัตโนมัติ</td></tr>
+<tr><td><code>/impact.html</code></td><td>นิ่ง</td><td>ผู้ดูแลระบบ</td><td>ผลกระทบก่อนปิดเส้นทาง</td></tr>
+<tr><td><code>/map.html</code></td><td>นิ่ง</td><td>ผู้ดูแลระบบ</td><td>ผังรวมทุกอาคาร 3 มุมมอง</td></tr>
+<tr><td><code>/pathway.html</code></td><td>นิ่ง</td><td>ผู้ดูแลระบบ</td><td>แผนภาพแม่แบบการมาหนึ่งครั้ง</td></tr>
+</table>
+
+<h3>7.3 User Flow ของผู้ป่วยหนึ่งคน</h3>
+<pre>
+ ยื่นบัตรที่เวชระเบียน
+        │
+        ▼
+ เจ้าหน้าที่เปิด visit ──▶ พิมพ์บัตรคิว (เลขคิว + QR + รหัส 7 ตัว + รายการขั้นตอน)
+        │
+        ├─ มีมือถือ ──────▶ สแกน QR ──────┐
+        ├─ กล้องเสีย ─────▶ พิมพ์รหัส ─────┤
+        └─ ไม่มีมือถือ ────▶ ใช้บัตรกระดาษ  │
+                                          ▼
+                              ┌──────────────────────────┐
+                              │  "ตอนนี้ไปที่ …"          │
+                              │  ระยะทาง · เวลา · จำนวนข้อ │
+                              │  [ ดูเส้นทาง ]            │
+                              └────────────┬─────────────┘
+                                           ▼
+                              เส้นทางทีละข้อ + รูปจุดหมาย
+                                           │
+                                     [ ถึงแล้ว ]
+                                           ▼
+                        เจ้าหน้าที่กด มาถึง → เรียก → เสร็จ
+                                           │
+                        หน้าผู้ป่วยเปลี่ยนเป็นขั้นถัดไปเองใน 5 วินาที
+                                           │
+                                     วนจนครบทุกขั้น
+                                           ▼
+                                  "เสร็จครบทุกขั้นแล้ว"
+</pre>
+
+<h2 class="page">8. ความปลอดภัยและความเป็นส่วนตัว</h2>
+
+<table>
+<tr><th style="width:40mm">เรื่อง</th><th>วิธีที่ทำ</th></tr>
+<tr><td><b>รหัสผ่าน</b></td><td>bcrypt rounds 10 · หน้าเว็บไม่เคยเห็นรหัสที่ถูกต้อง · ข้อความผิดพลาดเหมือนกันทั้งชื่อผิดและรหัสผิด</td></tr>
+<tr><td><b>สิทธิ์</b></td><td>ตรวจที่ API ทุกคำขอด้วย <code>AuthGuard</code> + <code>@Roles()</code> · การซ่อนปุ่มบนหน้าจอไม่ถือเป็นการป้องกัน · อ่านผู้ใช้จากฐานข้อมูลใหม่ทุกครั้ง เผื่อถูกปิดใช้งานระหว่างวัน</td></tr>
+<tr><td><b>SQL Injection</b></td><td>ทุก query เป็น parameterized · มีสคริปต์ <code>npm run lint:sql</code> ตรวจว่าไม่มี template literal ที่หน้าตาเป็น SQL แล้วมี <code>${...}</code> อยู่ข้างใน</td></tr>
+<tr><td><b>token ของผู้ป่วย</b></td><td>สุ่ม 16 ไบต์ · หมดอายุสิ้นวัน · เลยแล้วลิงก์เดิมเปิดไม่ได้ ตอบ 410</td></tr>
+<tr><td><b>ข้อมูลที่ไม่เก็บ</b></td><td>ไม่เก็บเลขบัตรประชาชน · หน้าจอสาธารณะไม่แสดง HN เต็ม · บัตรคิวไม่มีเลขประจำตัวผู้ป่วย</td></tr>
+<tr><td><b>audit</b></td><td>append-only จริงระดับฐานข้อมูล — <code>REVOKE UPDATE, DELETE ON audit_logs</code> · เวลาใช้ของเซิร์ฟเวอร์เสมอ ไม่รับจาก client · เจ้าหน้าที่เปิดดู visit ของใครก็ถูกบันทึก</td></tr>
+<tr><td><b>ความยินยอม</b></td><td>หน้าประกาศความเป็นส่วนตัว 5 ภาษา · เวชระเบียนติ๊กว่าแจ้งแล้ว ระบบบันทึกว่าใครแจ้งเมื่อไร</td></tr>
+</table>
+
+<h2>9. ขั้นตอนการพัฒนา — วันที่ 1 (เสาร์ 19 กันยายน)</h2>
+<p class="sub">Problem &amp; Design Sprint</p>
+
+<h3>9.1 ช่วงกิจกรรม 09.00–16.00 น.</h3>
+<table>
+<tr><th style="width:28mm">เวลา</th><th style="width:44mm">Sprint</th><th>ผลที่ได้</th></tr>
+<tr><td>09.20–10.00</td><td>Problem Briefing</td><td>รับโจทย์จริงจากผู้ให้โจทย์ WIL และเงื่อนไขทางธุรกิจ</td></tr>
+<tr><td>10.00–10.30</td><td>จัดทีม เลือกโจทย์</td><td>ทีม 3 คน · แบ่งบทบาท · ถาม-ตอบกับผู้ให้โจทย์</td></tr>
+<tr><td>10.45–12.00</td><td>Sprint 1 — Requirement &amp; Scope</td><td>User Story · Use Case · ขอบเขต MVP (หัวข้อ 1 ของเอกสารนี้)</td></tr>
+<tr><td>13.00–14.30</td><td>Sprint 2 — System &amp; Database Design</td><td>สถาปัตยกรรม · ER · Normalization · API Contract (หัวข้อ 2–5)</td></tr>
+<tr><td>14.45–15.45</td><td>Sprint 3 — UX/UI &amp; Prototype</td><td>แบบหน้าจอ 11 หน้า · User Flow (หัวข้อ 7)</td></tr>
+<tr><td>15.45–16.00</td><td>สรุปและมอบหมายงานต่อเนื่อง</td><td>แผนลงมือของเย็นวันนั้น</td></tr>
+</table>
+
+<h3>9.2 งานต่อเนื่องเย็นวันที่ 1 — 19.28 ถึง 23.52 น. (27 commit)</h3>
+<p>ทีมใช้ช่วง "งานต่อเนื่อง" ลงมือสร้างจริง ทำให้เช้าวันที่ 2 เริ่มจากระบบที่ต่อครบสามชั้นแล้ว</p>
+<table>
+<tr><th style="width:26mm">ช่วงเวลา</th><th>สิ่งที่สร้าง</th></tr>
+<tr><td>19.28–19.36</td><td>วาง docker compose (api + db + web) · <code>schema.sql</code> 17 ตาราง 3NF ·
+    ข้อมูลตัวอย่าง CSV · แบบหน้าจอและหน้าอธิบายการออกแบบข้อมูล</td></tr>
+<tr><td>19.47–20.35</td><td>ต้นแบบหน้าผู้ป่วยที่กดได้จริงบนมือถือ · รองรับ 5 ภาษา ·
+    หน้าเวชระเบียน · ภาพประกอบของทุกจุดในผัง · เลือกตำแหน่งจากรูปแทนรายชื่อ</td></tr>
+<tr><td>21.02–22.02</td><td>ผังเส้นทางที่ <b>วาดจากข้อมูลจริง</b> ไม่ใช่รูปที่แก้ด้วยมือ ·
+    แผนภาพขั้นตอนหนึ่ง visit · แผนที่ฉบับผู้ป่วย</td></tr>
+<tr><td>22.16–22.54</td><td>หน้าผลกระทบเมื่อปิดเส้นทาง · หน้าแรกของผู้ดูแลระบบ ·
+    <b>จอจุดบริการผูกกับหน้าผู้ป่วยจริง</b> · โต๊ะช่วยเหลือ</td></tr>
+<tr><td>23.10–23.52</td><td>ประกาศความเป็นส่วนตัว + บันทึกการแจ้ง · เอกสารระบบตามที่สร้างจริง ·
+    สไลด์นำเสนอ 14 หน้า · <b>ชุดทดสอบอัตโนมัติ</b></td></tr>
+</table>
+
+<h3>9.3 Stack เมื่อจบวันที่ 1</h3>
+<pre>
+เบราว์เซอร์ ──▶ nginx :5173 ──┬── ไฟล์ HTML/CSS/JS ล้วน ไม่มี build step
+                              └── /api/ ──▶ Express 5 :3000 ──▶ PostgreSQL
+</pre>
+
+<h2 class="page">10. ขั้นตอนการพัฒนา — วันที่ 2 (อาทิตย์ 20 กันยายน)</h2>
+<p class="sub">Development &amp; Presentation</p>
+
+<h3>10.1 สิ่งที่ตัดสินใจทำและทำไม</h3>
+<p>Sprint 4 และ 5 ของวันที่ 2 คือ Backend Implementation และ Frontend Implementation
+ทีมเลือกใช้ช่วงนี้ <b>ยกระดับ stack ทั้งสองฝั่งเป็นเฟรมเวิร์กมาตรฐานอุตสาหกรรม</b>
+แทนที่จะเพิ่มฟีเจอร์ใหม่ เพราะ</p>
+<ul>
+<li>ฟีเจอร์ตามโจทย์ครบตั้งแต่เย็นวันที่ 1 แล้ว การเพิ่มของใหม่มีแต่จะเพิ่มความเสี่ยง</li>
+<li>Express ที่เขียนเองไม่มีโครงสร้างสิทธิ์ที่ตรวจสอบได้ชัด · NestJS ให้ guard และ decorator ที่อ่านแล้วรู้ทันทีว่าใครเรียกได้</li>
+<li>HTML ล้วนทำให้โทเคนการออกแบบถูกคัดลอกซ้ำในหัวไฟล์ทุกใบ แก้สีเดียวต้องไล่แก้ 11 ไฟล์</li>
+<li>TypeScript จับความผิดพลาดของรูปข้อมูลระหว่าง front กับ back ได้ตั้งแต่ตอนคอมไพล์</li>
+</ul>
+<div class="box">
+<p><b>เงื่อนไขที่ตั้งไว้ก่อนเริ่ม</b> — ฐานข้อมูลห้ามแตะ · API contract ห้ามเปลี่ยน ·
+ลิงก์เดิมที่พิมพ์ลงบัตรคิวไปแล้วต้องยังใช้ได้ · ถ้าทำไม่เสร็จก่อนพักเที่ยงให้ย้อนกลับทั้งหมด</p>
+</div>
+
+<h3>10.2 Sprint 4 — Backend (Express 5 → NestJS 11 + TypeScript)</h3>
+<table>
+<tr><th style="width:44mm">จาก</th><th>เป็น</th></tr>
+<tr><td>ไฟล์ route 7 ไฟล์</td><td>controller 7 ตัว ครอบคลุม 28 ปลายทาง</td></tr>
+<tr><td><code>requireRole()</code> เป็น middleware ต่อกันเอง</td><td><code>AuthGuard</code> + <code>@Roles()</code> อ่านแล้วรู้ทันทีว่าใครเรียกได้</td></tr>
+<tr><td>error handler กลางเขียนเอง</td><td><code>ApiExceptionFilter</code> คงรูป envelope เดิมทุกตัวอักษร</td></tr>
+<tr><td><code>pg.Pool</code> เป็นตัวแปรระดับโมดูล</td><td><code>DbService</code> ที่ฉีดเข้าไปได้ · <b>SQL และ schema เดิมไม่เปลี่ยน</b></td></tr>
+<tr><td>ตรรกะโดเมนปนกับ route</td><td>ฟังก์ชันล้วนแยกออกมา ทดสอบได้โดยไม่ต้องมีฐานข้อมูล</td></tr>
+<tr><td>เทสต์ด้วย <code>node --test</code></td><td>jest · 24 กรณีผ่านทั้งหมด</td></tr>
+</table>
+
+<h3>10.3 Sprint 5 — Frontend (HTML + nginx → Next.js 15 + TypeScript)</h3>
+<ul>
+<li>หน้าที่ต่อ API จริง 4 หน้าเขียนใหม่เป็น React — <code>/login</code> <code>/registrar</code> <code>/station</code> <code>/patient</code></li>
+<li>อีก 7 หน้ายังเป็น HTML นิ่งที่สร้างจากข้อมูลผัง ซึ่งพอสำหรับภาพนิ่งที่ไม่เปลี่ยนระหว่างวัน</li>
+<li>โทเคนการออกแบบที่เคยซ้ำในทุกไฟล์ รวมเหลือ <code>globals.css</code> ที่เดียว</li>
+<li>ตัวสร้าง QR เลิกพึ่ง CDN ย้ายมาใช้แพ็กเกจจาก npm — ทำงานได้แม้ไม่มีเน็ต</li>
+<li>ลิงก์เดิมยังใช้ได้ — <code>/patient-mobile.html?t=…</code> redirect ไป <code>/patient?t=…</code></li>
+</ul>
+
+<h3>10.4 ปัญหาที่เจอระหว่างย้ายและสาเหตุจริง</h3>
+<table>
+<tr><th class="n">#</th><th style="width:34mm">อาการ</th><th>สาเหตุและวิธีแก้</th></tr>
+<tr><td class="n">1</td><td><b>เข้าสู่ระบบไม่ได้</b> ขึ้น Internal Server Error</td>
+    <td>Next.js แปลง <code>rewrites()</code> เป็นไฟล์ตั้งแต่ตอน build ค่า <code>localhost:3000</code>
+    ที่ถูกฝังไว้จึงหมายถึงตัว container เอง ไม่ใช่ service ของ API ·
+    การตั้ง environment ตอน runtime ไม่มีผล ต้องส่งเป็น build argument</td></tr>
+<tr><td class="n">2</td><td><b>ทุก POST ตอบ 201</b></td>
+    <td>ค่าปริยายของ NestJS · ใส่ <code>@HttpCode(200)</code> 8 จุดให้ตรง contract เดิม</td></tr>
+<tr><td class="n">3</td><td><code>/mockups/</code> ตอบ 404</td>
+    <td>Next ไม่เสิร์ฟ <code>index.html</code> ของโฟลเดอร์แบบที่ nginx ทำให้ · เพิ่ม rewrite</td></tr>
+<tr><td class="n">4</td><td><b>แผนที่ผู้ป่วยว่างเปล่า</b></td>
+    <td>เมื่อผู้ป่วยยืนอยู่ที่จุดหมายแล้ว เส้นทางเป็นอาเรย์ว่าง ซึ่งไม่ใช่ <code>null</code>
+    ตัวตรวจเดิมจับไม่ได้จึงพังกลางการวาด · เพิ่มการตรวจ และแยกข้อความ "อยู่ที่หมายแล้ว"
+    ออกจาก "ไปไม่ถึง" เพราะบอกผู้ใช้รถเข็นว่าไม่มีเส้นทางทั้งที่เดินมาถึงแล้ว เป็นข้อมูลที่ผิด</td></tr>
+<tr><td class="n">5</td><td>เอกสารสั่งคำสั่งที่รันไม่ได้</td>
+    <td>อิมเมจของ API ตัด devDependencies ออก จึงไม่มี jest ข้างใน · ย้ายไปรันบนเครื่อง</td></tr>
+</table>
+
+<h3>10.5 ผลการทดสอบกับฐานข้อมูลจริง</h3>
+<table>
+<tr><th>สิ่งที่ทดสอบ</th><th style="width:44mm">ผล</th></tr>
+<tr><td>เข้าสู่ระบบครบ 5 บัญชี · รหัสผิด</td><td class="ok">200 ทุกบัญชี · รหัสผิดได้ 401</td></tr>
+<tr><td>สิทธิ์ข้ามแผนก — <code>lab1</code> ขอคิวแผนกอื่น</td><td class="ok">403 ตามที่ควร</td></tr>
+<tr><td>กฎลำดับสถานะ — <code>pending</code> → <code>done</code> ตรง ๆ</td><td class="ok">409 CONFLICT</td></tr>
+<tr><td>เส้นทางโปรไฟล์รถเข็น</td><td class="ok">147 เมตร · 9 คำสั่ง · ประโยคไทยถูก</td></tr>
+<tr><td>แทรกขั้นเอกซเรย์</td><td class="ok">เข้าลำดับ 6 ถูกตำแหน่ง</td></tr>
+<tr><td>กด "เสร็จ" ที่จอจุดบริการ</td><td class="ok">หน้าผู้ป่วยเปลี่ยนตาม + แจ้งเตือน</td></tr>
+<tr><td>เส้นทางเว็บ 16 เส้น + redirect เดิม 4 เส้น</td><td class="ok">ครบ</td></tr>
+</table>
+
+<h3>10.6 Stack เมื่อจบวันที่ 2</h3>
+<pre>
+เบราว์เซอร์ ──▶ Next.js 15 :5173 ──┬── React 4 หน้า + HTML นิ่ง 7 หน้า
+                                   └── /api/ ──▶ NestJS 11 :3000 ──▶ PostgreSQL 16
+</pre>
+<p class="note">ฐานข้อมูลเป็นชั้นเดียวที่ไม่เปลี่ยนเลยทั้งสองวัน — <code>schema.sql</code> ที่เขียนเย็นวันที่ 1
+ยังเป็นไฟล์เดิมทุกบรรทัด ซึ่งเป็นหลักฐานว่าการออกแบบฐานข้อมูลตั้งแต่ต้นถูกต้องพอที่จะรองรับ
+การเปลี่ยนเฟรมเวิร์กทั้งสองฝั่งได้โดยไม่ต้องแก้ตาม</p>
+
+<h2>11. การทดสอบ</h2>
+
+<h3>11.1 ชุดทดสอบอัตโนมัติ 24 กรณี</h3>
+<p>รันด้วย <code>npx jest</code> ในโฟลเดอร์ <code>backend/</code> ใช้เวลาประมาณ 9 วินาที
+ทดสอบตรรกะล้วนโดยไม่ต้องมีฐานข้อมูล</p>
+<table>
+<tr><th style="width:44mm">ชุด</th><th class="n">จำนวน</th><th>ครอบคลุมอะไร</th></tr>
+<tr><td><code>graph.test.ts</code></td><td class="n">7</td><td>Dijkstra ตามโปรไฟล์ · รถเข็นเลี่ยงบันได · ทางเดียว · จุดที่ไปไม่ถึง</td></tr>
+<tr><td><code>pathway.test.ts</code></td><td class="n">8</td><td>เงื่อนไขลำดับ · การเลือกขั้นถัดไป · กำหนดเวลา · topological sort · การตรวจวงจร</td></tr>
+<tr><td><code>legs.test.ts</code></td><td class="n">4</td><td>ยุบทางเดินตรง · ทิศขึ้นลงลิฟต์ · ข้อสุดท้ายบอกด้านที่จุดหมายอยู่</td></tr>
+<tr><td><code>csv.test.ts</code></td><td class="n">5</td><td>อ่านไฟล์นำเข้า · เครื่องหมายคำพูดซ้อน · บรรทัดว่าง</td></tr>
+</table>
+
+<h3>11.2 การตรวจอัตโนมัติอื่น</h3>
+<ul>
+<li><code>npm run lint:sql</code> — สแกนโค้ดทั้งหมดหา template literal ที่หน้าตาเป็นคำสั่ง SQL
+แล้วมีการแทรกค่าด้วย <code>${...}</code> ซึ่งเป็นช่องทาง SQL injection · ปัจจุบันผ่าน ไม่มีจุดใดผิด</li>
+<li><code>npx tsc --noEmit</code> — ตรวจชนิดข้อมูลทั้งสองฝั่งก่อน build</li>
+</ul>
+
+<h3>11.3 การทดสอบด้วยมือ</h3>
+<p>ทดสอบเส้นทางสาธิตทั้งเส้นหลัง reset ข้อมูลทุกครั้งที่แก้โค้ด —
+เปิด visit → สแกน QR → เปลี่ยนตำแหน่ง → เจ้าหน้าที่กดสามปุ่ม → แทรกขั้น → ปิดลิฟต์</p>
+
+<h2>12. ข้อจำกัดและงานต่อ</h2>
+
+<h3>12.1 ที่รู้ตัวว่ายังไม่ได้ทำ</h3>
+<table>
+<tr><th style="width:48mm">เรื่อง</th><th>สถานะ</th></tr>
+<tr><td>ยกระบบขึ้นใช้งานบนอินเทอร์เน็ตสาธารณะ</td><td class="partial">วิเคราะห์แล้ว ยังไม่ทำ (ดู 12.2)</td></tr>
+<tr><td>หน้าจัดการผู้ใช้และสิทธิ์</td><td class="no">ยังไม่มี</td></tr>
+<tr><td>หน้าดู audit log</td><td class="no">มี API แล้ว ยังไม่มีหน้าจอ</td></tr>
+<tr><td>นำเข้า CSV ผ่านหน้าเว็บ</td><td class="partial">มี API แล้ว ยังใช้ผ่านคำสั่ง</td></tr>
+<tr><td>ให้หน้าผัง ผลกระทบ โต๊ะช่วยเหลือ ดึงข้อมูลจาก API แทนไฟล์ที่ build ไว้</td><td class="partial">ใช้ได้ แต่เป็นภาพนิ่ง</td></tr>
+<tr><td>backup / restore</td><td class="no">ออกแบบไว้ ยังไม่ได้ทำ</td></tr>
+</table>
+
+<h3>12.2 ทำไมยังไม่ขึ้น Cloudflare Workers</h3>
+<p>หน้าเว็บขึ้นได้ทันที เพราะทั้ง 4 หน้าเป็น client component ไม่มี server action
+แต่ API ขึ้นตรง ๆ ไม่ได้ ติด 6 จุด</p>
+<table>
+<tr><th class="n">#</th><th style="width:40mm">จุด</th><th>ปัญหา</th></tr>
+<tr><td class="n">1</td><td>NestJS HTTP adapter</td><td>ผูกกับ Express ซึ่ง Workers ไม่มี · ต้องเปลี่ยนเป็น Hono</td></tr>
+<tr><td class="n">2</td><td>bcrypt rounds 10</td><td>ใช้ CPU 60–100 ms เกินโควตา 10 ms ของแผนฟรี</td></tr>
+<tr><td class="n">3</td><td><code>pg.Pool</code></td><td>ต้องต่อผ่าน Hyperdrive และใช้ Postgres ภายนอก</td></tr>
+<tr><td class="n">4</td><td><code>fs.readFile</code></td><td>อ่าน schema และ CSV ตอน reset · Workers ไม่มีระบบไฟล์</td></tr>
+<tr><td class="n">5</td><td>แคชกราฟผัง</td><td>เก็บในหน่วยความจำของ instance ไม่แชร์ข้าม isolate</td></tr>
+<tr><td class="n">6</td><td>นาฬิกาจำลอง</td><td>เหตุผลเดียวกับข้อ 5 · ตั้งแล้วเครื่องอื่นไม่เห็น</td></tr>
+</table>
+<p>ทีมเลือกลงทุนเวลากับความครบและความถูกต้องของระบบก่อน แล้วสาธิตจากเครื่องผ่านเครือข่ายภายใน
+ซึ่งพิสูจน์การทำงานจริงได้ครบเท่ากัน</p>
+
+<h3>12.3 ถ้ามีเวลาต่อ</h3>
+<ol>
+<li>เขียน API ใหม่เป็น Hono แล้วขึ้น Workers พร้อม Postgres บน Neon ผ่าน Hyperdrive</li>
+<li>ให้หน้าที่ยังเป็น HTML นิ่งดึงจาก <code>GET /api/map</code> เพื่อให้ผังเปลี่ยนแล้วเห็นทันทีทุกหน้า</li>
+<li>นำผังจริงของโรงพยาบาลเข้าระบบผ่าน CSV แล้ววัดผลกับผู้ป่วยจริง</li>
+<li>เพิ่มหน้าจัดการผู้ใช้ หน้าดู audit และระบบ backup</li>
+</ol>
+
+<div class="box" style="margin-top:6mm">
+<p><b>สรุป</b> — CarePath ต่อครบทั้งสามชั้นและทำงานกับข้อมูลจริงในฐานข้อมูล
+การออกแบบที่เก็บผังโรงพยาบาลเป็นกราฟทำให้การรองรับผู้ใช้รถเข็น การคิดเส้นทางใหม่เมื่อลิฟต์ปิด
+และการแทรกขั้นตอนกลางวัน เป็นผลพลอยได้ของโครงสร้างข้อมูล ไม่ใช่ฟีเจอร์ที่ต้องเขียนแยกทีละอย่าง
+และการที่ <code>schema.sql</code> ไม่ต้องแก้เลยแม้เปลี่ยนเฟรมเวิร์กทั้งสองฝั่งในวันที่ 2
+เป็นหลักฐานว่าการออกแบบฐานข้อมูลในวันที่ 1 วางไว้ถูกต้อง</p>
+</div>
+
+</body></html>
