@@ -1,0 +1,34 @@
+{
+  "exit": "ออกจาก{from}",
+  "turn": {
+    "left": "เลี้ยวซ้าย",
+    "right": "เลี้ยวขวา",
+    "straight": "เดินตรงไป",
+    "back": "กลับหลังหัน"
+  },
+  "walk": "เดิน {m} เมตร",
+  "elevator_up": "ขึ้น{name} ไปชั้น {floor}",
+  "elevator_down": "ลง{name} ไปชั้น {floor}",
+  "stairs_up": "ขึ้น{name} ไปชั้น {floor}",
+  "stairs_down": "ลง{name} ไปชั้น {floor}",
+  "ramp_up": "ขึ้น{name} ไปชั้น {floor}",
+  "ramp_down": "ลง{name} ไปชั้น {floor}",
+  "bridge": "ผ่าน{name} ไปอาคาร {building} ชั้น {floor}",
+  "arrive": "ถึง{name}",
+  "arrive_side": {
+    "left": "{name}อยู่ซ้ายมือ",
+    "right": "{name}อยู่ขวามือ",
+    "ahead": "{name}อยู่ตรงหน้า"
+  },
+  "near": "{landmark}",
+  "warning": {
+    "deadline_soon": "{step}ต้องเสร็จก่อน {time} — {reason}",
+    "no_route": "ขณะนี้ไม่มีเส้นทางไป{step} กรุณาติดต่อเจ้าหน้าที่จุดคัดกรอง",
+    "position_stale": "ยืนยันตำแหน่งอีกครั้งเพื่อให้เส้นทางแม่นยำ"
+  },
+  "notify": {
+    "route_changed": "เส้นทางเปลี่ยน — {reason} กดดูเส้นทางใหม่",
+    "step_added": "มีขั้นตอนเพิ่ม: {step}",
+    "your_turn": "ถึงคิวของคุณที่{point}"
+  }
+}
