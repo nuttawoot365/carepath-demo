@@ -11,7 +11,8 @@ async function bootstrap() {
   const config = app.get<AppConfig>(CONFIG);
 
   app.disable('x-powered-by');
-  app.useBodyParser('json', { limit: '256kb' });
+  // นำเข้าผังส่งเนื้อ CSV มาทาง JSON · ผังจริงของโรงพยาบาลใหญ่กว่าคำขอปกติมาก
+  app.useBodyParser('json', { limit: '4mb' });
   app.useGlobalFilters(new ApiExceptionFilter());
   app.enableShutdownHooks();
 
