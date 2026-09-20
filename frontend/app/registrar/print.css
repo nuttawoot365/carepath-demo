@@ -1,0 +1,5 @@
+/* ตอนสั่งพิมพ์ ให้เหลือเฉพาะบัตรคิว — แถบบนและพื้นหลังหายไปทั้งหมด */
+@media print {
+  body { background: #fff; }
+  .topbar { display: none !important; }
+}

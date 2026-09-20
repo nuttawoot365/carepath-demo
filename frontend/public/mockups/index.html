@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>CarePath · แบบหน้าจอและการออกแบบข้อมูล</title>
+</head>
+<body>
+<div class="index">
+  <header>
+    <h1>CarePath · ระบบนำทางในโรงพยาบาลและติดตามขั้นตอนการรักษา</h1>
+    <p class="caption" style="margin:6px 0 0">ระบบสาธิตสำหรับโรงพยาบาลวชิระภูเก็ต · ผังอาคารและข้อมูลผู้ป่วยเป็นชุดสมมุติ ยังไม่ใช่ผังจริงของโรงพยาบาล</p>
+    <p class="caption" style="margin:6px 0 0">แบบหน้าจอและการออกแบบข้อมูลสำหรับการนำเสนอ · หน้าเหล่านี้เป็นภาพนิ่ง ไม่มี JavaScript ของระบบ และยังไม่เรียก API</p>
+  </header>
+
+  <section>
+    <h2 style="margin-bottom:10px">ผู้ป่วย</h2>
+    <div class="index__grid">
+      <a class="index__card" href="p1-patient-steps.html"><b>p1 · ขั้นตอนวันนี้</b><span>ตอนนี้ไปที่ไหน · เตือนก่อนหมดเวลา · ขั้นตอนทั้งวัน</span></a>
+      <a class="index__card" href="p2-patient-navigate.html"><b>p2 · คำสั่งนำทาง</b><span>ลูกศรและไอคอนมาก่อนข้อความ · เส้นทางสำหรับรถเข็น</span></a>
+      <a class="index__card" href="p3-patient-large.html"><b>p3 · โหมดตัวใหญ่และเสียง</b><span>ผู้สูงอายุ สายตาเลือนราง · ภาษาอังกฤษ</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="margin-bottom:10px">เจ้าหน้าที่</h2>
+    <div class="index__grid">
+      <a class="index__card" href="d1-registrar.html"><b>d1 · เวชระเบียน</b><span>เปิด visit · ตั้งความต้องการพิเศษ · พิมพ์บัตรคิว</span></a>
+      <a class="index__card" href="d2-station.html"><b>d2 · จุดบริการ</b><span>คิวของแผนก · มาถึง/เรียก/เสร็จ · แทรกขั้นตอน</span></a>
+      <a class="index__card" href="d3-admin-map.html"><b>d3 · ผังและเส้นทาง</b><span>ปิดลิฟต์ · ตรวจกราฟ · ทดลองเดิน · นำเข้า CSV</span></a>
+      <a class="index__card" href="d4-admin-template.html"><b>d4 · แม่แบบขั้นตอน</b><span>ลำดับ เงื่อนไข และกำหนดเวลาของแต่ละขั้น</span></a>
+      <a class="index__card" href="d5-dashboard.html"><b>d5 · ผู้บริหาร</b><span>เวลารอรายแผนก · จุดคอขวดของวัน</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="margin-bottom:10px">จอสาธารณะ และการออกแบบข้อมูล</h2>
+    <div class="index__grid">
+      <a class="index__card" href="tv-queue.html"><b>tv · จอเรียกคิว</b><span>เลขคิวอย่างเดียว ไม่มีชื่อผู้ป่วย</span></a>
+      <a class="index__card" href="data-model.html"><b>ออกแบบข้อมูล</b><span>17 ตาราง 3NF · ข้อมูลตัวอย่าง · เหตุผลของรูปแบบ</span></a>
+    </div>
+  </section>
+
+  <section class="card">
+    <p class="eyebrow">สถานการณ์ที่ใช้เดินเรื่องทุกหน้า</p>
+    <p style="margin-top:6px">ผู้ป่วยเบาหวาน คิว A-017 ใช้รถเข็น มาถึง 10:40 ซึ่งสายกว่านัด · ขั้น "เจาะเลือด" มีกำหนดก่อน 11:00 เพราะงดอาหารมา ระบบจึงยกขั้นนี้ขึ้นก่อนคัดกรอง · ระหว่างเดิน ลิฟต์ B ปิดซ่อม ระบบเปลี่ยนเส้นทางเป็นทางลาดอาคาร C และแจ้งผู้ป่วยทันที</p>
+  </section>
+</div>
+</body>
+</html>

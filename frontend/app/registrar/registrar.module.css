@@ -1,0 +1,218 @@
+.clock {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  padding: 3px 12px;
+  border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: 999px;
+  font-size: .85em;
+  background: none;
+  color: #fff;
+  cursor: default;
+}
+.clock.signout { cursor: pointer; }
+
+.wrap {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 960px) { .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+.flow { display: flex; flex-direction: column; gap: 16px; }
+
+/* ---------- ขั้นตอนของเจ้าหน้าที่ ---------- */
+
+.stage {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.stageHead {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+}
+.stageNo {
+  width: 30px; height: 30px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; font-weight: 700; font-size: .9em;
+}
+.stageDone .stageNo { background: var(--success); }
+.stageTitle { font-weight: 700; }
+.stageWhy { font-size: .82em; color: var(--ink-3); }
+.stageBody { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+.seconds {
+  margin-inline-start: auto; flex: none;
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: .78em; color: var(--ink-3);
+}
+
+/* ---------- ฟอร์ม ---------- */
+
+.searchRow { display: flex; gap: 10px; flex-wrap: wrap; }
+.searchRow .grow { flex: 1; min-width: 200px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 620px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+.select {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 9px 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+.select:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+
+.toggle {
+  display: flex; align-items: center; gap: 9px;
+  min-height: var(--tap);
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  cursor: pointer;
+  text-align: start;
+  width: 100%;
+}
+.toggleOn { border-color: var(--primary); background: var(--primary-soft); font-weight: 700; }
+.toggle .sub { display: block; font-size: .78em; font-weight: 400; color: var(--ink-3); }
+.toggle .fill { flex: 1; }
+.toggleStatic { cursor: default; }
+
+/* ---------- ตารางผู้ป่วย ---------- */
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 9px 11px; text-align: start; border-bottom: 1px solid var(--line); }
+.table th { font-size: .76em; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.table tbody tr { cursor: pointer; }
+.table tbody tr[aria-selected="true"] { background: var(--primary-soft); }
+.table tbody tr:hover { background: var(--raised); }
+
+.warnbox {
+  display: flex; gap: 11px; align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--amber);
+  background: var(--amber-soft);
+  border-radius: var(--r-sm);
+}
+.warnbox b { display: block; }
+.warnbox p { font-size: .88em; color: var(--ink-2); }
+
+/* ---------- แผงผลลัพธ์ ---------- */
+
+.out { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 960px) { .out { position: static; } }
+
+.blank {
+  padding: 40px 20px;
+  text-align: center;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--r);
+  color: var(--ink-3);
+}
+.blank .big { font-size: 2.4em; display: block; margin-bottom: 8px; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 15px;
+  box-shadow: var(--shadow-1);
+}
+.panel h3 { font-weight: 700; margin-bottom: 4px; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.actions .grow { flex: 1; }
+
+/* ---------- บัตรคิว ---------- */
+
+.ticket {
+  background: #fff;
+  color: #10222a;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.ticketTop { padding: 16px 18px 12px; text-align: center; border-bottom: 2px dashed #c3d2d8; }
+.hospital { font-size: .78em; letter-spacing: .1em; text-transform: uppercase; color: #5c6b73; }
+.ticketNo {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: 3.6em; font-weight: 700; line-height: 1.05; letter-spacing: .02em;
+}
+.ticketName { font-weight: 600; }
+.ticketQr { display: flex; gap: 14px; align-items: center; padding: 14px 18px; }
+.ticketQr img { width: 108px; height: 108px; flex: none; image-rendering: pixelated; }
+.ticketCode {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: 1.35em; font-weight: 700; letter-spacing: .12em;
+}
+.hint { font-size: .78em; color: #5c6b73; line-height: 1.5; }
+.ticketSteps { padding: 0 18px 16px; }
+.ticketSteps table { width: 100%; border-collapse: collapse; font-size: .84em; }
+.ticketSteps td { padding: 5px 4px; border-bottom: 1px solid #e6ecee; vertical-align: top; }
+.ticketSteps td:first-child { width: 22px; color: #7c9099; font-family: var(--font-plex-mono), monospace; }
+.ticketSteps td:last-child { text-align: end; white-space: nowrap; color: #5c6b73; }
+.where { font-size: .86em; color: #7c9099; }
+.ticketFoot { padding: 10px 18px 14px; border-top: 2px dashed #c3d2d8; font-size: .8em; color: #5c6b73; }
+
+/* ---------- สิ่งที่ระบบสร้าง ---------- */
+
+.made { display: flex; flex-direction: column; gap: 8px; }
+.madeRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+}
+.madeRow code {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: .82em;
+  color: var(--primary-ink);
+}
+.madeRow small { display: block; font-size: .78em; color: var(--ink-3); }
+.madeCount {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.ways { margin: 8px 0 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 5px; }
+.ways li { color: var(--ink-2); }
+
+.linkbox {
+  display: flex; gap: 8px; align-items: center;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: .76em;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- พิมพ์: เหลือเฉพาะบัตรคิว ---------- */
+
+@media print {
+  .noPrint { display: none !important; }
+  .wrap { display: block; padding: 0; max-width: none; }
+  .out { position: static; gap: 0; }
+  .ticket { border: none; box-shadow: none; width: 148mm; }
+  @page { size: A5; margin: 10mm; }
+}

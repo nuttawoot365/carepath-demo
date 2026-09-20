@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>CarePath จัดการระบบ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -392,18 +393,20 @@
   /* ---------- ผู้ใช้ที่เข้าสู่ระบบ ---------- */
 
   function renderUser() {
-    let user = null;
-    try { user = JSON.parse(sessionStorage.getItem('carepath.user') ?? 'null'); }
-    catch { user = null; }
+    // ผู้ใช้ที่เข้าสู่ระบบเก็บไว้ที่เดียวกับหน้าอื่น (js/api.js เป็นคนเขียน)
+    let session = null;
+    try { session = JSON.parse(sessionStorage.getItem('carepath.session') ?? 'null'); }
+    catch { session = null; }
+    const user = session?.user ?? null;
 
-    $('who').textContent = user ? `${user.name} · ${user.username}` : 'ผู้ดูแลระบบ';
+    $('who').textContent = user ? `${user.display_name} · ${user.username}` : 'ผู้ดูแลระบบ';
     $('clock').textContent = new Date().toLocaleString('th-TH', {
       day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   }
 
   $('signout').addEventListener('click', () => {
-    try { sessionStorage.removeItem('carepath.user'); } catch { /* โหมดส่วนตัว */ }
+    try { sessionStorage.removeItem('carepath.session'); } catch { /* โหมดส่วนตัว */ }
     location.href = 'login.html';
   });
 

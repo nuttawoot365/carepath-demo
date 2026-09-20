@@ -14,9 +14,8 @@ const dist = path.join(root, 'dist');
 const APP_PAGES = ['login.html', 'patient-mobile.html', 'patient-map.html', 'registrar.html', 'map.html', 'pathway.html', 'impact.html', 'admin.html', 'station.html', 'helpdesk.html', 'privacy.html'];
 
 /**
- * ไฟล์ใน app/ เขียนไว้สำหรับเผยแพร่เป็น artifact ซึ่งใส่หัวเอกสารให้เอง
- * ตอนเสิร์ฟเป็นไฟล์ธรรมดาจึงต้องเติมเอง ไม่งั้นภาษาไทยกลายเป็นตัวประหลาด
- * และหน้าจอมือถือย่อจนอ่านไม่ออกเพราะไม่มี viewport
+ * ไฟล์ใน app/ ประกาศ charset ไว้ในตัวแล้ว แต่ยังไม่มี doctype กับ viewport
+ * ตอนรวมเป็นเว็บ static จึงต้องเติมให้ ไม่งั้นหน้าจอมือถือย่อจนอ่านไม่ออก
  */
 const DOC_HEAD = [
   '<!doctype html>',
@@ -25,7 +24,7 @@ const DOC_HEAD = [
   '',
 ].join('\n');
 
-const withHead = (html) => (/<meta[^>]+charset/i.test(html) ? html : DOC_HEAD + html);
+const withHead = (html) => (/<!doctype/i.test(html) ? html : DOC_HEAD + html);
 
 async function copyPage(from, to) {
   await fs.writeFile(to, withHead(await fs.readFile(from, 'utf8')));
@@ -45,6 +44,10 @@ await copyPage(path.join(root, 'app', 'login.html'), path.join(dist, 'index.html
 const nested = withHead(await fs.readFile(path.join(root, 'app', 'login.html'), 'utf8'))
   .replace(/href="((?!\.\.\/|mockups\/|https?:)[\w-]+\.html(?:\?[^"]*)?)"/g, 'href="../$1"');
 await fs.writeFile(path.join(dist, 'app', 'login.html'), nested);
+
+// ตัวเรียก API ที่ทุกหน้าใช้ร่วมกัน — หน้าเว็บที่ยกขึ้น static ยังต้องมีไฟล์นี้ไปด้วย
+await fs.mkdir(path.join(dist, 'js'), { recursive: true });
+await fs.copyFile(path.join(root, 'app', 'js', 'api.js'), path.join(dist, 'js', 'api.js'));
 
 // ภาพประกอบของจุดบริการ อยู่ข้าง ๆ หน้าเว็บเพื่อให้อ้างด้วยเส้นทางสัมพัทธ์ได้
 await fs.mkdir(path.join(dist, 'photos'), { recursive: true });

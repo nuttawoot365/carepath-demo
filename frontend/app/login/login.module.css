@@ -1,0 +1,105 @@
+.page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+}
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); } }
+
+.brand {
+  position: relative;
+  overflow: hidden;
+  padding: 48px 44px;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  justify-content: center;
+}
+@media (max-width: 900px) { .brand { padding: 28px 22px; gap: 16px; } }
+
+.brand > * { position: relative; z-index: 1; }
+
+/* ภาพประกอบ: ผู้ป่วยรถเข็นกับญาติที่เดินถึงจุดหมายแล้ว
+   วาดเป็นโทนเดียวกับพื้นหลัง ให้เป็นบรรยากาศ ไม่แย่งความสนใจจากหัวเรื่อง */
+.art {
+  position: absolute;
+  z-index: 0;
+  inset-block-end: -8px;
+  inset-inline-end: -16px;
+  width: min(620px, 78%);
+  pointer-events: none;
+  transform-origin: 70% 100%;
+}
+@media (max-width: 900px) { .art { width: 300px; inset-inline-end: -28px; opacity: .8; } }
+@media (max-width: 560px) { .art { display: none; } }
+
+.art :global(.pop) { animation: pop .9s cubic-bezier(.2, .9, .3, 1.4) both; }
+.art :global(.pop--2) { animation-delay: .12s; }
+.art :global(.pop--3) { animation-delay: .24s; }
+@keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.94); } }
+@media (prefers-reduced-motion: reduce) { .art :global(.pop) { animation: none; } }
+
+.mark { display: flex; align-items: center; gap: 12px; font-size: 1.1em; font-weight: 700; }
+.mark span { font-size: 1.6em; }
+.brand h1 { font-size: 2.1em; font-weight: 800; line-height: 1.2; text-wrap: balance; max-width: 15ch; }
+.brand p { max-width: 46ch; opacity: .92; }
+
+.facts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 6px; }
+.fact { display: flex; flex-direction: column; line-height: 1.2; }
+.fact b { font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace; font-size: 1.7em; font-weight: 700; }
+.fact span { font-size: .82em; opacity: .85; }
+
+.scopeNote { color: #fff; opacity: .85; }
+
+.panel {
+  padding: 40px 34px;
+  background: var(--surface);
+  border-inline-start: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  justify-content: center;
+}
+@media (max-width: 900px) { .panel { padding: 24px 20px; border: none; } }
+
+.heading { font-size: 1.45em; font-weight: 800; }
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.accounts { display: flex; flex-direction: column; gap: 7px; }
+
+.account {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  text-align: start;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.account:hover { border-color: var(--primary); }
+.icon { font-size: 1.35em; }
+.accountName { font-weight: 700; font-size: .94em; }
+.what { display: block; font-size: .78em; color: var(--ink-3); }
+.who {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: .8em;
+  color: var(--primary-ink);
+  background: var(--primary-soft);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.codeForm { display: flex; flex-direction: column; gap: 10px; }
+.codeInput { letter-spacing: .14em; text-transform: uppercase; }
+.codeActions { display: flex; gap: 10px; }
+.codeActions .grow { flex: 1; }

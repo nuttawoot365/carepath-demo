@@ -1,0 +1,269 @@
+/**
+ * โทเคนการออกแบบและคลาสที่ใช้ร่วมกันทุกหน้า
+ * เดิมชุดนี้ถูกคัดลอกไว้ในหัวของไฟล์ HTML ทุกใบ — ย้ายมาอยู่ที่เดียวตอนขึ้น Next.js
+ * สไตล์เฉพาะหน้าอยู่ใน *.module.css ของหน้านั้น
+ */
+
+:root {
+  --primary: #1f6f8b;
+  --primary-ink: #14556d;
+  --primary-soft: #e4f0f4;
+  --warn: #c8552f;
+  --warn-soft: #fbeae3;
+  --amber: #b8791a;
+  --amber-soft: #fbf1df;
+  --success: #2e8b57;
+  --success-soft: #e4f2ea;
+
+  --ground: #f6f9fa;
+  --surface: #ffffff;
+  --raised: #fbfdfd;
+  --ink: #10222a;
+  --ink-2: #4c626c;
+  --ink-3: #7c9099;
+  --line: #dbe5e9;
+  --line-strong: #c3d2d8;
+
+  --shadow-1: 0 1px 2px rgba(16, 34, 42, .07);
+  --shadow-2: 0 2px 6px rgba(16, 34, 42, .07), 0 14px 32px rgba(16, 34, 42, .09);
+
+  --r-sm: 10px;
+  --r: 14px;
+  --r-lg: 20px;
+  --tap: 48px;
+
+  /* หน้าผู้ป่วยขยายตัวหนังสือทั้งหน้าด้วยตัวคูณนี้ (ปุ่ม ก+) */
+  --step: 1;
+  --bar-bg: #ffffffd9;
+
+  color-scheme: light;
+}
+
+/* ผู้ใช้เลือกธีมเอง = ชนะค่าของระบบทั้งสองทิศทาง */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+    --warn: #ef8e6b; --warn-soft: #3a1f16;
+    --amber: #e0a84a; --amber-soft: #382a12;
+    --success: #62bf8d; --success-soft: #16311f;
+    --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+    --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+    --line: #273b44; --line-strong: #375059;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .5);
+    --bar-bg: #15242bd9;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --primary: #5cabc4; --primary-ink: #9ed2e3; --primary-soft: #14313c;
+  --warn: #ef8e6b; --warn-soft: #3a1f16;
+  --amber: #e0a84a; --amber-soft: #382a12;
+  --success: #62bf8d; --success-soft: #16311f;
+  --ground: #0d171c; --surface: #15242b; --raised: #1a2c34;
+  --ink: #e8f0f3; --ink-2: #a5bac3; --ink-3: #74909b;
+  --line: #273b44; --line-strong: #375059;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 36px rgba(0, 0, 0, .5);
+  --bar-bg: #15242bd9;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--ground);
+  color: var(--ink);
+  /* Sarabun ครอบคลุมไทยและละติน · Noto รับช่วงจีน เมียนมา และซีริลลิก */
+  font-family: var(--font-sarabun), Sarabun, 'Noto Sans', 'Noto Sans SC', 'Noto Sans Myanmar',
+               -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: calc(16px * var(--step));
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ภาษาที่ตัวอักษรสูงกว่าไทยต้องการบรรทัดที่หายใจได้มากขึ้น */
+body[data-lang="my"] { line-height: 1.85; }
+body[data-lang="zh"] { line-height: 1.7; }
+body[data-large="on"] { --step: 1.35; }
+
+h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.mono {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- ปุ่มและช่องกรอก ---------- */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--tap);
+  padding: 11px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s ease;
+}
+.btn:active { transform: scale(.985); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn--success { background: var(--success); border-color: var(--success); color: #fff; }
+.btn--lg { min-height: 54px; font-size: 1.05em; }
+.btn--grow { flex: 1; }
+.btn--sm { min-height: 42px; padding: 8px 14px; font-size: .88em; }
+.btn--block { width: 100%; }
+
+:root[data-theme="dark"] .btn--primary,
+:root[data-theme="dark"] .btn--success { color: #08171d; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .btn--primary,
+  :root:not([data-theme="light"]) .btn--success { color: #08171d; }
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: .86em; font-weight: 700; }
+
+.input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+}
+.input:focus-visible { outline: 3px solid var(--primary); outline-offset: 1px; }
+
+/* ---------- โครงหน้าและการ์ด ---------- */
+
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 20px; background: var(--primary); color: #fff;
+}
+.topbar b { font-size: 1.05em; }
+.topbar .spacer { margin-inline-start: auto; }
+.topbar a, .topbar .chip {
+  padding: 4px 13px; border: 1px solid rgba(255, 255, 255, .45); border-radius: 999px;
+  font-size: .82em; color: inherit; text-decoration: none; background: none; cursor: pointer;
+}
+.topbar .chip[aria-pressed="true"] { background: #fff; color: var(--primary-ink); border-color: #fff; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r); box-shadow: var(--shadow-1); overflow: hidden;
+}
+.card__head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 13px 16px; border-bottom: 1px solid var(--line); background: var(--raised);
+}
+.card__head b { font-size: 1.02em; }
+.card__head .spacer { margin-inline-start: auto; }
+.card__body { padding: 16px; }
+
+/* ---------- รายการคิวและขั้นตอน ---------- */
+
+.queue { display: flex; flex-direction: column; gap: 10px; }
+
+.row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center; gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--raised);
+}
+@media (max-width: 720px) { .row { grid-template-columns: 1fr; } }
+.row--now { border: 3px solid var(--primary); background: var(--surface); }
+
+.ticket {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  font-size: 1.7em; font-weight: 800; line-height: 1.1;
+}
+.name { font-weight: 700; }
+.meta { display: block; font-size: .8em; color: var(--ink-3); margin-top: 2px; }
+.acts { display: flex; gap: 9px; flex-wrap: wrap; }
+
+.empty { padding: 34px 20px; text-align: center; color: var(--ink-3); }
+.empty span { font-size: 2.4em; display: block; margin-bottom: 8px; }
+
+/* ---------- ป้ายและข้อความประกอบ ---------- */
+
+.tag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px;
+  font-size: .76em; font-weight: 700; white-space: nowrap;
+  background: var(--primary-soft); color: var(--primary-ink);
+}
+.tag--amber { background: var(--amber-soft); color: var(--amber); }
+.tag--warn { background: var(--warn-soft); color: var(--warn); }
+.tag--ok, .tag--success { background: var(--success-soft); color: var(--success); }
+.tag--muted { background: var(--raised); color: var(--ink-3); border: 1px solid var(--line); }
+
+.note { font-size: .82em; color: var(--ink-3); line-height: 1.65; }
+.note code {
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  background: var(--raised); border: 1px solid var(--line);
+  border-radius: 5px; padding: 1px 6px;
+}
+
+.error {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 11px 13px;
+  border: 1px solid var(--warn);
+  background: var(--warn-soft);
+  border-radius: var(--r-sm);
+  font-size: .9em;
+}
+
+.divider { display: flex; align-items: center; gap: 12px; color: var(--ink-3); font-size: .82em; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+.live { display: inline-flex; align-items: center; gap: 7px; font-size: .8em; color: var(--ink-3); }
+.live i { width: 9px; height: 9px; border-radius: 50%; background: var(--success); display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .live i { animation: blink 1.8s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+}
+
+/* ---------- แจ้งเตือนชั่วคราวและแผ่นเลือก ---------- */
+
+.toast {
+  position: fixed; inset-block-start: 68px; inset-inline: 0; z-index: 40;
+  display: flex; justify-content: center; pointer-events: none;
+}
+.toast div {
+  max-width: 92%; padding: 11px 20px; border-radius: 999px;
+  background: var(--ink); color: var(--ground); font-size: .9em; font-weight: 600;
+  box-shadow: var(--shadow-2);
+}
+
+dialog {
+  width: min(460px, 92vw); padding: 0; border: none; border-radius: var(--r);
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow-2);
+}
+dialog::backdrop { background: rgba(6, 18, 23, .55); }
+.sheet { padding: 18px; display: flex; flex-direction: column; gap: 11px; }
+.pick {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  min-height: var(--tap); padding: 11px 13px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--raised); text-align: start; font-weight: 600; cursor: pointer;
+}
+
+:where(button, input, a, [tabindex]):focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

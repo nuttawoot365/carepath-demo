@@ -7,10 +7,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseCsv, csvBool, csvOrNull } from '../backend/src/lib/csv.js';
+import { parseCsv, csvBool, csvOrNull } from './csv.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(here, '..', 'data');
+// หน้าที่งอกจากข้อมูลยังเป็น HTML นิ่ง · Next.js เสิร์ฟจาก frontend/public/
+const publicDir = path.join(here, '..', 'frontend', 'public');
 
 const read = async (name) => parseCsv(await fs.readFile(path.join(dataDir, `${name}.csv`), 'utf8'));
 
@@ -62,10 +64,12 @@ const pathway = pathRows
 
 const deptColor = Object.fromEntries(deptRows.map((row) => [row.code, row.color]));
 
-/** ฝังข้อมูลลงไฟล์ต้นแบบแล้วเขียนเป็นหน้าเว็บจริง */
+/** เขียนทั้งใน app/ (ต้นฉบับที่แก้ด้วยมือได้) และใน frontend/public/ (ที่ Next.js เสิร์ฟจริง) */
 async function build(name, data) {
   const template = await fs.readFile(path.join(here, `${name}.template.html`), 'utf8');
-  await fs.writeFile(path.join(here, `${name}.html`), template.replace('/*__DATA__*/', JSON.stringify(data)));
+  const page = template.replace('/*__DATA__*/', JSON.stringify(data));
+  await fs.writeFile(path.join(here, `${name}.html`), page);
+  await fs.writeFile(path.join(publicDir, `${name}.html`), page);
 }
 
 await build('map', { nodes, edges, pathway, deptColor });
@@ -101,9 +105,7 @@ const visits = (await read('active-visits')).map((row) => ({
 await build('impact', { nodes, edges, pathway, visits });
 console.log(`สร้าง app/impact.html แล้ว · ผู้ป่วยที่กำลังเดินอยู่ ${visits.length} ราย`);
 
-// ---- จอจุดบริการ: ต้องคำนวณเวลาเดินของผู้ป่วยที่กำลังมา ----
-await build('station', { nodes, edges });
-console.log('สร้าง app/station.html แล้ว');
+// จอจุดบริการไม่อยู่ในรายการนี้แล้ว — หน้านั้นรับคิวและเวลาเดินจาก API ตรง ๆ
 
 // ---- โต๊ะช่วยเหลือ: ค้นด้วยเลขคิวเมื่อผู้ป่วยเดินมาถาม ----
 await build('helpdesk', { nodes, edges, visits });

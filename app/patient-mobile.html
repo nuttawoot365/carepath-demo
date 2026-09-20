@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>CarePath คิว A-017</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -579,7 +580,7 @@
 <div class="phone">
   <header class="topbar">
     <div class="ticket">
-      <b class="mono">A-017</b>
+      <b class="mono" id="ticket">—</b>
       <span id="who"></span>
     </div>
     <div class="topbar__tools">
@@ -599,6 +600,7 @@
 <input type="file" id="photoFile" accept="image/*" capture="environment" hidden>
 <dialog id="sheet"><div class="sheet" id="sheetBody"></div></dialog>
 
+<script src="js/api.js"></script>
 <script>
 (() => {
   'use strict';
@@ -625,8 +627,8 @@
       nowGo: 'ตอนนี้ไปที่', viewRoute: 'ดูเส้นทาง', backSteps: 'ขั้นตอนทั้งหมด',
       arrived: 'ถึงแล้ว บอกเจ้าหน้าที่', lost: 'ไม่เจอ / หลงทาง',
       progress: 'ขั้นตอนวันนี้', remain: 'เหลืออีก {n} ขั้น',
-      deadlineTitle: 'ต้องรีบ — เจาะเลือดก่อน 11:00',
-      deadlineBody: 'งดอาหารมา ต้องเจาะเลือดก่อน 11:00 ระบบจึงจัดให้ไปเจาะเลือดก่อนคัดกรอง เหลืออีก 20 นาที',
+      deadlineTitle: 'ต้องรีบ — {step}ก่อน {time}',
+      deadlineBody: '{reason} ระบบจึงยก{step}ขึ้นมาก่อนขั้นอื่น เหลืออีก {min} นาที',
       rerouteTitle: 'เส้นทางเปลี่ยน',
       rerouteBody: 'ลิฟต์ B ปิดซ่อม ระบบเปลี่ยนให้ไปทางลาดอาคาร C แล้ว ไม่ต้องย้อนกลับ',
       position: 'ตำแหน่งล่าสุด', confirmedBy: 'เจ้าหน้าที่ยืนยัน', youSet: 'คุณยืนยันเอง',
@@ -638,7 +640,7 @@
       of: 'ข้อ {a} จาก {b}', meters: 'เมตร', minutes: 'นาที', turns: 'ข้อ',
       at: 'อาคาร {building} ชั้น {floor}',
       wheelchair: 'ใช้รถเข็น — ระบบเลี่ยงบันไดให้อัตโนมัติ',
-      lostHelp: 'ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว A-017',
+      lostHelp: 'ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว {ticket}',
       demoTitle: 'ควบคุมการสาธิต',
       demoHint: 'ปุ่มเหล่านี้แทนเหตุการณ์จริงจากเจ้าหน้าที่หรือผู้ดูแลระบบ ในระบบจริงหน้านี้อัปเดตเองภายใน 5 วินาที',
       demoFinish: 'เจ้าหน้าที่กด "เสร็จ"', demoLift: 'ผู้ดูแลปิดลิฟต์ B', demoLiftOpen: 'เปิดลิฟต์ B คืน',
@@ -651,16 +653,16 @@
       toastMoved: 'ตั้งตำแหน่งเป็น {p} แล้ว',
       toastXray: 'แทรกขั้น "เอกซเรย์" ก่อนชำระเงินแล้ว',
       toastReset: 'เริ่มสถานการณ์ใหม่',
-      toastArrive: 'บอกเจ้าหน้าที่ว่าคิว A-017 มาถึงแล้ว',
+      toastArrive: 'บอกเจ้าหน้าที่ว่าคิว {ticket} มาถึงแล้ว',
       allDone: 'เสร็จครบทุกขั้นแล้ว',
       allDoneBody: 'ขอให้หายไว ๆ นะคะ นัดครั้งถัดไป 20 ธ.ค. 2569 · เก็บบัตรคิวไว้ยื่นวันนัด',
-      added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน 11:00', doneAt: 'เสร็จ',
+      added: 'แทรกเพิ่ม', deadlineTag: 'ก่อน {time}', doneAt: 'เสร็จ',
       overviewTitle: 'ภาพรวมเส้นทางวันนี้', overviewFloors: 'ขึ้นลง {n} รอบ', overviewCross: 'ข้ามอาคาร {n} ครั้ง',
       mapFull: 'ดูผังเต็ม', floorShort: 'ชั้น {n}', buildingShort: 'อาคาร {b}',
       openedByStaff: 'เจ้าหน้าที่เปิดหน้านี้ให้ · การเปิดถูกบันทึกไว้',
       mapOpen: 'ผังเส้นทางทั้งโรงพยาบาล',
       updatedByStaff: 'เจ้าหน้าที่อัปเดตขั้นตอนให้แล้ว',
-      backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด — เดโมนี้มีคิว A-017 ใบเดียว',
+      backHome: 'หน้าแรกของระบบ', codeUnknown: 'รหัส {c} ไม่ตรงกับบัตรใบใด ',
       pickNearby: 'จุดที่คนมักยืนอยู่', pickAll: 'จุดอื่นทั้งหมด',
       galleryOpen: 'รูปทุกจุดในโรงพยาบาล', galleryTitle: 'รูปทุกจุด',
       galleryHint: 'ทุกจุดในผังมีรูปของตัวเอง กดเพื่อดูภาพใหญ่ หรือถ่ายรูปจริงทับ',
@@ -678,6 +680,7 @@
       'turn.straight': 'เดินตรงไป', 'turn.back': 'กลับหลังหัน',
       walk: 'เดิน {m} เมตร', toward: 'ถึง{to}',
       lift_up: 'ขึ้น{name} ไปชั้น {floor}', lift_down: 'ลง{name} ไปชั้น {floor}',
+      stairs_up: 'ขึ้น{name} ไปชั้น {floor}', stairs_down: 'ลง{name} ไปชั้น {floor}',
       ramp_up: 'ขึ้น{name} ไปชั้น {floor}', ramp_down: 'ลง{name} ไปชั้น {floor}',
       bridge: 'ผ่านทางเชื่อมไปอาคาร {building} ชั้น {floor}',
       arrive_left: '{name}อยู่ซ้ายมือ', arrive_right: '{name}อยู่ขวามือ', arrive_ahead: '{name}อยู่ตรงหน้า',
@@ -685,7 +688,7 @@
       'hint.rampOk': '♿ ทางลาด ไม่มีบันได', 'hint.avoidLift': 'เลี่ยงลิฟต์ B ที่ปิดซ่อม',
       'hint.endCorridor': 'สุดทางเดิน', 'hint.level': 'พื้นเรียบ รถเข็นผ่านได้',
       'hint.exitDoor': 'ข้างประตูทางออก', 'hint.counters': 'ช่อง 1-4 ข้างเวชระเบียน',
-      'hint.askStaff': 'ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว A-017',
+      'hint.askStaff': 'ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว {ticket}',
     },
 
     en: {
@@ -693,8 +696,8 @@
       nowGo: 'Go to now', viewRoute: 'Show directions', backSteps: 'All steps',
       arrived: "I'm here — tell staff", lost: "Can't find it",
       progress: "Today's steps", remain: '{n} steps left',
-      deadlineTitle: 'Hurry — blood test before 11:00',
-      deadlineBody: 'You are fasting, so the blood test must finish before 11:00. We moved it ahead of screening. 20 minutes left.',
+      deadlineTitle: 'Hurry — {step} before {time}',
+      deadlineBody: '{reason} We moved {step} ahead of the other steps. {min} minutes left.',
       rerouteTitle: 'Route changed',
       rerouteBody: 'Lift B is closed for repair. We routed you via the Building C ramp — no need to turn back.',
       position: 'Last known position', confirmedBy: 'Confirmed by staff', youSet: 'You set this',
@@ -706,7 +709,7 @@
       of: 'Step {a} of {b}', meters: 'm', minutes: 'min', turns: 'turns',
       at: 'Building {building} · Floor {floor}',
       wheelchair: 'Wheelchair — stairs are excluded automatically',
-      lostHelp: 'Lost? Show queue A-017 to any staff member.',
+      lostHelp: 'Lost? Show queue {ticket} to any staff member.',
       demoTitle: 'Demo controls',
       demoHint: 'These stand in for real events from staff or the administrator. In the live system this screen updates on its own within 5 seconds.',
       demoFinish: 'Staff taps "Done"', demoLift: 'Admin closes Lift B', demoLiftOpen: 'Reopen Lift B',
@@ -719,16 +722,16 @@
       toastMoved: 'Position set to {p}',
       toastXray: 'X-ray inserted before payment',
       toastReset: 'Scenario restarted',
-      toastArrive: 'Tell staff that queue A-017 has arrived',
+      toastArrive: 'Tell staff that queue {ticket} has arrived',
       allDone: 'All steps complete',
       allDoneBody: 'Take care. Next appointment 20 Dec 2026 — keep this ticket for that day.',
-      added: 'added', deadlineTag: 'before 11:00', doneAt: 'done',
+      added: 'added', deadlineTag: 'before {time}', doneAt: 'done',
       overviewTitle: "Today's journey at a glance", overviewFloors: '{n} floor changes', overviewCross: '{n} building crossings',
       mapFull: 'Full map', floorShort: 'Floor {n}', buildingShort: 'Building {b}',
       openedByStaff: 'Opened for you by staff · this access is logged',
       mapOpen: 'Map of the whole hospital',
       updatedByStaff: 'Staff have updated your steps',
-      backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket — this demo has only queue A-017',
+      backHome: 'System home', codeUnknown: 'Code {c} does not match any ticket ',
       pickNearby: 'Places people usually stand', pickAll: 'Everywhere else',
       galleryOpen: 'Photos of every place', galleryTitle: 'Every place',
       galleryHint: 'Every place on the map has its own picture. Tap one to see it large or replace it with a real photo.',
@@ -745,6 +748,7 @@
       'turn.straight': 'go straight', 'turn.back': 'turn around',
       walk: 'walk {m} m', toward: 'to {to}',
       lift_up: 'take {name} up to floor {floor}', lift_down: 'take {name} down to floor {floor}',
+      stairs_up: 'take {name} up to floor {floor}', stairs_down: 'take {name} down to floor {floor}',
       ramp_up: 'take {name} up to floor {floor}', ramp_down: 'take {name} down to floor {floor}',
       bridge: 'cross the bridge to Building {building}, floor {floor}',
       arrive_left: '{name} is on your left', arrive_right: '{name} is on your right', arrive_ahead: '{name} is straight ahead',
@@ -752,7 +756,7 @@
       'hint.rampOk': '♿ ramp, no stairs', 'hint.avoidLift': 'avoiding the closed Lift B',
       'hint.endCorridor': 'at the end of the corridor', 'hint.level': 'level floor, wheelchair friendly',
       'hint.exitDoor': 'next to the exit door', 'hint.counters': 'counters 1–4, next to registration',
-      'hint.askStaff': 'Ask any staff member and show queue A-017',
+      'hint.askStaff': 'Ask any staff member and show queue {ticket}',
     },
 
     zh: {
@@ -760,8 +764,8 @@
       nowGo: '现在前往', viewRoute: '查看路线', backSteps: '全部步骤',
       arrived: '我到了，告知工作人员', lost: '找不到 / 迷路了',
       progress: '今天的流程', remain: '还剩 {n} 步',
-      deadlineTitle: '请抓紧 — 抽血须在 11:00 前完成',
-      deadlineBody: '您正在空腹，抽血必须在 11:00 前完成，因此系统把抽血调到分诊之前。还剩 20 分钟。',
+      deadlineTitle: '请抓紧 — {step}须在 {time} 前完成',
+      deadlineBody: '{reason} 系统已把{step}提前到其他步骤之前。还剩 {min} 分钟。',
       rerouteTitle: '路线已更改',
       rerouteBody: 'B 座电梯正在维修。系统已改为经 C 座坡道前往，无需原路返回。',
       position: '最近确认的位置', confirmedBy: '工作人员确认', youSet: '您自己设置',
@@ -773,7 +777,7 @@
       of: '第 {a} 条，共 {b} 条', meters: '米', minutes: '分钟', turns: '条',
       at: '{building} 座 {floor} 层',
       wheelchair: '使用轮椅 — 系统已自动避开台阶',
-      lostHelp: '迷路了？向任何工作人员出示排队号 A-017。',
+      lostHelp: '迷路了？向任何工作人员出示排队号 {ticket}。',
       demoTitle: '演示控制',
       demoHint: '这些按钮代表工作人员或管理员的真实操作。在正式系统中，本页面会在 5 秒内自动更新。',
       demoFinish: '工作人员点击"完成"', demoLift: '管理员关闭 B 座电梯', demoLiftOpen: '重新开放 B 座电梯',
@@ -786,16 +790,16 @@
       toastMoved: '位置已设为 {p}',
       toastXray: '已在收费前插入放射检查',
       toastReset: '演示已重新开始',
-      toastArrive: '请告知工作人员排队号 A-017 已到达',
+      toastArrive: '请告知工作人员排队号 {ticket} 已到达',
       allDone: '全部流程已完成',
       allDoneBody: '祝您早日康复。下次复诊 2026 年 12 月 20 日 — 请保留此排队单。',
-      added: '新增', deadlineTag: '11:00 前', doneAt: '完成',
+      added: '新增', deadlineTag: '{time} 前', doneAt: '完成',
       overviewTitle: '今日路线总览', overviewFloors: '上下楼 {n} 次', overviewCross: '跨楼 {n} 次',
       mapFull: '查看完整地图', floorShort: '{n} 层', buildingShort: '{b} 座',
       openedByStaff: '由工作人员为您打开 · 此次访问已记录',
       mapOpen: '全院路线图',
       updatedByStaff: '工作人员已更新您的流程',
-      backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 — 本演示只有 A-017 一张',
+      backHome: '系统首页', codeUnknown: '代码 {c} 与任何排队单都不匹配 ',
       pickNearby: '常见的所在位置', pickAll: '其他全部地点',
       galleryOpen: '全部地点的照片', galleryTitle: '全部地点',
       galleryHint: '地图上每个地点都有对应图片。点击可查看大图，或用实景照片替换。',
@@ -812,6 +816,7 @@
       'turn.straight': '直行', 'turn.back': '转身',
       walk: '步行 {m} 米', toward: '到{to}',
       lift_up: '乘{name}上到 {floor} 层', lift_down: '乘{name}下到 {floor} 层',
+      stairs_up: '走{name}上到 {floor} 层', stairs_down: '走{name}下到 {floor} 层',
       ramp_up: '经{name}上到 {floor} 层', ramp_down: '经{name}下到 {floor} 层',
       bridge: '通过连廊前往 {building} 座 {floor} 层',
       arrive_left: '{name}在您左手边', arrive_right: '{name}在您右手边', arrive_ahead: '{name}在您正前方',
@@ -819,7 +824,7 @@
       'hint.rampOk': '♿ 坡道，无台阶', 'hint.avoidLift': '避开维修中的 B 座电梯',
       'hint.endCorridor': '在走廊尽头', 'hint.level': '地面平整，轮椅可通行',
       'hint.exitDoor': '在出口门旁', 'hint.counters': '1-4 号窗口，挂号处旁',
-      'hint.askStaff': '向任何工作人员出示排队号 A-017',
+      'hint.askStaff': '向任何工作人员出示排队号 {ticket}',
     },
 
     my: {
@@ -827,8 +832,8 @@
       nowGo: 'ယခု သွားရမည့်နေရာ', viewRoute: 'လမ်းကြောင်း ကြည့်ရန်', backSteps: 'အဆင့်အားလုံး',
       arrived: 'ရောက်ပါပြီ — ဝန်ထမ်းကို ပြောပါ', lost: 'မတွေ့ပါ / လမ်းပျောက်နေသည်',
       progress: 'ယနေ့ အဆင့်များ', remain: 'နောက်ထပ် {n} ဆင့် ကျန်သည်',
-      deadlineTitle: 'အမြန်သွားပါ — သွေးစစ်ခြင်းကို 11:00 မတိုင်မီ ပြီးရမည်',
-      deadlineBody: 'အစာရှောင်ထားသဖြင့် သွေးစစ်ခြင်းကို 11:00 မတိုင်မီ ပြီးရမည်။ ထို့ကြောင့် စစ်ဆေးရေးဌာနမတိုင်မီ သွေးစစ်ရန် ရွှေ့ပေးထားသည်။ 20 မိနစ် ကျန်သည်။',
+      deadlineTitle: 'အမြန်သွားပါ — {step} ကို {time} မတိုင်မီ ပြီးရမည်',
+      deadlineBody: '{reason} ထို့ကြောင့် {step} ကို အခြားအဆင့်များမတိုင်မီ ရွှေ့ပေးထားသည်။ {min} မိနစ် ကျန်သည်။',
       rerouteTitle: 'လမ်းကြောင်း ပြောင်းလဲသွားသည်',
       rerouteBody: 'B ဓာတ်လှေကား ပြုပြင်နေသည်။ C အဆောက်အအုံ လျှောလမ်းမှ သွားရန် ပြောင်းပေးလိုက်ပါပြီ။ နောက်ပြန်လှည့်ရန် မလိုပါ။',
       position: 'နောက်ဆုံး အတည်ပြုထားသော တည်နေရာ', confirmedBy: 'ဝန်ထမ်း အတည်ပြုသည်', youSet: 'သင် ကိုယ်တိုင် သတ်မှတ်သည်',
@@ -840,7 +845,7 @@
       of: '{b} ခုအနက် {a} ခုမြောက်', meters: 'မီတာ', minutes: 'မိနစ်', turns: 'ခု',
       at: '{building} အဆောက်အအုံ၊ {floor} လွှာ',
       wheelchair: 'ဘီးတပ်ကုလားထိုင် သုံးသည် — လှေကားများကို အလိုအလျောက် ရှောင်ပေးသည်',
-      lostHelp: 'လမ်းပျောက်ပါက ဝန်ထမ်းတစ်ဦးဦးကို တန်းစီနံပါတ် A-017 ပြပါ။',
+      lostHelp: 'လမ်းပျောက်ပါက ဝန်ထမ်းတစ်ဦးဦးကို တန်းစီနံပါတ် {ticket} ပြပါ။',
       demoTitle: 'သရုပ်ပြ ထိန်းချုပ်မှု',
       demoHint: 'ဤခလုတ်များသည် ဝန်ထမ်း သို့မဟုတ် စီမံခန့်ခွဲသူ၏ လုပ်ဆောင်ချက်များကို ကိုယ်စားပြုသည်။ တကယ့်စနစ်တွင် ဤစာမျက်နှာသည် 5 စက္ကန့်အတွင်း အလိုအလျောက် ပြောင်းလဲသည်။',
       demoFinish: 'ဝန်ထမ်းက "ပြီးပြီ" ကို နှိပ်သည်', demoLift: 'စီမံခန့်ခွဲသူက B ဓာတ်လှေကားကို ပိတ်သည်', demoLiftOpen: 'B ဓာတ်လှေကားကို ပြန်ဖွင့်ရန်',
@@ -853,16 +858,16 @@
       toastMoved: 'တည်နေရာကို {p} အဖြစ် သတ်မှတ်ပြီးပါပြီ',
       toastXray: 'ငွေပေးချေခြင်းမတိုင်မီ ဓာတ်မှန်ရိုက်ခြင်း ထည့်သွင်းပြီးပါပြီ',
       toastReset: 'သရုပ်ပြမှု အစမှ ပြန်စပါပြီ',
-      toastArrive: 'တန်းစီနံပါတ် A-017 ရောက်ပြီဖြစ်ကြောင်း ဝန်ထမ်းကို ပြောပါ',
+      toastArrive: 'တန်းစီနံပါတ် {ticket} ရောက်ပြီဖြစ်ကြောင်း ဝန်ထမ်းကို ပြောပါ',
       allDone: 'အဆင့်အားလုံး ပြီးဆုံးပါပြီ',
       allDoneBody: 'ကျန်းမာပါစေ။ နောက်ချိန်းဆိုမှု 2026 ဒီဇင်ဘာ 20 — ဤတန်းစီလက်မှတ်ကို သိမ်းထားပါ။',
-      added: 'ထပ်ထည့်', deadlineTag: '11:00 မတိုင်မီ', doneAt: 'ပြီး',
+      added: 'ထပ်ထည့်', deadlineTag: '{time} မတိုင်မီ', doneAt: 'ပြီး',
       overviewTitle: 'ယနေ့ ခရီးစဉ် အကျဉ်းချုပ်', overviewFloors: 'အထပ် {n} ကြိမ် ပြောင်းရမည်', overviewCross: 'အဆောက်အအုံ {n} ကြိမ် ကူးရမည်',
       mapFull: 'မြေပုံအပြည့် ကြည့်ရန်', floorShort: '{n} လွှာ', buildingShort: '{b} အဆောက်အအုံ',
       openedByStaff: 'ဝန်ထမ်းက သင့်အတွက် ဖွင့်ပေးထားသည် · ဤဝင်ရောက်မှုကို မှတ်တမ်းတင်ထားသည်',
       mapOpen: 'ဆေးရုံတစ်ခုလုံး၏ လမ်းကြောင်းမြေပုံ',
       updatedByStaff: 'ဝန်ထမ်းက သင့်အဆင့်များကို ပြင်ဆင်ပြီးပါပြီ',
-      backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ — ဤသရုပ်ပြတွင် A-017 တစ်ခုသာ ရှိသည်',
+      backHome: 'စနစ် ပင်မစာမျက်နှာ', codeUnknown: '{c} ကုဒ်သည် မည်သည့်လက်မှတ်နှင့်မျှ မကိုက်ညီပါ ',
       pickNearby: 'လူများ ရပ်နေလေ့ရှိသော နေရာများ', pickAll: 'အခြား နေရာအားလုံး',
       galleryOpen: 'နေရာအားလုံး၏ ဓာတ်ပုံများ', galleryTitle: 'နေရာအားလုံး',
       galleryHint: 'မြေပုံပေါ်ရှိ နေရာတိုင်းတွင် ကိုယ်ပိုင်ပုံ ရှိသည်။ ပုံကြီးကြည့်ရန် သို့မဟုတ် တကယ့်ဓာတ်ပုံဖြင့် အစားထိုးရန် နှိပ်ပါ။',
@@ -879,6 +884,7 @@
       'turn.straight': 'တည့်တည့် လျှောက်ပါ', 'turn.back': 'နောက်ပြန် လှည့်ပါ',
       walk: '{m} မီတာ လျှောက်ပါ', toward: '{to} သို့',
       lift_up: '{name} ဖြင့် {floor} လွှာသို့ တက်ပါ', lift_down: '{name} ဖြင့် {floor} လွှာသို့ ဆင်းပါ',
+      stairs_up: '{name} ဖြင့် {floor} လွှာသို့ တက်ပါ', stairs_down: '{name} ဖြင့် {floor} လွှာသို့ ဆင်းပါ',
       ramp_up: '{name} ဖြင့် {floor} လွှာသို့ တက်ပါ', ramp_down: '{name} ဖြင့် {floor} လွှာသို့ ဆင်းပါ',
       bridge: 'ချိတ်ဆက်လမ်းမှ {building} အဆောက်အအုံ၊ {floor} လွှာသို့ သွားပါ',
       arrive_left: '{name} သည် သင့်ဘယ်ဘက်တွင် ရှိသည်', arrive_right: '{name} သည် သင့်ညာဘက်တွင် ရှိသည်', arrive_ahead: '{name} သည် သင့်ရှေ့တည့်တည့်တွင် ရှိသည်',
@@ -886,7 +892,7 @@
       'hint.rampOk': '♿ လျှောလမ်း၊ လှေကား မရှိပါ', 'hint.avoidLift': 'ပိတ်ထားသော B ဓာတ်လှေကားကို ရှောင်ထားသည်',
       'hint.endCorridor': 'စင်္ကြံ အဆုံးတွင်', 'hint.level': 'ကြမ်းပြင်ညီ၊ ဘီးတပ်ကုလားထိုင် သွားနိုင်သည်',
       'hint.exitDoor': 'အထွက်တံခါး ဘေးတွင်', 'hint.counters': 'ကောင်တာ 1-4၊ မှတ်ပုံတင်ဌာန ဘေးတွင်',
-      'hint.askStaff': 'ဝန်ထမ်းတစ်ဦးဦးကို တန်းစီနံပါတ် A-017 ပြပါ',
+      'hint.askStaff': 'ဝန်ထမ်းတစ်ဦးဦးကို တန်းစီနံပါတ် {ticket} ပြပါ',
     },
 
     ru: {
@@ -894,8 +900,8 @@
       nowGo: 'Сейчас идите', viewRoute: 'Показать маршрут', backSteps: 'Все этапы',
       arrived: 'Я на месте — сообщить персоналу', lost: 'Не могу найти',
       progress: 'Этапы на сегодня', remain: 'Осталось этапов: {n}',
-      deadlineTitle: 'Поторопитесь — анализ крови до 11:00',
-      deadlineBody: 'Вы натощак, поэтому анализ крови должен быть сдан до 11:00. Мы перенесли его перед осмотром. Осталось 20 минут.',
+      deadlineTitle: 'Поторопитесь — {step} до {time}',
+      deadlineBody: '{reason} Мы перенесли этап «{step}» вперёд. Осталось {min} минут.',
       rerouteTitle: 'Маршрут изменён',
       rerouteBody: 'Лифт B закрыт на ремонт. Маршрут проложен через пандус корпуса C — возвращаться не нужно.',
       position: 'Последнее подтверждённое место', confirmedBy: 'Подтвердил персонал', youSet: 'Вы указали сами',
@@ -907,7 +913,7 @@
       of: 'Шаг {a} из {b}', meters: 'м', minutes: 'мин', turns: 'шагов',
       at: 'Корпус {building} · Этаж {floor}',
       wheelchair: 'Коляска — лестницы исключены автоматически',
-      lostHelp: 'Заблудились? Покажите номер очереди A-017 любому сотруднику.',
+      lostHelp: 'Заблудились? Покажите номер очереди {ticket} любому сотруднику.',
       demoTitle: 'Управление демонстрацией',
       demoHint: 'Эти кнопки заменяют реальные действия персонала или администратора. В рабочей системе страница обновляется сама в течение 5 секунд.',
       demoFinish: 'Сотрудник нажимает «Готово»', demoLift: 'Администратор закрывает лифт B', demoLiftOpen: 'Снова открыть лифт B',
@@ -920,16 +926,16 @@
       toastMoved: 'Место установлено: {p}',
       toastXray: 'Рентген добавлен перед оплатой',
       toastReset: 'Сценарий начат заново',
-      toastArrive: 'Сообщите персоналу, что очередь A-017 на месте',
+      toastArrive: 'Сообщите персоналу, что очередь {ticket} на месте',
       allDone: 'Все этапы пройдены',
       allDoneBody: 'Выздоравливайте. Следующий приём 20 декабря 2026 — сохраните этот талон.',
-      added: 'добавлено', deadlineTag: 'до 11:00', doneAt: 'готово',
+      added: 'добавлено', deadlineTag: 'до {time}', doneAt: 'готово',
       overviewTitle: 'Весь маршрут на сегодня', overviewFloors: 'смен этажа: {n}', overviewCross: 'переходов между корпусами: {n}',
       mapFull: 'Полная карта', floorShort: 'Этаж {n}', buildingShort: 'Корпус {b}',
       openedByStaff: 'Открыто для вас сотрудником · доступ зафиксирован',
       mapOpen: 'Карта всей больницы',
       updatedByStaff: 'Персонал обновил ваши этапы',
-      backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону — в демо есть только очередь A-017',
+      backHome: 'Главная системы', codeUnknown: 'Код {c} не соответствует ни одному талону ',
       pickNearby: 'Где обычно стоят', pickAll: 'Все остальные места',
       galleryOpen: 'Фото всех мест', galleryTitle: 'Все места',
       galleryHint: 'У каждого места на карте есть своё изображение. Нажмите, чтобы открыть крупно или заменить реальным фото.',
@@ -946,6 +952,7 @@
       'turn.straight': 'идите прямо', 'turn.back': 'развернитесь',
       walk: 'пройдите {m} м', toward: 'до {to}',
       lift_up: 'поднимитесь на {name} на {floor} этаж', lift_down: 'спуститесь на {name} на {floor} этаж',
+      stairs_up: 'поднимитесь по {name} на {floor} этаж', stairs_down: 'спуститесь по {name} на {floor} этаж',
       ramp_up: 'поднимитесь по {name} на {floor} этаж', ramp_down: 'спуститесь по {name} на {floor} этаж',
       bridge: 'перейдите по переходу в корпус {building}, этаж {floor}',
       arrive_left: '{name} слева от вас', arrive_right: '{name} справа от вас', arrive_ahead: '{name} прямо перед вами',
@@ -953,7 +960,7 @@
       'hint.rampOk': '♿ пандус, без лестниц', 'hint.avoidLift': 'в обход закрытого лифта B',
       'hint.endCorridor': 'в конце коридора', 'hint.level': 'ровный пол, доступно для колясок',
       'hint.exitDoor': 'рядом с выходом', 'hint.counters': 'окна 1–4, рядом с регистратурой',
-      'hint.askStaff': 'Покажите номер очереди A-017 любому сотруднику',
+      'hint.askStaff': 'Покажите номер очереди {ticket} любому сотруднику',
     },
   };
 
@@ -997,125 +1004,8 @@
     'BRIDGE':  { icon: '🌉', building: 'A', floor: 2, th: 'ทางเชื่อม', en: 'the bridge', zh: '连廊', my: 'ချိတ်ဆက်လမ်း', ru: 'переход' },
   };
 
-  /* ==========================================================================
-     เส้นทาง — เก็บเป็นข้อมูล ไม่ใช่ประโยค
-     act: walk | lift | ramp | bridge   ·   ประโยคประกอบจากแม่แบบของแต่ละภาษา
-     ========================================================================== */
-
-  const ROUTES = {
-    'A2-SCR>B3-LAB': [
-      { act: 'walk', turn: 'right', m: 25, to: 'LOBBY-A2' },
-      { act: 'walk', turn: 'straight', m: 25, to: 'BRIDGE', hint: 'endCorridor' },
-      { act: 'bridge', m: 40, building: 'B', floor: 2, hint: 'level' },
-      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 3, m: 0 },
-      { act: 'walk', turn: 'left', m: 24, arrive: 'B3-LAB', side: 'right', hint: 'water' },
-    ],
-    'A2-SCR>B3-LAB@detour': [
-      { act: 'walk', turn: 'right', m: 25, to: 'LOBBY-A2' },
-      { act: 'bridge', m: 65, building: 'B', floor: 2, hint: 'level' },
-      { act: 'bridge', m: 35, building: 'C', floor: 2, hint: 'avoidLift' },
-      { act: 'ramp', dir: 'up', name: 'RAMP-C', floor: 3, m: 40, hint: 'rampOk' },
-      { act: 'walk', turn: 'left', m: 59, arrive: 'B3-LAB', side: 'right', hint: 'water' },
-    ],
-    'A1-ENT>A1-REG': [
-      { act: 'walk', turn: 'straight', m: 8, to: 'A1-INFO' },
-      { act: 'walk', turn: 'left', m: 10, arrive: 'A1-REG', side: 'left' },
-    ],
-    'A1-ENT>B3-LAB': [
-      { act: 'walk', turn: 'straight', m: 18, to: 'A1-REG' },
-      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
-      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
-      { act: 'bridge', m: 69, building: 'B', floor: 2 },
-      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 3, m: 0 },
-      { act: 'walk', turn: 'left', m: 24, arrive: 'B3-LAB', side: 'right', hint: 'water' },
-    ],
-    'A1-ENT>A2-SCR': [
-      { act: 'walk', turn: 'straight', m: 18, to: 'A1-REG' },
-      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
-      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
-      { act: 'walk', turn: 'left', m: 24, arrive: 'A2-SCR', side: 'right', hint: 'water' },
-    ],
-    'A1-REG>B3-LAB': [
-      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
-      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
-      { act: 'bridge', m: 69, building: 'B', floor: 2 },
-      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 3, m: 0 },
-      { act: 'walk', turn: 'left', m: 24, arrive: 'B3-LAB', side: 'right', hint: 'water' },
-    ],
-    'A1-REG>B3-LAB@detour': [
-      { act: 'walk', turn: 'right', m: 25, to: 'LIFT-A' },
-      { act: 'lift', dir: 'up', name: 'LIFT-A', floor: 2, m: 0 },
-      { act: 'bridge', m: 69, building: 'B', floor: 2 },
-      { act: 'bridge', m: 35, building: 'C', floor: 2, hint: 'avoidLift' },
-      { act: 'ramp', dir: 'up', name: 'RAMP-C', floor: 3, m: 40, hint: 'rampOk' },
-      { act: 'walk', turn: 'left', m: 59, arrive: 'B3-LAB', side: 'right', hint: 'water' },
-    ],
-    'B3-LAB>A2-SCR': [
-      { act: 'walk', turn: 'right', m: 20, to: 'LOBBY-B3' },
-      { act: 'lift', dir: 'down', name: 'LIFT-B', floor: 2, m: 0 },
-      { act: 'bridge', m: 55, building: 'A', floor: 2 },
-      { act: 'walk', turn: 'left', m: 20, arrive: 'A2-SCR', side: 'right', hint: 'water' },
-    ],
-    'B3-LAB>B3-WAIT': [
-      { act: 'walk', turn: 'straight', m: 6, arrive: 'B3-WAIT', side: 'ahead' },
-    ],
-    'A2-SCR>B3-WAIT': [
-      { act: 'walk', turn: 'straight', m: 50, to: 'BRIDGE' },
-      { act: 'bridge', m: 40, building: 'B', floor: 2, hint: 'level' },
-      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 3, m: 0 },
-      { act: 'walk', turn: 'left', m: 26, arrive: 'B3-WAIT', side: 'right' },
-    ],
-    'B3-WAIT>C4-MED': [
-      { act: 'walk', turn: 'right', m: 30, to: 'BRIDGE' },
-      { act: 'bridge', m: 35, building: 'C', floor: 3 },
-      { act: 'lift', dir: 'up', name: 'LIFT-C', floor: 4, m: 0 },
-      { act: 'walk', turn: 'left', m: 15, arrive: 'C4-MED', side: 'left', hint: 'greenSign' },
-    ],
-    'C4-MED>B1-XR': [
-      { act: 'walk', turn: 'back', m: 15, to: 'LOBBY-C4' },
-      { act: 'lift', dir: 'down', name: 'LIFT-C', floor: 3, m: 0 },
-      { act: 'bridge', m: 47, building: 'B', floor: 3 },
-      { act: 'lift', dir: 'down', name: 'LIFT-B', floor: 1, m: 0 },
-      { act: 'walk', turn: 'right', m: 30, arrive: 'B1-XR', side: 'ahead', hint: 'endCorridor' },
-    ],
-    'C4-MED>A1-PAY': [
-      { act: 'walk', turn: 'back', m: 15, to: 'LOBBY-C4' },
-      { act: 'lift', dir: 'down', name: 'LIFT-C', floor: 2, m: 0 },
-      { act: 'bridge', m: 47, building: 'B', floor: 2 },
-      { act: 'bridge', m: 40, building: 'A', floor: 2 },
-      { act: 'lift', dir: 'down', name: 'LIFT-A', floor: 1, m: 0 },
-      { act: 'walk', turn: 'left', m: 10, arrive: 'A1-PAY', side: 'left', hint: 'counters' },
-    ],
-    'B1-XR>A1-PAY': [
-      { act: 'walk', turn: 'back', m: 30, to: 'LIFT-B' },
-      { act: 'lift', dir: 'up', name: 'LIFT-B', floor: 2, m: 0 },
-      { act: 'bridge', m: 55, building: 'A', floor: 2 },
-      { act: 'lift', dir: 'down', name: 'LIFT-A', floor: 1, m: 0 },
-      { act: 'walk', turn: 'left', m: 10, arrive: 'A1-PAY', side: 'left', hint: 'counters' },
-    ],
-    'A1-PAY>A1-PHA': [
-      { act: 'walk', turn: 'right', m: 20, arrive: 'A1-PHA', side: 'right', hint: 'exitDoor' },
-    ],
-  };
-
-  // จุดที่ขึ้นก่อนในแผ่น "ตอนนี้คุณอยู่ตรงไหน" — ทุกจุดมีเส้นทางเขียนไว้ครบ
+  // จุดที่ขึ้นก่อนในแผ่น "ตอนนี้คุณอยู่ตรงไหน" — จุดอื่นเลือกได้เหมือนกัน API คิดเส้นทางให้ทุกคู่
   const NEARBY = ['A1-ENT', 'A1-REG', 'A2-SCR', 'B3-LAB', 'B3-WAIT', 'C4-MED', 'B1-XR', 'A1-PAY'];
-
-  const BASE_STEPS = [
-    { id: 1, point: 'A1-REG',  status: 'done', at: '09:52', th: 'ยื่นบัตรและยืนยันการนัด', en: 'Check in', zh: '挂号并确认预约', my: 'မှတ်ပုံတင်ပြီး ချိန်းဆိုမှု အတည်ပြုရန်', ru: 'Регистрация и подтверждение записи' },
-    { id: 3, point: 'B3-LAB',  status: 'pending', deadline: true, th: 'เจาะเลือด', en: 'Blood test', zh: '抽血', my: 'သွေးစစ်ခြင်း', ru: 'Анализ крови' },
-    { id: 2, point: 'A2-SCR',  status: 'pending', th: 'ชั่งน้ำหนัก วัดความดัน', en: 'Weight & blood pressure', zh: '测体重和血压', my: 'ကိုယ်အလေးချိန်နှင့် သွေးပေါင်တိုင်းခြင်း', ru: 'Вес и давление' },
-    { id: 4, point: 'B3-WAIT', status: 'pending', th: 'รอผลตรวจ', en: 'Wait for results', zh: '等待检验结果', my: 'စစ်ဆေးမှုရလဒ် စောင့်ရန်', ru: 'Ожидание результатов' },
-    { id: 5, point: 'C4-MED',  status: 'pending', th: 'พบแพทย์', en: 'See the doctor', zh: '就诊', my: 'ဆရာဝန်နှင့် တွေ့ရန်', ru: 'Приём врача' },
-    { id: 6, point: 'A1-PAY',  status: 'pending', th: 'ชำระเงิน', en: 'Payment', zh: '缴费', my: 'ငွေပေးချေရန်', ru: 'Оплата' },
-    { id: 7, point: 'A1-PHA',  status: 'pending', th: 'รับยา', en: 'Collect medicine', zh: '取药', my: 'ဆေးထုတ်ယူရန်', ru: 'Получение лекарств' },
-  ];
-
-  const XRAY_STEP = {
-    id: 8, point: 'B1-XR', status: 'pending', added: true,
-    th: 'เอกซเรย์ปอด', en: 'Chest X-ray', zh: '胸部 X 光', my: 'ရင်ခေါင်း ဓာတ်မှန်', ru: 'Рентген грудной клетки',
-  };
-
 
   /* ==========================================================================
      รูปของแต่ละจุด
@@ -1518,89 +1408,95 @@
 
 
   /* ==========================================================================
-     สถานะที่ใช้ร่วมกับหน้าจุดบริการ
-     เจ้าหน้าที่กดที่แท็บเล็ต หน้านี้เปลี่ยนตามเอง
-     ต้นแบบใช้ที่เก็บข้อมูลในเบราว์เซอร์ ระบบจริงคือ GET /api/p/:token ทุก 5 วินาที
+     สถานะของหน้านี้มาจาก API ทั้งหมด
+     GET /api/p/:token ทุก 5 วินาที — เจ้าหน้าที่กดที่จอจุดบริการ หน้านี้เปลี่ยนตามเอง
+     หน้านี้ไม่เก็บแผนของผู้ป่วยไว้ในเครื่องเลย เก็บแค่ภาษาและรูปที่ผู้ใช้ถ่ายเอง
      ========================================================================== */
-
-  const STORE_KEY = 'carepath.visit';
-
-  const readShared = () => {
-    try { return JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null'); }
-    catch { return null; }
-  };
-
-  /** เขียนสถานะปัจจุบันลงที่เก็บกลาง เพื่อให้จอจุดบริการเห็นตรงกัน */
-  function writeShared() {
-    const payload = {
-      ticket: 'A-017',
-      name: 'สมชาย',
-      wheelchair: Boolean(state.profile.wheelchair),
-      elderly: Boolean(state.profile.elderly),
-      hasPhone: true,
-      at: state.at,
-      atSource: state.atSource,
-      liftClosed: state.liftClosed,
-      updatedAt: new Date().toISOString(),
-      steps: state.steps.map((step) => ({
-        id: step.id,
-        point: step.point,
-        name: step.th,
-        status: step.status,
-        at: step.at ?? null,
-        arrivedAt: step.arrivedAt ?? null,
-        deadline: step.deadline ? '11:00' : null,
-        added: Boolean(step.added),
-      })),
-    };
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
-    catch { /* โหมดส่วนตัวเขียนไม่ได้ */ }
-  }
-
-  /** รับสถานะจากจอจุดบริการ · คืน true เมื่อมีอะไรเปลี่ยนจริง */
-  function applyShared(shared) {
-    if (!shared?.steps?.length) return false;
-    let changed = false;
-
-    for (const incoming of shared.steps) {
-      let step = state.steps.find((item) => item.id === incoming.id);
-
-      if (!step && incoming.id === XRAY_STEP.id) {
-        const payIndex = state.steps.findIndex((item) => item.point === 'A1-PAY');
-        step = { ...XRAY_STEP };
-        state.steps.splice(payIndex === -1 ? state.steps.length : payIndex, 0, step);
-        changed = true;
-      }
-      if (!step) continue;
-
-      if (step.status !== incoming.status) { step.status = incoming.status; changed = true; }
-      if (incoming.at && step.at !== incoming.at) { step.at = incoming.at; changed = true; }
-    }
-
-    if (shared.at && shared.at !== state.at) {
-      state.at = shared.at;
-      state.atSource = shared.atSource ?? 'station';
-      state.leg = 0;
-      changed = true;
-    }
-    if (changed) state.deadlineOpen = false;
-    return changed;
-  }
 
   const initialState = () => ({
     lang: 'th',
     view: 'steps',
-    steps: BASE_STEPS.map((step) => ({ ...step })),
-    at: 'A2-SCR',
+    token: null,
+    visit: null,
+    steps: [],
+    route: [],
+    at: null,
     atSource: 'station',
+    profile: {},
     liftClosed: false,
     deadlineOpen: true,
     rerouteOpen: false,
+    nextId: null,
     leg: 0,
     solo: false,
+    loaded: false,
   });
 
   let state = initialState();
+
+  /** ชื่อจุดในภาษาอื่นยังไม่มีในฐานข้อมูล จึงถอยไปใช้ชื่ออังกฤษ (ข้อจำกัดที่รู้ตัว) */
+  function learnPlaces(nodes) {
+    for (const node of nodes) {
+      if (PLACES[node.code]) continue;
+      const en = node.name_en || node.name_th || node.code;
+      PLACES[node.code] = {
+        icon: node.icon ?? '📍',
+        building: node.building,
+        floor: node.floor,
+        th: node.name_th || en,
+        en, zh: en, my: en, ru: en,
+      };
+    }
+  }
+
+  /** แปลงคำตอบของ API เป็นรูปแบบที่หน้าจอนี้ใช้ — ที่เดียวที่รู้จักรูปร่างของ API */
+  function applyState(data) {
+    state.visit = data.visit;
+    state.warnings = data.warnings ?? [];
+    state.profile = data.visit.profile ?? {};
+    state.at = data.visit.at?.code ?? null;
+    state.atSource = data.visit.at?.source === 'station' ? 'station' : 'manual';
+    state.nextId = data.next_step_id;
+
+    state.steps = data.steps.map((step) => {
+      const en = step.name_en || step.name_th;
+      return {
+        id: step.id,
+        point: step.point.code,
+        status: step.status,
+        deadline: Boolean(step.deadline_time),
+        deadlineTime: step.deadline_time,
+        deadlineReason: step.deadline_reason_th,
+        added: step.origin === 'added',
+        at: step.finished_at
+          ? new Date(step.finished_at).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+          : null,
+        th: step.name_th, en, zh: en, my: en, ru: en,
+      };
+    });
+
+    state.route = (data.route?.legs ?? []).map(toLeg);
+    state.leg = Math.min(state.leg, Math.max(0, state.route.length - 1));
+    state.loaded = true;
+  }
+
+  /** ช่วงเดินจาก API → รูปแบบของประโยคนำทางในหน้านี้ (act/turn/m/to/arrive) */
+  function toLeg(leg) {
+    const mapped = {
+      act: leg.act,
+      m: Math.round(leg.m),
+      turn: leg.turn ?? 'straight',
+      to: leg.arrive ? null : leg.to,
+      arrive: leg.arrive ?? null,
+      side: leg.side ?? 'ahead',
+      name: leg.name ?? leg.to,
+      dir: leg.dir,
+      floor: leg.floor,
+      building: leg.building,
+    };
+    return mapped;
+  }
+
 
   const el = Object.fromEntries(
     ['view', 'actions', 'sheet', 'sheetBody', 'toast', 'who', 'langBtn', 'langCode', 'largeBtn', 'demoBtn', 'demoLabel', 'photoFile']
@@ -1616,6 +1512,23 @@
   }
 
   const placeName = (code) => PLACES[code]?.[state.lang] ?? code;
+
+  const ticketNo = () => state.visit?.ticket_no ?? '—';
+
+  const deadlineTitle = (step) =>
+    t('deadlineTitle', { step: step[state.lang], time: step.deadlineTime });
+
+  /** นาทีที่เหลือมาจากคำเตือนของ API ไม่ใช่นาฬิกาของเครื่องผู้ป่วย */
+  const deadlineBody = (step) => {
+    const warning = (state.warnings ?? []).find((item) => item.code === 'deadline_soon' && item.step_id === step.id);
+    return t('deadlineBody', {
+      step: step[state.lang],
+      time: step.deadlineTime,
+      // เหตุผลของกำหนดเวลาในฐานข้อมูลมีแต่ภาษาไทย ภาษาอื่นจึงข้ามไปไม่แปลเอง
+      reason: state.lang === 'th' ? (step.deadlineReason ?? '') : '',
+      min: warning?.minutes_left ?? '',
+    });
+  };
   const placeAt = (code) => t('at', { building: PLACES[code].building, floor: PLACES[code].floor });
 
   const sentenceCase = (text) =>
@@ -1661,23 +1574,20 @@
     return sentenceCase(parts.join(join));
   }
 
-  const legHint = (leg) => (leg.hint ? t(`hint.${leg.hint}`) : '');
+  const legHint = (leg) => (leg.hint ? t(`hint.${leg.hint}`, { ticket: ticketNo() }) : '');
 
-  /* ---------- เลือกเส้นทางและคำนวณระยะ ---------- */
+  /* ---------- ขั้นถัดไปและเส้นทาง — ทั้งคู่ API เป็นคนเลือก ---------- */
 
-  const nextStep = () => state.steps.find((step) => step.status === 'pending') ?? null;
+  const nextStep = () =>
+    state.steps.find((step) => step.id === state.nextId)
+    ?? state.steps.find((step) => step.status === 'pending')
+    ?? null;
 
-  function currentRoute() {
-    const target = nextStep();
-    if (!target) return [];
-    const key = `${state.at}>${target.point}`;
-    if (state.liftClosed && ROUTES[`${key}@detour`]) return ROUTES[`${key}@detour`];
-    return ROUTES[key] ?? [{ act: 'walk', turn: 'straight', m: 120, arrive: target.point, side: 'ahead', hint: 'askStaff' }];
-  }
+  const currentRoute = () => state.route;
 
   const routeTotals = (route) => {
     const m = route.reduce((sum, leg) => sum + leg.m, 0);
-    return { m, min: Math.max(1, Math.round(m / 60 + route.length * 0.35)) };
+    return { m: Math.round(m), min: Math.max(1, Math.round(m / 60 + route.length * 0.35)) };
   };
 
   /* ==========================================================================
@@ -1691,7 +1601,10 @@
     const meta = langMeta();
     document.documentElement.lang = state.lang;
     document.body.dataset.lang = state.lang;
-    el.who.textContent = t('who');
+    el.who.textContent = state.visit
+      ? `${state.visit.patient_name} · ${state.visit.template[state.lang === 'th' ? 'name_th' : 'name_en']}`
+      : t('who');
+    document.getElementById('ticket').textContent = ticketNo();
     el.langCode.textContent = meta.short;
     el.langBtn.setAttribute('aria-label', t('langTitle'));
     el.largeBtn.setAttribute('aria-label', t('readAloud'));
@@ -1712,7 +1625,7 @@
     el.view.className = 'scroll fade';
     el.view.innerHTML = `
       ${state.rerouteOpen ? alertHtml('warn', '🔔', t('rerouteTitle'), t('rerouteBody')) : ''}
-      ${state.deadlineOpen && target.deadline ? alertHtml('amber', '⏰', t('deadlineTitle'), t('deadlineBody')) : ''}
+      ${state.deadlineOpen && target.deadline ? alertHtml('amber', '⏰', deadlineTitle(target), deadlineBody(target)) : ''}
 
       <section class="hero">
         <p class="eyebrow">${esc(t('nowGo'))}</p>
@@ -1721,7 +1634,7 @@
           <div>
             <h2 class="hero__name">${esc(placeName(target.point))}</h2>
             <p class="hero__at">${esc(placeAt(target.point))}
-              ${target.deadline ? `<span class="tag tag--amber">${esc(t('deadlineTag'))}</span>` : ''}</p>
+              ${target.deadline ? `<span class="tag tag--amber">${esc(t('deadlineTag', { time: target.deadlineTime }))}</span>` : ''}</p>
           </div>
         </div>
         <div class="hero__walk">
@@ -1764,7 +1677,7 @@
         </div>
       </section>
 
-      <p class="demo-note">♿ ${esc(t('wheelchair'))}<br>${esc(t('lostHelp'))}<br>${esc(t('hospital'))}
+      <p class="demo-note">♿ ${esc(t('wheelchair'))}<br>${esc(t('lostHelp', { ticket: ticketNo() }))}<br>${esc(t('hospital'))}
         <br><a href="privacy.html" style="color:var(--primary)">${esc(t('privacy'))}</a></p>
     `;
 
@@ -1854,7 +1767,7 @@
     const cls = step.status === 'done' ? 'step step--done' : isNow ? 'step step--now' : 'step';
     const tail = step.status === 'done'
       ? `<span class="tag tag--success mono">${esc(step.at ?? t('doneAt'))}</span>`
-      : step.deadline ? `<span class="tag tag--amber">${esc(t('deadlineTag'))}</span>`
+      : step.deadline ? `<span class="tag tag--amber">${esc(t('deadlineTag', { time: step.deadlineTime }))}</span>`
       : step.added ? `<span class="tag">${esc(t('added'))}</span>`
       : '';
 
@@ -1899,7 +1812,7 @@
       </ol>
 
       <button class="btn" data-act="where">🙋 ${esc(t('lost'))}</button>
-      <p class="demo-note">${esc(t('lostHelp'))}</p>
+      <p class="demo-note">${esc(t('lostHelp', { ticket: ticketNo() }))}</p>
     `;
 
     el.actions.innerHTML = state.solo && state.leg < route.length - 1
@@ -2155,74 +2068,78 @@
       el.sheet.close();
     },
 
-    arrive: () => {
-      const target = nextStep();
-      state.at = target.point;
-      state.atSource = 'manual';
-      state.view = 'steps';
-      state.rerouteOpen = false;
-      buzz([18, 60, 18]);
-      toast(t('toastArrive'));
-    },
+    /* ---------- การกระทำที่ต้องบันทึกจริง — ทุกปุ่มยิงไปที่ API ---------- */
+
+    arrive: () => send(() => CarePath.post(`/p/${state.token}/arrive`, {}, { auth: false }), {
+      before: () => { state.view = 'steps'; state.rerouteOpen = false; },
+      done: () => { buzz([18, 60, 18]); toast(t('toastArrive', { ticket: ticketNo() })); },
+    }),
 
     pickplace: (button) => {
-      state.at = button.dataset.code;
-      state.atSource = 'manual';
-      state.leg = 0;
+      const code = button.dataset.code;
       el.sheet.close();
-      toast(t('toastMoved', { p: placeName(state.at) }));
+      send(() => CarePath.post(`/p/${state.token}/position`, { node: code }, { auth: false }), {
+        before: () => { state.leg = 0; },
+        done: () => toast(t('toastMoved', { p: placeName(code) })),
+      });
     },
 
     finish: () => {
       const target = nextStep();
-      if (!target) return el.sheet.close();
-      target.status = 'done';
-      target.at = null;
-      state.at = target.point;
-      state.atSource = 'station';
-      state.deadlineOpen = false;
-      state.view = 'steps';
-      state.leg = 0;
       el.sheet.close();
-      buzz([18, 60, 18]);
-      toast(t('toastDone', { s: target[state.lang] }));
+      send(() => CarePath.post(`/p/${state.token}/demo/finish`, {}, { auth: false }), {
+        before: () => { state.deadlineOpen = false; state.view = 'steps'; state.leg = 0; },
+        done: () => { buzz([18, 60, 18]); toast(t('toastDone', { s: target?.[state.lang] ?? '' })); },
+      });
     },
 
     lift: () => {
-      state.liftClosed = !state.liftClosed;
-      state.rerouteOpen = state.liftClosed;
-      state.leg = 0;
+      const closing = !state.liftClosed;
       el.sheet.close();
-      buzz(state.liftClosed ? [22, 70, 22] : 12);
-      toast(state.liftClosed ? t('toastLift') : t('toastLiftOpen'));
+      send(() => CarePath.post(`/p/${state.token}/demo/lift`, { closed: closing }, { auth: false }), {
+        before: () => { state.leg = 0; },
+        done: () => {
+          state.liftClosed = closing;
+          state.rerouteOpen = closing;
+          buzz(closing ? [22, 70, 22] : 12);
+          toast(closing ? t('toastLift') : t('toastLiftOpen'));
+        },
+      });
     },
 
     xray: () => {
-      const payIndex = state.steps.findIndex((step) => step.point === 'A1-PAY');
-      if (payIndex === -1 || state.steps.some((step) => step.point === 'B1-XR')) return el.sheet.close();
-      state.steps.splice(payIndex, 0, { ...XRAY_STEP });
       el.sheet.close();
-      buzz([18, 60, 18]);
-      toast(t('toastXray'));
+      send(() => CarePath.post(`/p/${state.token}/demo/xray`, {}, { auth: false }), {
+        done: () => { buzz([18, 60, 18]); toast(t('toastXray')); },
+      });
     },
 
+    // เริ่มใหม่ = ล้างข้อมูลสาธิตทั้งฐานข้อมูล บัตรใบนี้จึงใช้ไม่ได้อีก ต้องเปิดใบใหม่ที่เวชระเบียน
     reset: () => {
-      const lang = state.lang;
-      state = initialState();
-      state.lang = lang;
       el.sheet.close();
-      toast(t('toastReset'));
+      CarePath.post('/demo/reset', {}, { auth: false })
+        .then(() => { toast(t('toastReset')); setTimeout(() => { location.href = 'login.html'; }, 900); })
+        .catch((error) => toast(CarePath.message(error)));
     },
   };
 
-  /** การกระทำที่เปลี่ยนแผนหรือตำแหน่ง ต้องบอกจอจุดบริการด้วย */
-  const SHARED_ACTIONS = new Set(['arrive', 'pickplace', 'finish', 'lift', 'xray', 'reset']);
+  /** ยิงคำขอไป API แล้ววาดใหม่จากคำตอบ — หน้าจอไม่เดาผลลัพธ์เอง */
+  async function send(call, { before, done } = {}) {
+    before?.();
+    render();
+    try {
+      applyState(await call());
+      done?.();
+    } catch (error) {
+      toast(CarePath.message(error));
+    }
+    render();
+  }
 
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-act]');
     if (!button) return;
     ACTIONS[button.dataset.act]?.(button);
-    if (SHARED_ACTIONS.has(button.dataset.act)) writeShared();
     render();
   });
 
@@ -2291,17 +2208,52 @@
   // ฟอนต์มาช้ากว่าการวาดครั้งแรก · วาดป้ายใหม่เมื่อฟอนต์พร้อม
   document.fonts?.ready.then(() => { sceneCache.clear(); render(); });
 
+  /* ==========================================================================
+     ต่อกับ API
+     ========================================================================== */
+
+  /** ลายนิ้วมือของสถานะ — ใช้บอกว่ามีอะไรเปลี่ยนจริงไหม ก่อนจะสั่นและแจ้งผู้ป่วย */
+  const fingerprint = (data) =>
+    JSON.stringify([
+      data.next_step_id,
+      data.visit.at?.code,
+      data.steps.map((step) => [step.id, step.status]),
+      data.route?.distance_m ?? null,
+    ]);
+
+  let lastPrint = null;
+
   /** เจ้าหน้าที่กด "เสร็จ" ที่จอจุดบริการแล้วหน้านี้ต้องเปลี่ยนเอง */
-  function pull() {
-    if (applyShared(readShared())) {
+  async function pull({ quiet = false } = {}) {
+    if (!state.token) return;
+    try {
+      const data = await CarePath.get(`/p/${state.token}`, { auth: false });
+      const print = fingerprint(data);
+      const changed = lastPrint !== null && print !== lastPrint;
+      lastPrint = print;
+
+      applyState(data);
       render();
-      buzz([18, 60, 18]);
-      toast(t('updatedByStaff'));
+
+      if (changed && !quiet) {
+        buzz([18, 60, 18]);
+        toast(t('updatedByStaff'));
+      }
+    } catch (error) {
+      if (!quiet) toast(CarePath.message(error));
     }
   }
 
-  window.addEventListener('storage', (event) => { if (event.key === STORE_KEY) pull(); });
-  setInterval(pull, 4000);
+  function showNoTicket(message) {
+    el.view.className = 'scroll fade';
+    el.view.innerHTML = `
+      <section class="card done-screen">
+        <div class="hero__icon" aria-hidden="true">🎫</div>
+        <h2 class="hero__name">${esc(message)}</h2>
+        <p style="color:var(--ink-2);margin-top:8px">สแกน QR บนบัตรคิว หรือพิมพ์รหัสใต้ QR ที่หน้าแรกของระบบ</p>
+      </section>`;
+    el.actions.innerHTML = `<a class="btn btn--primary btn--grow btn--lg" href="login.html">${esc(t('backHome'))}</a>`;
+  }
 
   const savedLang = load('carepath.lang');
   if (LANGS.some((lang) => lang.code === savedLang)) state.lang = savedLang;
@@ -2317,16 +2269,43 @@
   }
 
   const params = new URLSearchParams(location.search);
-  const code = params.get('code');
-  if (code && !code.toUpperCase().startsWith('A017')) {
-    setTimeout(() => toast(t('codeUnknown', { c: code.toUpperCase() })), 400);
-  } else if (params.get('by')) {
-    // เปิดจากหลังบ้าน — บอกผู้ป่วยตรง ๆ ว่าใครเป็นคนเปิดและมีการบันทึกไว้
-    setTimeout(() => toast(t('openedByStaff')), 400);
+
+  /** เปิดหน้านี้ได้สองทาง: token ใน QR หรือรหัส 8 ตัวใต้ QR ที่พิมพ์เอง */
+  async function boot() {
+    try {
+      const { nodes } = await CarePath.get('/map', { auth: false });
+      learnPlaces(nodes);
+    } catch { /* ชื่อจุดที่รู้จักอยู่แล้วยังใช้ได้ */ }
+
+    let token = params.get('t');
+    const code = params.get('code');
+
+    if (!token && code) {
+      try {
+        ({ token } = await CarePath.get(`/p/code/${encodeURIComponent(code)}`, { auth: false }));
+      } catch {
+        return showNoTicket(t('codeUnknown', { c: code.toUpperCase() }));
+      }
+    }
+    if (!token) return showNoTicket('ยังไม่ได้เปิดบัตรคิว');
+
+    state.token = token;
+    try {
+      const data = await CarePath.get(`/p/${token}`, { auth: false });
+      lastPrint = fingerprint(data);
+      applyState(data);
+    } catch (error) {
+      return showNoTicket(CarePath.message(error));
+    }
+
+    render();
+    if (params.get('by')) {
+      // เปิดจากหลังบ้าน — บอกผู้ป่วยตรง ๆ ว่าเจ้าหน้าที่เป็นคนเปิดและมีการบันทึกไว้
+      setTimeout(() => toast(t('openedByStaff')), 400);
+    }
+    setInterval(pull, 5000);
   }
 
-  applyShared(readShared());
-  writeShared();
-  render();
+  boot();
 })();
 </script>

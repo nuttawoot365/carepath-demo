@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>ออกแบบข้อมูล · CarePath</title>
+<style>
+  .er { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .er__table { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .er__head { padding: 10px 14px; background: var(--primary); color: #fff; font-weight: 700; }
+  .er__head--amber { background: #8a5f12; }
+  .er__head--green { background: var(--success); }
+  .er__head--slate { background: #44565f; }
+  .er__cols { margin: 0; padding: 10px 14px; list-style: none; font-size: 14px; display: grid; gap: 3px; }
+  .er__cols code { font-size: 13px; }
+  .er__cols li span { color: var(--muted); }
+  .key { color: var(--warn); font-weight: 700; }
+  .sample { width: 100%; border-collapse: collapse; font-size: 13px; font-family: ui-monospace, monospace; }
+  .sample th, .sample td { border: 1px solid var(--line); padding: 5px 8px; text-align: start; white-space: nowrap; }
+  .sample th { background: #f5f8f9; }
+  .scroll { overflow-x: auto; }
+  section.block { max-width: 1180px; margin: 0 auto 22px; display: grid; gap: 12px; }
+</style>
+</head>
+<body>
+<section class="block">
+  <h1>การออกแบบข้อมูล</h1>
+  <p class="caption" style="margin:0"><strong>17 ตาราง · PostgreSQL 16 · 3NF</strong> — สคริปต์จริงอยู่ที่ <code>backend/sql/schema.sql</code> · ข้อมูลตัวอย่างอยู่ที่ <code>data/*.csv</code> (สมมุติทั้งหมด)</p>
+</section>
+
+<section class="block">
+  <h2>1 · ผังโรงพยาบาล</h2>
+  <p class="caption" style="margin:0">อาคาร → ชั้น → แผนก → จุด → เส้นทาง · เส้นทางหนึ่งแถวคือหนึ่งทิศทาง ทางเดินสองทางจึงเก็บสองแถว</p>
+  <div class="er">
+    <article class="er__table">
+      <p class="er__head">buildings · floors</p>
+      <ul class="er__cols">
+        <li><span class="key">PK</span> <code>id</code></li>
+        <li><code>code</code> <span>A · B · C</span></li>
+        <li><code>name_th</code> / <code>name_en</code></li>
+        <li><span class="key">FK</span> <code>floors.building_id</code> + <code>level</code> <span>ไม่ซ้ำกัน</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head">departments</p>
+      <ul class="er__cols">
+        <li><span class="key">FK</span> <code>floor_id</code></li>
+        <li><code>code</code> <span>B3-LAB</span></li>
+        <li><code>color</code> <span>ตรงกับสีป้ายจริงในโรงพยาบาล</span></li>
+        <li><span class="key">FK</span> <code>entrance_node_id</code> <span>จุดยื่นบัตรของแผนก</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head">nodes · 48 จุด</p>
+      <ul class="er__cols">
+        <li><span class="key">FK</span> <code>floor_id</code> · <code>department_id</code></li>
+        <li><code>kind</code> <span>17 ชนิด: counter, lab, elevator, ramp…</span></li>
+        <li><code>landmark_th/en</code> <span>จุดสังเกตที่คนมองเห็นจริง</span></li>
+        <li><code>qr_token</code> <span>QR ติดผนัง · NULL = ไม่ติด</span></li>
+        <li><code>is_active</code> <span>ปิดใช้แทนลบ เพราะ visit เก่าอ้างอยู่</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head">edges · 104 ทิศทาง</p>
+      <ul class="er__cols">
+        <li><span class="key">FK</span> <code>from_node_id</code> → <code>to_node_id</code></li>
+        <li><code>walk_seconds</code> <span>น้ำหนักกราฟ · ลิฟต์ = เวลารอ</span></li>
+        <li><code>turn</code> <span>left / right / straight / back</span></li>
+        <li><code>is_accessible</code> <span>false = บันได รถเข็นผ่านไม่ได้</span></li>
+        <li><code>status</code> <span>open / closed + เหตุผล</span></li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="block">
+  <h2>2 · แม่แบบขั้นตอน และการมาโรงพยาบาลจริง</h2>
+  <p class="caption" style="margin:0">แม่แบบคือแผนกลาง · ตอนเปิด visit ระบบคัดลอกเป็น <code>visit_steps</code> ของผู้ป่วยคนนั้น แก้แม่แบบทีหลังจึงไม่กระทบคนที่กำลังเดินอยู่</p>
+  <div class="er">
+    <article class="er__table">
+      <p class="er__head er__head--amber">pathway_templates · template_steps</p>
+      <ul class="er__cols">
+        <li><code>code</code> <span>DM-FU · WALKIN</span></li>
+        <li><span class="key">FK</span> <code>service_point_id</code> → nodes</li>
+        <li><code>deadline_time</code> + <code>deadline_reason_th</code></li>
+        <li><code>est_minutes</code> · <code>wait_after_minutes</code></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head er__head--amber">template_step_prereqs</p>
+      <ul class="er__cols">
+        <li><span class="key">PK</span> <code>(step_id, requires_step_id)</code></li>
+        <li><span>เงื่อนไขลำดับเป็นแถว ไม่ใช่ข้อความ "3;4" — ตรวจการวนซ้ำได้</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head er__head--green">visits</p>
+      <ul class="er__cols">
+        <li><code>token</code> <span>32 hex · ลิงก์ใน QR บัตรคิว</span></li>
+        <li><code>short_code</code> <span>A017-3K9 พิมพ์เองได้</span></li>
+        <li><code>profile</code> <span>JSONB · wheelchair, elderly…</span></li>
+        <li><code>current_node_id</code> + <code>position_source</code></li>
+        <li><code>expires_at</code> <span>สิ้นวัน · หมดอายุแล้วเปิดไม่ได้</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head er__head--green">visit_steps · visit_step_prereqs</p>
+      <ul class="er__cols">
+        <li><code>status</code> <span>pending → arrived → in_progress → done / skipped</span></li>
+        <li><code>sequence</code> <span>ผลการเรียงลำดับตามเงื่อนไข</span></li>
+        <li><code>origin</code> <span>template หรือ added (แทรกหน้างาน)</span></li>
+        <li><code>arrived_at · called_at · finished_at</code> <span>เซิร์ฟเวอร์ตั้งเท่านั้น</span></li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="block">
+  <h2>3 · ผู้ใช้ · การตรวจสอบย้อนหลัง · การแจ้งเตือน</h2>
+  <div class="er">
+    <article class="er__table">
+      <p class="er__head er__head--slate">users</p>
+      <ul class="er__cols">
+        <li><code>password_hash</code> <span>bcrypt · ไม่ส่งออก API</span></li>
+        <li><code>role</code> <span>registrar · station · admin · executive</span></li>
+        <li><span class="key">FK</span> <code>department_id</code> <span>ขอบเขตที่มองเห็น</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head er__head--slate">audit_logs</p>
+      <ul class="er__cols">
+        <li><code>actor_kind</code> <span>user · patient · system</span></li>
+        <li><code>entity</code> + <code>entity_id</code> + <code>action</code></li>
+        <li><code>from_status</code> → <code>to_status</code></li>
+        <li><code>created_at</code> <span>เวลาเซิร์ฟเวอร์ · เขียนได้อย่างเดียว แก้/ลบไม่ได้</span></li>
+      </ul>
+    </article>
+    <article class="er__table">
+      <p class="er__head er__head--slate">notifications</p>
+      <ul class="er__cols">
+        <li><span class="key">FK</span> <code>visit_id</code></li>
+        <li><code>message_th</code> / <code>message_en</code></li>
+        <li><code>read_at</code> <span>NULL = ยังไม่อ่าน</span></li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="block">
+  <h2>4 · ข้อมูลตัวอย่างจริงที่ใช้เดโม</h2>
+  <p class="caption" style="margin:0">ไฟล์เหล่านี้นำเข้าด้วยคำสั่งเดียว (<code>npm run reset</code>) ทุกครั้งที่ต้องการเริ่มเดโมใหม่</p>
+
+  <div class="card">
+    <p class="eyebrow">data/nodes.csv · จุดในโรงพยาบาล</p>
+    <div class="scroll" style="margin-top:8px">
+      <table class="sample">
+        <thead><tr><th>code</th><th>building</th><th>floor</th><th>department</th><th>kind</th><th>name_th</th><th>landmark_th</th><th>icon</th><th>qr</th></tr></thead>
+        <tbody>
+          <tr><td>A1-REG</td><td>A</td><td>1</td><td>A1-OPD</td><td>counter</td><td>เวชระเบียน</td><td>ตรงข้ามประชาสัมพันธ์</td><td>🪪</td><td>1</td></tr>
+          <tr><td>A2-SCR</td><td>A</td><td>2</td><td>A2-SCR</td><td>screening</td><td>จุดคัดกรอง</td><td>ข้างตู้น้ำดื่ม</td><td>🩺</td><td>1</td></tr>
+          <tr><td>B3-LAB</td><td>B</td><td>3</td><td>B3-LAB</td><td>lab</td><td>ห้องเจาะเลือด</td><td>ขวามือ ข้างตู้น้ำดื่ม</td><td>🩸</td><td>1</td></tr>
+          <tr><td>C2-RAMP</td><td>C</td><td>2</td><td></td><td>ramp</td><td>ทางลาด C</td><td></td><td>♿</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">data/edges.csv · เส้นทางเดิน</p>
+    <div class="scroll" style="margin-top:8px">
+      <table class="sample">
+        <thead><tr><th>from</th><th>to</th><th>kind</th><th>distance_m</th><th>walk_seconds</th><th>turn</th><th>bidirectional</th><th>is_accessible</th><th>status</th></tr></thead>
+        <tbody>
+          <tr><td>A2-J1</td><td>A2-SCR</td><td>corridor</td><td>20</td><td></td><td>left</td><td>1</td><td>1</td><td>open</td></tr>
+          <tr><td>B2-LIFT</td><td>B3-LIFT</td><td>elevator</td><td>0</td><td>50</td><td></td><td>1</td><td>1</td><td>open</td></tr>
+          <tr><td>B2-STAIR</td><td>B3-STAIR</td><td>stairs</td><td>0</td><td>75</td><td></td><td>1</td><td>0</td><td>open</td></tr>
+          <tr><td>C2-RAMP</td><td>C3-RAMP</td><td>ramp</td><td>40</td><td></td><td></td><td>1</td><td>1</td><td>open</td></tr>
+          <tr><td>B2-J1</td><td>B2-FIRE</td><td>door</td><td>5</td><td></td><td>left</td><td>0</td><td>0</td><td>open</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="step__meta" style="margin-top:8px">ผังชุดนี้ออกแบบให้ "ลิฟต์ B ปิด" ยังมีทางอ้อมสองแบบ — บันได B สำหรับคนเดิน และทางลาด C สำหรับรถเข็น · แถวสุดท้ายเป็นบันไดหนีไฟทิศทางเดียว ขึ้นกลับไม่ได้</p>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">data/pathways.csv · แม่แบบ DM-FU</p>
+    <div class="scroll" style="margin-top:8px">
+      <table class="sample">
+        <thead><tr><th>template</th><th>step</th><th>name_th</th><th>service_point</th><th>prereq_steps</th><th>deadline</th><th>est_minutes</th></tr></thead>
+        <tbody>
+          <tr><td>DM-FU</td><td>1</td><td>ยื่นบัตรและยืนยันการนัด</td><td>A1-REG</td><td></td><td></td><td>5</td></tr>
+          <tr><td>DM-FU</td><td>3</td><td>เจาะเลือด</td><td>B3-LAB</td><td>1</td><td>11:00</td><td>10</td></tr>
+          <tr><td>DM-FU</td><td>4</td><td>รอผลตรวจ</td><td>B3-WAIT</td><td>3</td><td></td><td>75</td></tr>
+          <tr><td>DM-FU</td><td>5</td><td>พบแพทย์</td><td>C4-MED-CTR</td><td>3;4</td><td></td><td>15</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <h2>5 · เหตุผลของรูปแบบข้อมูล</h2>
+  <div class="cols-2">
+    <div class="card">
+      <p class="eyebrow">ทำไมถึงเป็น 3NF</p>
+      <ul style="margin:8px 0 0;padding-inline-start:20px">
+        <li>ชื่อห้องและจุดสังเกตอยู่ที่ <code>nodes</code> ที่เดียว ห้องเปลี่ยนชื่อแก้แถวเดียว</li>
+        <li>อาคาร–ชั้น–แผนกแยกตาราง ไม่เก็บเป็นข้อความ "อาคาร B ชั้น 3"</li>
+        <li>เงื่อนไขลำดับเก็บเป็นแถว ไม่ใช่ค่าหลายค่าในช่องเดียว</li>
+        <li>สีป้ายอยู่ที่แผนก ไม่กระจายซ้ำในทุกจุด</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p class="eyebrow">ที่จงใจเก็บซ้ำ และเหตุผล</p>
+      <ul style="margin:8px 0 0;padding-inline-start:20px">
+        <li><code>visit_steps</code> คัดลอกชื่อขั้นและเวลาจากแม่แบบ — แก้แม่แบบกลางวันต้องไม่เปลี่ยนแผนของคนที่เดินอยู่</li>
+        <li><code>sequence</code> เก็บผลการเรียงลำดับไว้ เพื่อให้หน้าผู้ป่วยอ่านตรง ๆ ได้</li>
+        <li><code>walk_seconds</code> ตั้งเองได้ เช่น ลิฟต์รอ 50 วินาทีแม้ระยะ 0 เมตร</li>
+        <li><code>ticket_no</code> เก็บไว้เพื่อให้จอสาธารณะอ่านโดยไม่ต้องแตะตารางผู้ป่วย</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</body>
+</html>

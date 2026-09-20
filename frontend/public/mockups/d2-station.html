@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>d2 · จุดบริการ — คิวของแผนก</title>
+</head>
+<body>
+<p class="caption"><strong>d2 · จุดบริการ (ห้องเจาะเลือด)</strong> — เจ้าหน้าที่เห็นเฉพาะแผนกตัวเอง (เซิร์ฟเวอร์กรองจาก JWT) · งานหลักคือกดปุ่มเดียว 2 วินาที</p>
+
+<div class="frame frame--tablet">
+  <div class="screen">
+    <header class="bar">
+      <span aria-hidden="true">🩸</span>
+      <span class="bar__title">ห้องเจาะเลือด · B3-LAB · นิภา</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">คิวรอ 4 คน · 10:40</span>
+      <a class="bar__chip" href="../app/login.html"
+         style="color:inherit;text-decoration:none">ออกจากระบบ</a>
+    </header>
+
+    <div class="split" style="padding:18px;gap:18px">
+      <section>
+        <table class="table">
+          <thead>
+            <tr><th>คิว</th><th>ชื่อ</th><th>สถานะ</th><th>กำหนด</th><th>การทำงาน</th></tr>
+          </thead>
+          <tbody>
+            <tr aria-selected="true">
+              <td><strong>A-017</strong></td>
+              <td>สมชาย <span class="tag">♿</span> <span class="tag">🧓</span></td>
+              <td><span class="tag tag--success">มาถึงแล้ว 10:44</span></td>
+              <td><span class="tag tag--deadline">11:00</span></td>
+              <td><button class="btn btn--primary">📣 เรียก</button></td>
+            </tr>
+            <tr>
+              <td><strong>A-014</strong></td>
+              <td>มาลี</td>
+              <td><span class="tag tag--muted">กำลังเดินมา · อีก 3 นาที</span></td>
+              <td>—</td>
+              <td><button class="btn">✋ มาถึง</button></td>
+            </tr>
+            <tr>
+              <td><strong>A-021</strong></td>
+              <td>ธนกร <span class="tag">📵</span></td>
+              <td><span class="tag tag--muted">กำลังเดินมา · อีก 6 นาที</span></td>
+              <td>—</td>
+              <td><button class="btn">✋ มาถึง</button></td>
+            </tr>
+            <tr>
+              <td><strong>A-009</strong></td>
+              <td>ประยูร</td>
+              <td><span class="tag">กำลังให้บริการ 10:38</span></td>
+              <td>—</td>
+              <td><button class="btn btn--success">✔ เสร็จ</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="step__meta" style="margin-top:10px">กด "เสร็จ" แล้วขั้นถัดไปของผู้ป่วยเด้งขึ้นมือถือเองภายใน 5 วินาที · ทุกการกดถูกบันทึกลง audit พร้อมเวลาเซิร์ฟเวอร์</p>
+      </section>
+
+      <aside style="display:grid;gap:14px;align-content:start">
+        <section class="card card--hero">
+          <p class="eyebrow">คิวที่เลือก</p>
+          <p class="hero__name">A-017 · สมชาย</p>
+          <p class="hero__where">DM-FU ขั้นที่ 2 จาก 7 · ♿ ใช้รถเข็น · 🧓 ผู้สูงอายุ · มีญาติมาด้วย</p>
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn btn--success btn--block">✔ เสร็จ — ส่งขั้นถัดไป</button>
+            <button class="btn">⏭ ข้าม + เหตุผล</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <p class="eyebrow">➕ ส่งตรวจเพิ่ม</p>
+          <div class="field" style="margin-top:8px">
+            <label for="point">จุดบริการ</label>
+            <select class="select" id="point"><option>📷 ห้องเอกซเรย์ (B1-XR)</option><option>🩺 จุดคัดกรอง (A2-SCR)</option></select>
+          </div>
+          <div class="field" style="margin-top:8px">
+            <label for="before">แทรกก่อนขั้น</label>
+            <select class="select" id="before"><option>6 · ชำระเงิน</option><option>5 · พบแพทย์</option></select>
+          </div>
+          <button class="btn btn--primary btn--block" style="margin-top:10px">แทรกขั้นตอน</button>
+          <p class="step__meta" style="margin-top:8px">ระบบเรียงลำดับใหม่ให้ทั้งแผน และแจ้งผู้ป่วยทันที · ถ้าเงื่อนไขวนกันเอง ระบบปฏิเสธและไม่แก้ข้อมูลใด ๆ</p>
+        </section>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

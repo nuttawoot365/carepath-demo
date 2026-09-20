@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>CarePath เข้าสู่ระบบ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -391,28 +392,37 @@
   </main>
 </div>
 
+<script src="js/api.js"></script>
 <script>
 (() => {
   'use strict';
 
-  const PASSWORD = 'demo@1234';
+  const DEMO_PASSWORD = 'demo@1234';
 
-  /** บัญชีสาธิตชุดเดียวกับ data/users.csv ของโครงการ */
+  /** การ์ดบัญชีสาธิต — ชื่อผู้ใช้ตรงกับ data/users.csv ส่วนสิทธิ์จริงมาจาก API ตอนเข้าสู่ระบบ */
   const ACCOUNTS = [
     { username: 'reg1', name: 'ปราณี', role: 'registrar', icon: '🪪',
-      what: 'เวชระเบียน — เปิด visit และพิมพ์บัตรคิว', go: 'registrar.html' },
+      what: 'เวชระเบียน — เปิด visit และพิมพ์บัตรคิว' },
     { username: 'lab1', name: 'นิภา', role: 'station', icon: '🩸',
-      what: 'จุดบริการ ห้องเจาะเลือด — คิวของแผนกตัวเอง', go: 'station.html?dept=B3-LAB' },
+      what: 'จุดบริการ ห้องเจาะเลือด — คิวของแผนกตัวเอง' },
     { username: 'scr1', name: 'มานพ', role: 'station', icon: '🩺',
-      what: 'จุดบริการ จุดคัดกรอง — คิวของแผนกตัวเอง', go: 'station.html?dept=A2-SCR' },
+      what: 'จุดบริการ จุดคัดกรอง — คิวของแผนกตัวเอง' },
     { username: 'admin', name: 'ผู้ดูแลระบบ', role: 'admin', icon: '🛠',
-      what: 'จัดการผัง แม่แบบ ผู้ใช้ และตรวจผังอัตโนมัติ', go: 'admin.html' },
+      what: 'จัดการผัง แม่แบบ ผู้ใช้ และตรวจผังอัตโนมัติ' },
     { username: 'exec1', name: 'ผู้อำนวยการ', role: 'executive', icon: '📊',
-      what: 'ภาพรวมเวลารอและจุดคอขวด', go: 'mockups/d5-dashboard.html', still: true },
+      what: 'ภาพรวมเวลารอและจุดคอขวด', still: true },
   ];
 
   const ROLE_LABEL = {
     registrar: 'เวชระเบียน', station: 'จุดบริการ', admin: 'ผู้ดูแลระบบ', executive: 'ผู้บริหาร',
+  };
+
+  /** เข้าสู่ระบบแล้วไปไหนต่อ — ตามบทบาทที่ API ตอบกลับมา ไม่ใช่ตามที่หน้าจอเดา */
+  const HOME_FOR = {
+    registrar: () => 'registrar.html',
+    station: (user) => `station.html?dept=${encodeURIComponent(user.department_code ?? '')}`,
+    admin: () => 'admin.html',
+    executive: () => 'mockups/d5-dashboard.html',
   };
 
   const $ = (id) => document.getElementById(id);
@@ -424,16 +434,6 @@
    */
   const MOCKUP_BASE = location.pathname.includes('/app/') ? '../' : '';
   const resolve = (path) => (path.startsWith('mockups/') ? MOCKUP_BASE + path : path);
-
-  // สำเนาหน้านี้ที่อยู่ใน app/ ต้องชี้ขึ้นไปหนึ่งชั้น ไม่งั้นการ์ดด้านล่างจะเปิดไม่ได้
-  if (MOCKUP_BASE === '../') {
-    for (const link of document.querySelectorAll('a[href*=".html"]')) {
-      const href = link.getAttribute('href');
-      if (!href.startsWith('.') && !href.startsWith('mockups/') && !href.startsWith('http')) {
-        link.setAttribute('href', `../${href}`);
-      }
-    }
-  }
 
   /* ---------- บัญชีสาธิต ---------- */
 
@@ -452,7 +452,7 @@
     const button = event.target.closest('[data-user]');
     if (!button) return;
     $('username').value = button.dataset.user;
-    $('password').value = PASSWORD;
+    $('password').value = DEMO_PASSWORD;
     hideError();
     $('loginForm').requestSubmit();
   });
@@ -465,39 +465,53 @@
   }
   const hideError = () => { $('error').hidden = true; };
 
-  $('loginForm').addEventListener('submit', (event) => {
+  const params = new URLSearchParams(location.search);
+  const nextPage = params.get('next');
+
+  $('loginForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     const username = $('username').value.trim().toLowerCase();
     const password = $('password').value;
+    if (!username || !password) return showError('กรอกชื่อผู้ใช้และรหัสผ่าน');
 
-    const account = ACCOUNTS.find((item) => item.username === username);
-
-    // ข้อความเดียวกันทั้งกรณีชื่อผิดและรหัสผิด — ไม่บอกใบ้ว่าชื่อผู้ใช้ไหนมีอยู่จริง
-    if (!account || password !== PASSWORD) {
-      return showError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง — บัญชีสาธิตใช้รหัส demo@1234');
-    }
-
-    hideError();
+    const submit = $('loginForm').querySelector('button[type=submit]');
+    submit.disabled = true;
     try {
-      sessionStorage.setItem('carepath.user', JSON.stringify({
-        username: account.username, name: account.name, role: account.role,
-      }));
-    } catch { /* โหมดส่วนตัวเขียนไม่ได้ ข้ามไป */ }
+      // ตรวจรหัสผ่านที่ API เท่านั้น — หน้าจอไม่มีรายชื่อผู้ใช้หรือรหัสผ่านอยู่เลย
+      const { token, user } = await CarePath.post('/auth/login', { username, password }, { auth: false });
+      CarePath.session.set({ token, user });
+      hideError();
 
-    location.href = resolve(account.go);
+      const home = (HOME_FOR[user.role] ?? (() => 'login.html'))(user);
+      location.href = nextPage && nextPage.startsWith('/') ? nextPage : resolve(home);
+    } catch (error) {
+      showError(error.status === 401
+        ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง — บัญชีสาธิตใช้รหัส demo@1234'
+        : CarePath.message(error));
+    } finally {
+      submit.disabled = false;
+    }
   });
 
   /* ---------- ทางเข้าของผู้ป่วย ---------- */
 
-  $('codeForm').addEventListener('submit', (event) => {
+  $('codeForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     const code = $('code').value.trim().toUpperCase();
 
     if (!/^[A-Z0-9]{4}-?[A-Z0-9]{3}$/.test(code)) {
-      return showError('รหัสบนบัตรคิวเป็นตัวอักษรและตัวเลข 8 ตัว เช่น A017-3K9');
+      return showError('รหัสบนบัตรคิวเป็นตัวอักษรและตัวเลข 7 ตัว เช่น A017-3K9');
     }
-    hideError();
-    location.href = `patient-mobile.html?code=${encodeURIComponent(code)}`;
+    try {
+      // รหัสใต้ QR แลกเป็น token ของบัตรใบนั้นที่ API — หน้าจอไม่ได้เดาเอง
+      const { token } = await CarePath.get(`/p/code/${encodeURIComponent(code)}`, { auth: false });
+      hideError();
+      location.href = `patient-mobile.html?t=${encodeURIComponent(token)}`;
+    } catch (error) {
+      showError(error.status === 404
+        ? `รหัส ${code} ไม่ตรงกับบัตรคิวใบใดของวันนี้`
+        : CarePath.message(error));
+    }
   });
 
   $('scanBtn').addEventListener('click', () => {

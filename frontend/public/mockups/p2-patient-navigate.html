@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mock.css">
+<title>p2 · เส้นทาง (ผู้ป่วย)</title>
+</head>
+<body>
+<p class="caption"><strong>p2 · คำสั่งนำทาง</strong> — ลูกศร ไอคอน ตัวเลข มาก่อนข้อความ · เส้นทางรถเข็นเลี่ยงบันไดแล้ว · สถานการณ์ 2.3 ลิฟต์ B ปิด ระบบอ้อมทางลาด C ให้เอง</p>
+
+<div class="frame frame--phone">
+  <div class="screen">
+    <header class="bar">
+      <a href="p1-patient-steps.html" style="color:#fff;text-decoration:none" aria-label="ย้อนกลับ">←</a>
+      <span class="bar__title">ไปห้องเจาะเลือด 🩸</span>
+      <span class="bar__spacer"></span>
+      <span class="bar__chip">♿</span>
+    </header>
+
+    <div class="pad">
+      <section class="card card--warn" role="status">
+        <p class="eyebrow">🔔 เส้นทางเปลี่ยน</p>
+        <p><strong>ลิฟต์ B ปิดซ่อม</strong> — ระบบเปลี่ยนให้ไปทางลิฟต์/ทางลาดอาคาร C แล้ว ไม่ต้องย้อนกลับ</p>
+      </section>
+
+      <section class="card">
+        <div class="hero">
+          <span class="hero__icon" aria-hidden="true">🚶</span>
+          <div>
+            <p class="hero__name">142 ม. · 4 นาที</p>
+            <p class="hero__where">จากจุดคัดกรอง (A2) ไปห้องเจาะเลือด (B3) · 6 ขั้นตอน</p>
+          </div>
+        </div>
+      </section>
+
+      <ol class="route">
+        <li class="route__item route__item--current">
+          <span class="route__arrow" aria-hidden="true">➡</span>
+          <span>
+            <span class="route__text">ออกจากจุดคัดกรอง เลี้ยวขวา เดิน 25 เมตร</span><br>
+            <span class="route__sub">ถึงหน้าลิฟต์ A · อาคาร A ชั้น 2</span>
+          </span>
+        </li>
+        <li class="route__item">
+          <span class="route__arrow" aria-hidden="true">⬆</span>
+          <span>
+            <span class="route__text">เดินตรงไป 25 เมตร ถึงทางเชื่อม</span><br>
+            <span class="route__sub">ปลายทางเดินชั้น 2</span>
+          </span>
+        </li>
+        <li class="route__item">
+          <span class="route__arrow" aria-hidden="true">🌉</span>
+          <span>
+            <span class="route__text">ผ่านทางเชื่อมไปอาคาร B ชั้น 2</span><br>
+            <span class="route__sub">40 เมตร · พื้นเรียบ ♿ ผ่านได้</span>
+          </span>
+        </li>
+        <li class="route__item">
+          <span class="route__arrow" aria-hidden="true">🌉</span>
+          <span>
+            <span class="route__text">เดินตรงไป 35 เมตร ผ่านทางเชื่อมไปอาคาร C ชั้น 2</span><br>
+            <span class="route__sub">เลี่ยงลิฟต์ B ที่ปิดซ่อม</span>
+          </span>
+        </li>
+        <li class="route__item">
+          <span class="route__arrow" aria-hidden="true">▲</span>
+          <span>
+            <span class="route__text">ขึ้นทางลาด C ไปชั้น 3</span><br>
+            <span class="route__sub">♿ ทางลาด 40 เมตร · ไม่มีบันได</span>
+          </span>
+        </li>
+        <li class="route__item">
+          <span class="route__arrow" aria-hidden="true">⬅</span>
+          <span>
+            <span class="route__text">ข้ามทางเชื่อมกลับอาคาร B เลี้ยวซ้าย เดิน 24 เมตร</span><br>
+            <span class="route__sub">🩸 ห้องเจาะเลือดอยู่ขวามือ ข้างตู้น้ำดื่ม</span>
+          </span>
+        </li>
+      </ol>
+
+      <div class="btn-row">
+        <button class="btn btn--block">🙋 ไม่เจอ / หลงทาง</button>
+      </div>
+      <p class="step__meta">กด "ไม่เจอ" แล้วเลือกจุดสังเกตใกล้ตัว หรือสแกน QR ที่ผนัง ระบบจะคำนวณเส้นทางใหม่จากตรงนั้น</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>CarePath เวชระเบียน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -442,58 +443,13 @@
   <aside class="out" id="out"></aside>
 </div>
 
+<script src="js/api.js"></script>
 <script>
 (() => {
   'use strict';
 
-  /* ---------- ข้อมูลจำลอง (ตรงกับ data/*.csv ของโครงการ) ---------- */
-
-  const PATIENTS = [
-    { hn: '0012345', name: 'สมชาย', lang: 'th', last: '20 มิ.ย. 2569' },
-    { hn: '0012346', name: 'สมหญิง', lang: 'th', last: '14 ส.ค. 2569' },
-    { hn: '0012350', name: 'อนันต์', lang: 'th', last: '2 ก.ย. 2569' },
-    { hn: '0012353', name: 'John', lang: 'en', last: 'ผู้ป่วยใหม่' },
-    { hn: '0012354', name: 'Mei', lang: 'zh', last: '11 ก.ค. 2569' },
-  ];
-
-  const PLACES = {
-    'A1-REG': { icon: '🪪', name: 'เวชระเบียน', at: 'A ชั้น 1' },
-    'A2-SCR': { icon: '🩺', name: 'จุดคัดกรอง', at: 'A ชั้น 2' },
-    'A2-GP': { icon: '👨‍⚕️', name: 'ห้องตรวจทั่วไป', at: 'A ชั้น 2' },
-    'B3-LAB': { icon: '🩸', name: 'ห้องเจาะเลือด', at: 'B ชั้น 3' },
-    'B3-WAIT': { icon: '🪑', name: 'จุดพักคอยรอผล', at: 'B ชั้น 3' },
-    'C4-MED': { icon: '👨‍⚕️', name: 'คลินิกอายุรกรรม', at: 'C ชั้น 4' },
-    'A1-PAY': { icon: '💳', name: 'การเงิน', at: 'A ชั้น 1' },
-    'A1-PHA': { icon: '💊', name: 'ห้องยา', at: 'A ชั้น 1' },
-  };
-
-  const TEMPLATES = {
-    'DM-FU': {
-      name: 'เบาหวานรายเก่า — ตามนัด',
-      note: 'ผู้ป่วยนัดติดตามอาการ มีเจาะเลือดและรอผล',
-      steps: [
-        { n: 1, name: 'ยื่นบัตรและยืนยันการนัด', point: 'A1-REG', min: 5, prereq: '' },
-        { n: 2, name: 'ชั่งน้ำหนัก วัดความดัน', point: 'A2-SCR', min: 10, prereq: '1' },
-        { n: 3, name: 'เจาะเลือด', point: 'B3-LAB', min: 10, prereq: '1', deadline: '11:00',
-          reason: 'ผู้ป่วยงดอาหารมา ต้องเจาะก่อน 11:00' },
-        { n: 4, name: 'รอผลตรวจ', point: 'B3-WAIT', min: 75, prereq: '3' },
-        { n: 5, name: 'พบแพทย์', point: 'C4-MED', min: 15, prereq: '3, 4' },
-        { n: 6, name: 'ชำระเงิน', point: 'A1-PAY', min: 5, prereq: '5' },
-        { n: 7, name: 'รับยา', point: 'A1-PHA', min: 15, prereq: '6' },
-      ],
-    },
-    WALKIN: {
-      name: 'ผู้ป่วยนอกทั่วไป — เดินเข้า',
-      note: 'ไม่ได้นัดมาก่อน ตรวจที่คลินิกทั่วไป',
-      steps: [
-        { n: 1, name: 'ยื่นบัตร', point: 'A1-REG', min: 5, prereq: '' },
-        { n: 2, name: 'คัดกรอง', point: 'A2-SCR', min: 10, prereq: '1' },
-        { n: 3, name: 'พบแพทย์', point: 'A2-GP', min: 15, prereq: '2' },
-        { n: 4, name: 'ชำระเงิน', point: 'A1-PAY', min: 5, prereq: '3' },
-        { n: 5, name: 'รับยา', point: 'A1-PHA', min: 15, prereq: '4' },
-      ],
-    },
-  };
+  const user = CarePath.requireRole('registrar', 'admin');
+  if (!user) return;
 
   const PROFILE_FLAGS = [
     { key: 'wheelchair', icon: '♿', label: 'ใช้รถเข็น', effect: 'ตัดบันไดออกจากทุกเส้นทาง' },
@@ -504,59 +460,89 @@
 
   const LANG_LABEL = { th: 'ไทย', en: 'English', zh: '中文', my: 'မြန်မာ', ru: 'Русский' };
 
-  /* ---------- สถานะของหน้าจอ ---------- */
-
   const state = {
-    patient: PATIENTS[0],
-    template: 'DM-FU',
+    patients: [],
+    templates: [],
+    patient: null,
+    template: null,
     profile: { wheelchair: true, elderly: true },
     lang: 'th',
     hasPhone: true,
     noticeGiven: false,
-    visit: null,
-    patientUrl: 'https://claude.ai/code/artifact/d8fd0557-d4e7-4dc4-be5b-312abfe7e8bf',
+    visit: null,          // คำตอบทั้งก้อนจาก POST /api/visits
+    patientUrl: `${location.origin}/patient-mobile.html`,
   };
 
-  const STAFF = 'reg1';
-
   const $ = (id) => document.getElementById(id);
-  const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const esc = (v) => String(v ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const templateOf = (code) => state.templates.find((item) => item.code === code) ?? null;
+
+  document.querySelector('.topbar b').textContent = 'เวชระเบียน';
+  document.querySelectorAll('.topbar span')[2].textContent = user.display_name;
+
+  const tickClock = () => {
+    const now = new Date();
+    $('clock').textContent = `${now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} · `
+      + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  };
+  tickClock();
+  setInterval(tickClock, 20000);
+
+  /* ---------- โหลดข้อมูลจาก API ---------- */
+
+  async function loadTemplates() {
+    const { templates } = await CarePath.get('/templates');
+    state.templates = templates;
+    state.template = templates[0]?.code ?? null;
+    renderTemplates();
+  }
+
+  let searchTimer = null;
+  async function loadPatients() {
+    const { patients } = await CarePath.get(`/patients?q=${encodeURIComponent($('search').value.trim())}`);
+    state.patients = patients;
+    if (!state.patients.some((item) => item.hn === state.patient?.hn)) {
+      state.patient = state.patients[0] ?? null;
+      if (state.patient) {
+        state.lang = state.patient.preferred_lang ?? 'th';
+        $('lang').value = state.lang;
+      }
+    }
+    renderPatients();
+    renderSummary();
+  }
 
   /* ---------- วาดฟอร์ม ---------- */
 
   function renderPatients() {
-    const query = $('search').value.trim().toLowerCase();
-    const matches = PATIENTS.filter(
-      (p) => !query || p.hn.includes(query) || p.name.toLowerCase().includes(query),
-    );
-
-    $('patients').innerHTML = matches.length === 0
+    $('patients').innerHTML = state.patients.length === 0
       ? `<tr><td colspan="4" class="note" style="padding:14px 11px">ไม่พบผู้ป่วยที่ตรงกับคำค้น — กด "ผู้ป่วยใหม่" เพื่อเปิดประวัติ</td></tr>`
-      : matches.map((p) => `
-          <tr data-hn="${p.hn}" aria-selected="${p.hn === state.patient.hn}">
+      : state.patients.map((p) => `
+          <tr data-hn="${esc(p.hn)}" aria-selected="${p.hn === state.patient?.hn}">
             <td class="mono">${esc(p.hn)}</td>
-            <td><b>${esc(p.name)}</b></td>
-            <td>${esc(LANG_LABEL[p.lang])}</td>
-            <td class="note">${esc(p.last)}</td>
+            <td><b>${esc(p.display_name)}</b></td>
+            <td>${esc(LANG_LABEL[p.preferred_lang] ?? p.preferred_lang)}</td>
+            <td class="note">${p.last_visit ? esc(new Date(p.last_visit).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })) : 'ยังไม่เคยมา'}</td>
           </tr>`).join('');
 
     $('stage1').classList.toggle('stage--done', Boolean(state.patient));
   }
 
   function renderTemplates() {
-    $('templates').innerHTML = Object.entries(TEMPLATES).map(([code, tpl]) => `
-      <button class="toggle${code === state.template ? ' toggle--on' : ''}" data-template="${code}"
-              aria-pressed="${code === state.template}">
-        <span aria-hidden="true">${code === state.template ? '✅' : '⬜'}</span>
-        <span style="flex:1">${esc(tpl.name)}
-          <span class="sub">${tpl.steps.length} ขั้น · ${esc(tpl.note)}</span></span>
+    $('templates').innerHTML = state.templates.map((template) => `
+      <button class="toggle${template.code === state.template ? ' toggle--on' : ''}" data-template="${esc(template.code)}"
+              aria-pressed="${template.code === state.template}">
+        <span aria-hidden="true">${template.code === state.template ? '✅' : '⬜'}</span>
+        <span style="flex:1">${esc(template.name_th)}
+          <span class="sub">${template.steps.length} ขั้น · ${esc(template.name_en)}</span></span>
       </button>`).join('');
 
-    const timed = TEMPLATES[state.template].steps.find((s) => s.deadline);
+    const timed = templateOf(state.template)?.steps.find((step) => step.deadline_time);
     $('deadlineWarn').hidden = !timed;
     if (timed) {
       $('deadlineText').textContent =
-        `ขั้น "${timed.name}" ต้องเสร็จก่อน ${timed.deadline} — ${timed.reason} ถ้าเปิด visit สายกว่านี้ ระบบจะจัดให้ผู้ป่วยไปขั้นนี้ก่อนขั้นอื่นเอง`;
+        `ขั้น "${timed.name_th}" ต้องเสร็จก่อน ${timed.deadline_time} — ${timed.deadline_reason_th ?? ''} `
+        + 'ถ้าเปิด visit สายกว่านี้ ระบบจะจัดให้ผู้ป่วยไปขั้นนี้ก่อนขั้นอื่นเอง';
     }
     $('stage2').classList.add('stage--done');
   }
@@ -580,53 +566,46 @@
     $('stage3').classList.add('stage--done');
   }
 
-  function renderSummary() {
-    const flags = PROFILE_FLAGS.filter((f) => state.profile[f.key]).map((f) => f.icon + ' ' + f.label);
-    $('summary').textContent =
-      `กำลังจะเปิด: ${state.patient.name} · ${TEMPLATES[state.template].name} · `
-      + `${flags.length ? flags.join(' · ') : 'ไม่มีความต้องการพิเศษ'} · ภาษา ${LANG_LABEL[state.lang]}`
-      + ` · ${state.hasPhone ? 'มีมือถือ' : 'ไม่มีมือถือ'}`
-      + (state.noticeGiven ? ' · แจ้งความเป็นส่วนตัวแล้ว' : ' · ยังไม่ได้แจ้งความเป็นส่วนตัว');
+  function renderSummary(message) {
+    if (message) return void ($('summary').textContent = message);
+    const flags = PROFILE_FLAGS.filter((flag) => state.profile[flag.key]).map((flag) => `${flag.icon} ${flag.label}`);
+    $('summary').textContent = state.patient
+      ? `กำลังจะเปิด: ${state.patient.display_name} · ${templateOf(state.template)?.name_th ?? '—'} · `
+        + `${flags.length ? flags.join(' · ') : 'ไม่มีความต้องการพิเศษ'} · ภาษา ${LANG_LABEL[state.lang] ?? state.lang}`
+        + ` · ${state.hasPhone ? 'มีมือถือ' : 'ไม่มีมือถือ'}`
+        + (state.noticeGiven ? ' · แจ้งความเป็นส่วนตัวแล้ว' : ' · ยังไม่ได้แจ้งความเป็นส่วนตัว')
+      : 'เลือกผู้ป่วยก่อน';
   }
 
-  /* ---------- เปิด visit: สิ่งที่ระบบสร้างขึ้นจริง ---------- */
+  /* ---------- เปิด visit จริงที่ API ---------- */
 
-  const READABLE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const pick = (n) => Array.from({ length: n }, () => READABLE[Math.floor(Math.random() * READABLE.length)]).join('');
-  const hex = (n) => Array.from({ length: n }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+  async function openVisit() {
+    if (!state.patient || !state.template) return renderSummary('เลือกผู้ป่วยและแม่แบบก่อน');
 
-  let ticketSeq = 17;
-
-  function openVisit() {
-    const template = TEMPLATES[state.template];
-    const ticketNo = `A-${String(ticketSeq++).padStart(3, '0')}`;
-    const steps = template.steps.map((step) => ({ ...step }));
-
-    // ขั้นที่มีกำหนดเวลาและเวลาเหลือไม่พอ ถูกยกขึ้นมาก่อน — กฎเดียวกับที่ backend ใช้
-    const urgent = steps.find((step) => step.deadline);
-    const reordered = urgent && isLate()
-      ? [steps[0], urgent, ...steps.filter((s) => s !== steps[0] && s !== urgent)]
-      : steps;
-
-    state.visit = {
-      id: 40 + ticketSeq,
-      ticketNo,
-      token: hex(32),
-      shortCode: `${ticketNo.replace('-', '')}-${pick(3)}`,
-      steps: reordered,
-      reordered: reordered !== steps,
-      openedAt: new Date(),
-    };
-    renderOutput();
-    $('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('openVisit').disabled = true;
+    try {
+      // หนึ่งคำขอ = หนึ่งทรานแซกชันที่ API — visits, visit_steps, prereqs และ audit ลงพร้อมกัน
+      state.visit = await CarePath.post('/visits', {
+        hn: state.patient.hn,
+        template: state.template,
+        profile: state.profile,
+        lang: state.lang,
+        has_phone: state.hasPhone,
+        privacy_notice_given: state.noticeGiven,
+        start_node: 'A1-REG',
+      });
+      renderOutput();
+      $('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (error) {
+      renderSummary(`เปิด visit ไม่สำเร็จ: ${CarePath.message(error)}`);
+    } finally {
+      $('openVisit').disabled = false;
+    }
   }
-
-  // เดโม: ถือว่าหลัง 10:20 คือ "สาย" สำหรับกำหนด 11:00
-  const isLate = () => true;
 
   function renderOutput() {
-    const visit = state.visit;
-    if (!visit) {
+    const data = state.visit;
+    if (!data) {
       $('out').innerHTML = `
         <div class="empty">
           <span class="big" aria-hidden="true">🎫</span>
@@ -636,43 +615,48 @@
       return;
     }
 
-    const flags = PROFILE_FLAGS.filter((f) => state.profile[f.key]);
-    const totalMin = visit.steps.reduce((sum, s) => sum + s.min, 0);
+    const visit = data.visit;
+    const steps = data.steps;
+    const openedAt = new Date(visit.checked_in_at);
+    const flags = PROFILE_FLAGS.filter((flag) => visit.profile?.[flag.key]);
+    const totalMin = steps.reduce((sum, step) => sum + step.est_minutes, 0);
+    const nextStep = steps.find((step) => step.id === data.next_step_id);
+    const reordered = nextStep && nextStep.sequence !== Math.min(...steps.map((step) => step.sequence));
 
     $('out').innerHTML = `
       <div class="ticket" id="ticket">
         <div class="ticket__top">
           <p class="ticket__hospital">โรงพยาบาลวชิระภูเก็ต · บัตรคิววันนี้</p>
-          <p class="ticket__no">${esc(visit.ticketNo)}</p>
-          <p class="ticket__name">${esc(state.patient.name)} · ${esc(TEMPLATES[state.template].name)}</p>
-          <p class="ticket__hint">${visit.openedAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} · เปิดบัตร ${visit.openedAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</p>
+          <p class="ticket__no">${esc(visit.ticket_no)}</p>
+          <p class="ticket__name">${esc(visit.patient_name)} · ${esc(visit.template.name_th)}</p>
+          <p class="ticket__hint">${openedAt.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })} · เปิดบัตร ${openedAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}</p>
         </div>
 
         <div class="ticket__qr">
           <div id="qr" role="img" aria-label="คิวอาร์โค้ดสำหรับเปิดหน้าติดตามขั้นตอน"></div>
           <div>
             <p class="ticket__hint">สแกนเพื่อดูขั้นตอนและเส้นทาง<br>หรือพิมพ์รหัสนี้ที่หน้าเว็บโรงพยาบาล</p>
-            <p class="ticket__code">${esc(visit.shortCode)}</p>
-            <p class="ticket__hint">${flags.map((f) => f.icon).join(' ')} ${esc(LANG_LABEL[state.lang])}</p>
+            <p class="ticket__code">${esc(visit.short_code)}</p>
+            <p class="ticket__hint">${flags.map((flag) => flag.icon).join(' ')} ${esc(LANG_LABEL[visit.lang] ?? visit.lang)}</p>
           </div>
         </div>
 
         <div class="ticket__steps">
           <table>
             <tbody>
-              ${visit.steps.map((step, i) => `
+              ${steps.map((step, index) => `
                 <tr>
-                  <td>${i + 1}</td>
-                  <td>${PLACES[step.point].icon} ${esc(step.name)}<br>
-                      <span style="font-size:.86em;color:#7c9099">${esc(PLACES[step.point].name)} · อาคาร ${esc(PLACES[step.point].at)}</span></td>
-                  <td>${step.deadline ? 'ก่อน ' + esc(step.deadline) : esc(step.min) + ' น.'}</td>
+                  <td>${index + 1}</td>
+                  <td>${esc(step.point.icon ?? '📍')} ${esc(step.name_th)}<br>
+                      <span style="font-size:.86em;color:#7c9099">${esc(step.point.name_th)} · อาคาร ${esc(step.point.building)} ชั้น ${esc(step.point.floor)}</span></td>
+                  <td>${step.deadline_time ? 'ก่อน ' + esc(step.deadline_time) : esc(step.est_minutes) + ' น.'}</td>
                 </tr>`).join('')}
             </tbody>
           </table>
         </div>
 
         <div class="ticket__foot">
-          ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว <b>${esc(visit.ticketNo)}</b><br>
+          ถ้าหลง ถามเจ้าหน้าที่จุดใดก็ได้ แจ้งเลขคิว <b>${esc(visit.ticket_no)}</b><br>
           บัตรนี้ใช้ได้ถึงสิ้นวัน · ไม่มีเลขประจำตัวผู้ป่วยบนบัตร
         </div>
       </div>
@@ -687,28 +671,25 @@
         <p style="font-weight:700;margin-bottom:4px">ผู้ป่วยเข้าหน้าตัวเองได้ 3 ทาง</p>
         <ol style="margin:8px 0 0;padding-inline-start:20px;display:flex;flex-direction:column;gap:5px">
           <li class="note" style="color:var(--ink-2)"><b>สแกน QR บนบัตรคิว</b> — ทางปกติ ไม่ต้องพิมพ์อะไร</li>
-          <li class="note" style="color:var(--ink-2)"><b>พิมพ์รหัส ${esc(visit.shortCode)}</b> ที่หน้าแรกของระบบ — สำหรับคนที่กล้องเสียหรือบัตรเปียก</li>
-          <li class="note" style="color:var(--ink-2)"><b>เจ้าหน้าที่เปิดให้จากหลังบ้าน</b> — ปุ่ม "เปิดหน้าผู้ป่วย" ด้านบน ใช้ตอนผู้ป่วยไม่มีมือถือ
-            แล้วเจ้าหน้าที่ต้องช่วยดูเส้นทางให้</li>
+          <li class="note" style="color:var(--ink-2)"><b>พิมพ์รหัส ${esc(visit.short_code)}</b> ที่หน้าแรกของระบบ — สำหรับคนที่กล้องเสียหรือบัตรเปียก</li>
+          <li class="note" style="color:var(--ink-2)"><b>เจ้าหน้าที่เปิดให้จากหลังบ้าน</b> — ปุ่ม "เปิดหน้าผู้ป่วย" ด้านบน ใช้ตอนผู้ป่วยไม่มีมือถือ</li>
         </ol>
-        <p class="note" style="margin-top:9px">ทางที่สามถูกบันทึกลง <code style="font-family:'IBM Plex Mono',monospace">audit_logs</code>
-          ว่าใครเปิดดูของใครเมื่อไร เพราะเป็นการเข้าถึงข้อมูลผู้ป่วยโดยเจ้าหน้าที่ ไม่ใช่ตัวผู้ป่วยเอง</p>
+        <p class="note" style="margin-top:9px">การเปิดโดยเจ้าหน้าที่ถูกบันทึกลง <code style="font-family:'IBM Plex Mono',monospace">audit_logs</code> ว่าใครเปิดดูของใครเมื่อไร</p>
       </section>
 
       <section class="no-print" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:15px;box-shadow:var(--shadow-1)">
         <p style="font-weight:700;margin-bottom:4px">ระบบสร้างอะไรให้บ้าง</p>
-        <p class="note" style="margin-bottom:11px">ทั้งหมดนี้เกิดในทรานแซกชันเดียว — ถ้าขั้นใดล้มเหลว จะไม่มีอะไรถูกบันทึกเลย</p>
+        <p class="note" style="margin-bottom:11px">ทั้งหมดนี้เกิดในทรานแซกชันเดียวที่ API — ถ้าขั้นใดล้มเหลว จะไม่มีอะไรถูกบันทึกเลย</p>
         <div class="made">
-          ${madeRow('visits', '1 แถว', `token ${visit.token.slice(0, 12)}… · หมดอายุสิ้นวัน`)}
-          ${madeRow('visit_steps', `${visit.steps.length} แถว`, 'คัดลอกจากแม่แบบ แก้แม่แบบทีหลังไม่กระทบผู้ป่วยรายนี้')}
-          ${madeRow('visit_step_prereqs', `${visit.steps.filter((s) => s.prereq).length} แถว`, 'เงื่อนไขว่าขั้นไหนต้องทำหลังขั้นไหน')}
-          ${madeRow('audit_logs', '1 แถว', 'ใครเปิด visit เมื่อไหร่ · เวลาเซิร์ฟเวอร์ แก้ไม่ได้')}
+          ${madeRow('visits', '1 แถว', `token ${esc(visit.token.slice(0, 12))}… · หมดอายุสิ้นวัน`)}
+          ${madeRow('visit_steps', `${steps.length} แถว`, 'คัดลอกจากแม่แบบ แก้แม่แบบทีหลังไม่กระทบผู้ป่วยรายนี้')}
+          ${madeRow('visit_step_prereqs', `${steps.reduce((sum, step) => sum + step.requires.length, 0)} แถว`, 'เงื่อนไขว่าขั้นไหนต้องทำหลังขั้นไหน')}
+          ${madeRow('audit_logs', state.noticeGiven ? '2 แถว' : '1 แถว', 'ใครเปิด visit เมื่อไหร่ · เวลาเซิร์ฟเวอร์ แก้ไม่ได้')}
           ${madeRow('notifications', '0 แถว', 'จะเริ่มมีเมื่อเส้นทางเปลี่ยนหรือมีขั้นแทรก')}
-          ${madeRow('audit_logs', state.noticeGiven ? '+1 แถว' : '—',
-            state.noticeGiven ? 'บันทึกว่าแจ้งความเป็นส่วนตัวกับผู้ป่วยแล้ว' : 'ยังไม่ได้ติ๊กว่าแจ้งความเป็นส่วนตัว')}
         </div>
-        <p class="note" style="margin-top:11px">รวมเวลาที่คาดว่าจะใช้ทั้งวัน ~${totalMin} นาที · ผู้ป่วยเห็นขั้นถัดไปทันทีที่สแกน</p>
-        ${visit.reordered ? `
+        <p class="note" style="margin-top:11px">รวมเวลาที่คาดว่าจะใช้ทั้งวัน ~${totalMin} นาที · ขั้นแรกที่ระบบเลือกให้คือ
+          <b>${esc(nextStep?.name_th ?? '—')}</b>${data.route ? ` · เดิน ${esc(data.route.distance_m)} เมตร` : ''}</p>
+        ${reordered ? `
           <div class="warnbox" style="margin-top:11px">
             <span aria-hidden="true">⏰</span>
             <span><b>ระบบสลับลำดับให้แล้ว</b>
@@ -726,10 +707,9 @@
 
     drawQr();
     $('printBtn').addEventListener('click', () => window.print());
-
-    // เปิดหน้าผู้ป่วยแทนการสแกน QR — ใช้ตอนผู้ป่วยไม่มีมือถือ
     $('openPatientBtn').addEventListener('click', () => {
-      window.open(`patient-mobile.html?code=${encodeURIComponent(visit.shortCode)}&by=${encodeURIComponent(STAFF)}`, '_blank', 'noopener');
+      window.open(`patient-mobile.html?t=${encodeURIComponent(visit.token)}&by=${encodeURIComponent(user.username)}`,
+        '_blank', 'noopener');
     });
     $('againBtn').addEventListener('click', () => {
       state.visit = null;
@@ -746,15 +726,16 @@
   const madeRow = (table, count, detail) => `
     <div class="made__row">
       <code>${esc(table)}</code>
-      <small>${esc(detail)}</small>
+      <small>${detail}</small>
       <span class="made__count">${esc(count)}</span>
     </div>`;
 
   /** QR จริงที่สแกนได้ · ถ้าโหลดไลบรารีไม่ได้ ยังมีรหัส 8 ตัวใต้ QR ให้พิมพ์แทน */
   function drawQr() {
     const box = $('qr');
-    if (!box) return;
-    const url = `${state.patientUrl}${state.patientUrl.includes('?') ? '&' : '?'}t=${state.visit.token}`;
+    if (!box || !state.visit) return;
+    const base = state.patientUrl;
+    const url = `${base}${base.includes('?') ? '&' : '?'}t=${state.visit.visit.token}`;
 
     if (typeof qrcode !== 'function') {
       box.innerHTML = '<p class="ticket__hint" style="width:108px">สแกนไม่ได้ตอนนี้<br>ใช้รหัสด้านขวาแทน</p>';
@@ -769,26 +750,34 @@
 
   /* ---------- การกระทำ ---------- */
 
-  $('search').addEventListener('input', renderPatients);
+  $('search').addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadPatients, 200);
+  });
 
   $('patients').addEventListener('click', (event) => {
     const row = event.target.closest('tr[data-hn]');
     if (!row) return;
-    state.patient = PATIENTS.find((p) => p.hn === row.dataset.hn);
-    state.lang = state.patient.lang;
+    state.patient = state.patients.find((item) => item.hn === row.dataset.hn);
+    state.lang = state.patient.preferred_lang ?? 'th';
     $('lang').value = state.lang;
     renderPatients();
     renderSummary();
   });
 
-  $('newPatient').addEventListener('click', () => {
-    const hn = String(12355 + PATIENTS.length).padStart(7, '0');
-    const patient = { hn, name: 'ผู้ป่วยใหม่', lang: 'th', last: 'เปิดประวัติวันนี้' };
-    PATIENTS.unshift(patient);
-    state.patient = patient;
-    $('search').value = '';
-    renderPatients();
-    renderSummary();
+  $('newPatient').addEventListener('click', async () => {
+    const name = prompt('ชื่อเรียกของผู้ป่วยใหม่');
+    if (!name) return;
+    try {
+      const { patient } = await CarePath.post('/patients', { display_name: name, preferred_lang: state.lang });
+      $('search').value = patient.hn;
+      await loadPatients();
+      state.patient = state.patients.find((item) => item.hn === patient.hn) ?? patient;
+      renderPatients();
+      renderSummary();
+    } catch (error) {
+      renderSummary(`เปิดประวัติไม่สำเร็จ: ${CarePath.message(error)}`);
+    }
   });
 
   $('templates').addEventListener('click', (event) => {
@@ -802,8 +791,7 @@
   $('profile').addEventListener('click', (event) => {
     const button = event.target.closest('[data-flag]');
     if (!button) return;
-    const key = button.dataset.flag;
-    state.profile[key] = !state.profile[key];
+    state.profile[button.dataset.flag] = !state.profile[button.dataset.flag];
     renderProfile();
     renderSummary();
   });
@@ -827,16 +815,12 @@
   });
 
   $('openVisit').addEventListener('click', openVisit);
+  $('signout').addEventListener('click', () => CarePath.signOut());
 
-  $('signout').addEventListener('click', () => {
-    try { sessionStorage.removeItem('carepath.user'); } catch { /* โหมดส่วนตัว */ }
-    location.href = 'login.html';
-  });
-
-  renderPatients();
-  renderTemplates();
   renderProfile();
-  renderSummary();
   renderOutput();
+  Promise.all([loadTemplates(), loadPatients()]).catch((error) => {
+    renderSummary(`โหลดข้อมูลไม่สำเร็จ: ${CarePath.message(error)}`);
+  });
 })();
 </script>

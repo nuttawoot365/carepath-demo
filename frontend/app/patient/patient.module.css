@@ -1,0 +1,414 @@
+/**
+ * สไตล์เฉพาะหน้าผู้ป่วย — จอมือถือแนวตั้ง แถบบน-ล่างติดหนึบ และแผ่นเลื่อนขึ้น
+ * โทเคนสีและคลาสกลางอยู่ที่ app/globals.css
+ */
+
+/* ---------- โครงหน้าจอ ---------- */
+
+.phone {
+  max-width: 460px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--ground);
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bar-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.ticket { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.ticket b {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.22em;
+  letter-spacing: .04em;
+}
+.ticket span {
+  font-size: .78em;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbarTools { margin-inline-start: auto; display: flex; gap: 6px; flex: none; }
+
+.chip {
+  min-height: 38px;
+  min-width: 44px;
+  padding: 4px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: .82em;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-ink);
+}
+
+.scroll {
+  flex: 1;
+  padding: 14px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.actionbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  background: var(--bar-bg);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- ส่วนประกอบ ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 15px;
+  box-shadow: var(--shadow-1);
+}
+
+.eyebrow {
+  font-size: .76em;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.alert {
+  display: flex;
+  gap: 11px;
+  padding: 13px 15px;
+  border-radius: var(--r);
+  border: 1px solid;
+  align-items: flex-start;
+}
+.alertIcon { font-size: 1.3em; line-height: 1.2; flex: none; }
+.alertAmber { background: var(--amber-soft); border-color: var(--amber); }
+.alertWarn { background: var(--warn-soft); border-color: var(--warn); }
+.alert b { display: block; color: var(--ink); }
+.alert p { font-size: .92em; color: var(--ink-2); }
+
+.hero {
+  background: var(--surface);
+  border: 2px solid var(--primary);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-2);
+}
+.heroRow { display: flex; align-items: center; gap: 15px; }
+.heroIcon {
+  width: calc(60px * var(--step));
+  height: calc(60px * var(--step));
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 18px;
+  background: var(--primary-soft);
+  font-size: 1.9em;
+}
+.heroName { font-size: 1.45em; font-weight: 800; line-height: 1.25; text-wrap: balance; }
+.heroAt { color: var(--ink-2); font-size: .92em; }
+.heroWalk {
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-strong);
+  display: flex;
+  gap: 18px;
+}
+.metric { display: flex; flex-direction: column; line-height: 1.15; }
+.metric b { font-family: 'IBM Plex Mono', monospace; font-size: 1.22em; font-variant-numeric: tabular-nums; }
+.metric span { font-size: .76em; color: var(--ink-3); }
+
+
+
+/* ---------- ภาพรวมเส้นทางทั้งวัน ---------- */
+
+.overview { display: flex; flex-direction: column; gap: 10px; }
+.overview svg { display: block; width: 100%; height: auto; overflow: visible; }
+.overviewFacts { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82em; color: var(--ink-2); }
+.ovFloor { stroke: var(--line); stroke-width: 1; }
+.ovFloorLabel { fill: var(--ink-3); font-size: 9px; font-weight: 700; }
+.ovBuilding { fill: var(--ink-3); font-size: 9px; font-weight: 700; letter-spacing: .08em; }
+.ovSplit { stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 3 4; }
+.ovLine { fill: none; stroke: var(--primary); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ovLineDone { stroke: var(--success); }
+.ovNode { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; }
+.ovNodeDone { fill: var(--success); stroke: var(--success); }
+.ovNodeNow { fill: var(--primary); stroke: var(--primary); }
+.ovIcon { font-size: 11px; }
+
+/* ---------- รายการขั้นตอน ---------- */
+
+.progress { display: flex; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+.progress b { font-size: 1.05em; }
+.progress span { color: var(--ink-3); font-size: .85em; margin-inline-start: auto; }
+
+.rail { display: flex; gap: 4px; }
+.rail i { height: 5px; flex: 1; border-radius: 3px; background: var(--line); }
+.rail i[data-on="done"] { background: var(--success); }
+.rail i[data-on="now"] { background: var(--primary); }
+
+.steps { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+.step {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+}
+.stepDone { background: var(--success-soft); border-color: transparent; }
+.stepDone .stepName { color: var(--ink-2); text-decoration: line-through; text-decoration-color: var(--ink-3); }
+.stepNow { background: var(--surface); border: 2px solid var(--primary); }
+.stepNo {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--line);
+  color: var(--ink-2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .8em;
+  font-weight: 700;
+}
+.stepDone .stepNo { background: var(--success); color: #fff; }
+.stepNow .stepNo { background: var(--primary); color: #fff; }
+.stepIcon { font-size: 1.25em; }
+.stepName { font-weight: 600; line-height: 1.35; }
+.stepWhere { font-size: .78em; color: var(--ink-3); }
+
+/* ---------- เส้นทาง ---------- */
+
+.routehead {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  border-radius: var(--r);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary);
+}
+
+.route { display: flex; flex-direction: column; gap: 9px; }
+.leg {
+  display: grid;
+  grid-template-columns: calc(48px * var(--step)) 1fr;
+  align-items: center;
+  gap: 13px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+}
+.legCurrent { border: 2px solid var(--primary); box-shadow: var(--shadow-2); }
+.legPast { opacity: .5; }
+.legArrow { font-size: 1.9em; text-align: center; line-height: 1; }
+.legText { font-weight: 700; line-height: 1.4; text-wrap: balance; }
+.legSub { display: block; font-size: .84em; color: var(--ink-2); margin-top: 2px; }
+.legDist {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .76em;
+  color: var(--ink-3);
+  margin-top: 4px;
+}
+
+.solo { text-align: center; padding: 26px 18px; }
+.solo .legArrow { font-size: 3.4em; margin-bottom: 6px; }
+.solo .legText { font-size: 1.3em; }
+.soloCount { font-family: 'IBM Plex Mono', monospace; font-size: .8em; color: var(--ink-3); letter-spacing: .06em; }
+
+/* ---------- แผ่นเลื่อนขึ้น ---------- */
+
+.sheetDialog {
+  width: min(460px, 100%);
+  margin: auto auto 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-2);
+}
+.sheetDialog::backdrop { background: rgba(6, 18, 23, .55); }
+.sheet {
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 82dvh;
+  overflow-y: auto;
+}
+.sheetGrip { width: 42px; height: 4px; border-radius: 3px; background: var(--line-strong); margin: 0 auto 2px; flex: none; }
+.sheet h2 { font-size: 1.1em; }
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  text-align: start;
+  cursor: pointer;
+}
+.pickOn { border-color: var(--primary); background: var(--primary-soft); }
+.pick b { font-weight: 600; }
+.pick span { display: block; font-size: .78em; color: var(--ink-3); }
+.pickIcon { font-size: 1.3em; flex: none; }
+.pickTick { margin-inline-start: auto; color: var(--primary); font-weight: 700; }
+
+/* ---------- แผงเดโม ---------- */
+
+.demoOpen {
+  position: fixed;
+  inset-block-end: calc(76px + env(safe-area-inset-bottom));
+  inset-inline-end: max(14px, calc(50% - 216px));
+  z-index: 30;
+  min-height: 46px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  font-size: .85em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.demoNote { font-size: .8em; color: var(--ink-3); line-height: 1.6; }
+
+.toast {
+  position: fixed;
+  inset-block-start: 68px;
+  inset-inline: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.toast div {
+  max-width: 92%;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--ground);
+  font-size: .86em;
+  font-weight: 600;
+  box-shadow: var(--shadow-2);
+  animation: rise .28s ease;
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(-8px); } }
+
+.fade { animation: fade .22s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+
+
+
+
+/* ---------- รูปของจุดหมาย ---------- */
+
+.photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  background: var(--raised);
+}
+
+.photoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--raised);
+  cursor: pointer;
+  text-align: start;
+}
+.photoRow img {
+  width: 58px; height: 44px; flex: none;
+  object-fit: cover;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+}
+.photoRow b { font-weight: 700; font-size: .9em; }
+.photoRow small { display: block; font-size: .76em; color: var(--ink-3); }
+
+.photoLeg {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 8px; padding: 5px 10px 5px 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--raised);
+  font-size: .78em; font-weight: 700;
+  cursor: pointer;
+}
+.photoLeg img { width: 30px; height: 24px; object-fit: cover; border-radius: 5px; }
+
+.gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gallery button {
+  padding: 0; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: var(--raised); text-align: start;
+}
+.gallery img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.gallery b { display: block; padding: 7px 9px 2px; font-size: .84em; line-height: 1.35; }
+.gallery small { display: block; padding: 0 9px 8px; font-size: .74em; color: var(--ink-3); }
+.gallery .dot { color: var(--success); }
+
+.groupLabel {
+  margin-top: 4px;
+  font-size: .78em; font-weight: 700; letter-spacing: .06em;
+  color: var(--ink-3); text-transform: uppercase;
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: .76em; font-weight: 700;
+}
+.badgeSample { background: var(--amber-soft); color: var(--amber); }
+.badgeReal { background: var(--success-soft); color: var(--success); }
+
+.doneScreen { text-align: center; padding: 34px 18px; }
+.doneScreen .heroIcon { margin: 0 auto 14px; background: var(--success-soft); }
+/* ปุ่มของหน้านี้โตตามตัวคูณ --step เพื่อให้ยังกดง่ายเมื่อเปิดโหมดตัวใหญ่ */
+.phone :global(.btn) { min-height: calc(var(--tap) * var(--step)); }
+.phone :global(.btn--lg) { min-height: calc(56px * var(--step)); }
